@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/bottom_bar_navigation.dart';
+import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 
 import '../models/playlist_model.dart';
@@ -13,29 +15,45 @@ class HomeScreen extends StatelessWidget {
     List<Song> songs = Song.songs;
     List<Playlist> playlists = Playlist.playlists;
 
-    return Container(
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-            Colors.blue.shade800.withOpacity(1),
-            Colors.amber.shade400.withOpacity(1),
-          ])),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: const _CustomAppBar(),
-        drawer: const _CustonDrawer(),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const _ProximosCursos(),
-              _Discover(songs: songs),
-              _PlaylistMusic(playlists: playlists),
-            ],
-          ),
-        ),
-      ),
+    return StreamBuilder(
+      stream: AuthService().userStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('loading');
+        } else if (snapshot.hasError) {
+          return const Center(
+            child: Text('error'),
+          );
+        } else if (snapshot.hasData) {
+          return Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.blue.shade800.withOpacity(1),
+                      Colors.amber.shade400.withOpacity(1),
+                    ])),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: const _CustomAppBar(),
+              bottomNavigationBar: NavBar(indexNum: 0),
+              drawer: const _CustonDrawer(),
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const _ProximosCursos(),
+                    _Discover(songs: songs),
+                    _PlaylistMusic(playlists: playlists),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          return const LoginScreen();
+        }
+      },
     );
   }
 }

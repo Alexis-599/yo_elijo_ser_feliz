@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -17,6 +18,7 @@ class InfoScreen extends StatelessWidget {
         child: SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
+            bottomNavigationBar: NavBar(indexNum: 2),
             body: SingleChildScrollView(
               child: Column(
                 children: [

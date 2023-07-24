@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 
 import '../models/playlist_model.dart';
 import '../widgets/playlist_card.dart';
@@ -22,6 +23,7 @@ class AllPlaylists extends StatelessWidget {
         child: SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
+            bottomNavigationBar: NavBar(indexNum: 1),
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
