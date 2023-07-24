@@ -52,7 +52,6 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders = [applicationName: "com.alexis599apps.podcasts_ruben"]
     }
 
     buildTypes {
