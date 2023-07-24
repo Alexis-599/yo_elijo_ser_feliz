@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "673696485534",
+    "project_id": "podcasts-yo-elijo-ser-feliz",
+    "storage_bucket": "podcasts-yo-elijo-ser-feliz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673696485534:android:1ac31e3fe729e9aea1ab8f",
+        "android_client_info": {
+          "package_name": "com.alexis599apps.podcasts_ruben"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673696485534-rlb7j8ttq8ar7cd8boostbvc1gg5tvg1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673696485534-rlb7j8ttq8ar7cd8boostbvc1gg5tvg1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "673696485534-vuc42s3lj34rn0bcp8qqa8urpurnv1nk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.podcastsRuben"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
