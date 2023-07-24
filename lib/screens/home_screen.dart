@@ -25,16 +25,7 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: const _CustomAppBar(),
-        drawer: Drawer(
-          child: ElevatedButton(
-            child: const Text('signout'),
-            onPressed: () async {
-              await AuthService().signOut();
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/', (route) => false);
-            },
-          )
-        ),
+        drawer: const _CustonDrawer(),
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -45,6 +36,26 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CustonDrawer extends StatelessWidget {
+  const _CustonDrawer({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ElevatedButton(
+        child: const Text('signout'),
+        onPressed: () async {
+          await AuthService().signOut();
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil('/', (route) => false);
+        },
+      )
     );
   }
 }
