@@ -85,47 +85,57 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 10),
 
               /// or continue with
-              Row(
-                children: const [
-                  Expanded(
-                    child: Divider(),
-                  ),
-                  Text('O continuar con'),
-                  Expanded(
-                    child: Divider(),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-              /// google + apple sign in button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _SquareTile(
-                      imageUrl: 'assets/images/google.png',
-                    loginMethod: AuthService().googleLogin,
-                  ),
-                  // FutureBuilder<Object>(
-                  //   future: SignInWithApple.isAvailable(),
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.data == true) {
-                  //       return Row(
-                  //         children: [
-                  //           const SizedBox(width: 10),
-                  //           _SquareTile(
-                  //             imageUrl: 'assets/images/apple.png',
-                  //             loginMethod: AuthService().signInWithApple,
-                  //           ),
-                  //         ],
-                  //       );
-                  //     } else {
-                  //       return Container();
-                  //     }
-                  //   },
-                  // ),
-                ],
-              ),
+              // Row(
+              //   children: const [
+              //     Expanded(
+              //       child: Divider(),
+              //     ),
+              //     Text('O continuar con'),
+              //     Expanded(
+              //       child: Divider(),
+              //     ),
+              //   ],
+              // ),
+              //
+              // const SizedBox(height: 20),
+              // /// google + apple sign in button
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     _SquareTile(
+              //         imageUrl: 'assets/images/google.png',
+              //       loginMethod: AuthService().googleLogin,
+              //     ),
+              //     const SizedBox(width: 10),
+              //     _SquareTile(
+              //       imageUrl: 'assets/images/facebook.png',
+              //       loginMethod: () {},
+              //     ),
+              //     const SizedBox(width: 10),
+              //     _SquareTile(
+              //       imageUrl: 'assets/images/apple.png',
+              //       loginMethod: () {},
+              //     ),
+              //     // FutureBuilder<Object>(
+              //     //   future: SignInWithApple.isAvailable(),
+              //     //   builder: (context, snapshot) {
+              //     //     if (snapshot.data == true) {
+              //     //       return Row(
+              //     //         children: [
+              //     //           const SizedBox(width: 10),
+              //     //           _SquareTile(
+              //     //             imageUrl: 'assets/images/apple.png',
+              //     //             loginMethod: AuthService().signInWithApple,
+              //     //           ),
+              //     //         ],
+              //     //       );
+              //     //     } else {
+              //     //       return Container();
+              //     //     }
+              //     //   },
+              //     // ),
+              //   ],
+              // ),
               const SizedBox(height: 40),
 
               const Text('¿No tiene cuenta?'),
