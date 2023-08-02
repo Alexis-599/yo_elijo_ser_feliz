@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:podcasts_ruben/firebase_options.dart';
 import 'package:podcasts_ruben/routes.dart';
+import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/theme.dart';
 import 'package:get/get.dart';
@@ -48,7 +49,7 @@ class _AppState extends State<App> {
         }
 
         // Otherwise, show something whilst waiting for initialization to complete
-        return const Text('loading');
+        return const LoadingScreen();
       },
     );
   }
