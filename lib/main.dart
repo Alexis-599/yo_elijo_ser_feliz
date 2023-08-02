@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:podcasts_ruben/firebase_options.dart';
 import 'package:podcasts_ruben/routes.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
-import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/theme.dart';
 import 'package:get/get.dart';
 

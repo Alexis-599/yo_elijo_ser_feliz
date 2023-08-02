@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else {
-          return const LoginScreen();
+          return LoginScreen();
         }
       },
     );
