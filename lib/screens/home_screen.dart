@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_screen.dart';
@@ -39,7 +40,7 @@ class HomeScreen extends StatelessWidget {
               backgroundColor: Colors.transparent,
               appBar: const _CustomAppBar(),
               bottomNavigationBar: NavBar(indexNum: 0),
-              drawer: const _CustonDrawer(),
+              drawer: const _CustomDrawer(),
               body: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -59,21 +60,29 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _CustonDrawer extends StatelessWidget {
-  const _CustonDrawer({
+class _CustomDrawer extends StatelessWidget {
+  const _CustomDrawer({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ElevatedButton(
-        child: const Text('signout'),
-        onPressed: () async {
-          await AuthService().signOut();
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil('/', (route) => false);
-        },
+      child: ListView(
+        // padding: EdgeInsets.zero,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              child: const Text('Cerrar sesión'),
+              onPressed: () async {
+                await AuthService().signOut();
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/', (route) => false);
+              },
+            ),
+          ),
+        ]
       )
     );
   }
@@ -206,11 +215,8 @@ class _CustomAppBar extends StatelessWidget with PreferredSizeWidget {
       // leading: const Icon(Icons.grid_view, size: 35),
       actions: [
         Container(
-          margin: const EdgeInsets.only(right: 10, top: 10),
-          child: const CircleAvatar(
-            backgroundImage: AssetImage('assets/images/yo_elijo_ser_feliz.jpg'),
-            radius: 25,
-          ),
+          margin: const EdgeInsets.only(right: 20, top: 10),
+          child: const Icon(FontAwesomeIcons.user)
         ),
       ],
     );
