@@ -56,6 +56,7 @@ class PlaylistCard extends StatelessWidget {
                         .bodyLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 8),
                   Text(
                     '${playlist.videos.length} episodios',
                     style: Theme.of(context).textTheme.bodySmall,

@@ -9,7 +9,6 @@ import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
-// import '../models/playlist_model.dart';
 import '../models/song_model.dart';
 import '../widgets/widgets.dart';
 
@@ -80,11 +79,14 @@ class _PlaylistMusic extends StatelessWidget {
               future: FirebaseApi.getPlaylistCardData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: SpinKitChasingDots(
-                      color: Colors.white,
-                      size: 50.0,
-                    ),
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(top: 20),
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 7,
+                    itemBuilder: (context, index) {
+                      return const ShimmerPlaylist();
+                    },
                   );
                 } else if (snapshot.hasError) {
                   return const Scaffold(
