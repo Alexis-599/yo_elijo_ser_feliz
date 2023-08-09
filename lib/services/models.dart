@@ -14,9 +14,9 @@ class Playlist {
   Playlist({
     this.id = "",
     this.title = "",
-    this.img = "",
+    this.img = "assets/images/yo_elijo_ser_feliz.jpg",
     this.author = "",
-    this.authorImg = "",
+    this.authorImg = "assets/images/yo_elijo_ser_feliz.jpg",
     this.description = "",
     this.videos = const [],
   });
@@ -48,7 +48,7 @@ class Video {
     this.title = "",
     this.podcast = "",
     this.date = "",
-    this.img = "",
+    this.img = "assets/images/yo_elijo_ser_feliz.jpg",
     this.path = "",
   });
 

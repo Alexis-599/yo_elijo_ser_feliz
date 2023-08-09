@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:podcasts_ruben/models/firebase_file.dart';
+import 'package:podcasts_ruben/screens/loading_screen.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
+import 'package:podcasts_ruben/services/models.dart';
 
-import '../models/playlist_model.dart';
+// import '../models/playlist_model.dart';
 
 class PlaylistCard extends StatelessWidget {
   const PlaylistCard({
     super.key,
     required this.playlist,
+    required this.file,
   });
 
   final Playlist playlist;
+  final FirebaseFile file;
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +36,8 @@ class PlaylistCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: Image(
-                image: AssetImage(
-                  playlist.imageUrl,
-                ),
+              child: Image.network(
+                file.url,
                 height: 100,
                 width: 75,
                 fit: BoxFit.cover,
@@ -53,7 +57,7 @@ class PlaylistCard extends StatelessWidget {
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '${playlist.songs.length} episodios',
+                    '${playlist.videos.length} episodios',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

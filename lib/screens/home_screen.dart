@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
+import 'package:podcasts_ruben/services/models.dart';
 
-import '../models/playlist_model.dart';
+// import '../models/playlist_model.dart';
 import '../models/song_model.dart';
 import '../widgets/widgets.dart';
 
@@ -15,7 +19,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Song> songs = Song.songs;
-    List<Playlist> playlists = Playlist.playlists;
+    // List<Playlist> playlists = Playlist.playlists;
 
     return StreamBuilder(
       stream: AuthService().userStream,
@@ -46,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const _ProximosCursos(),
                     _Discover(songs: songs),
-                    _PlaylistMusic(playlists: playlists),
+                    const _PlaylistMusic(),
                   ],
                 ),
               ),
@@ -56,6 +60,63 @@ class HomeScreen extends StatelessWidget {
           return LoginScreen();
         }
       },
+    );
+  }
+}
+
+class _PlaylistMusic extends StatelessWidget {
+  const _PlaylistMusic({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Column(
+        children: [
+          const SectionHeader(title: 'Playlists'),
+          FutureBuilder(
+              future: FirebaseApi.getPlaylistCardData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: SpinKitChasingDots(
+                      color: Colors.white,
+                      size: 50.0,
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Scaffold(
+                    body: Text('error'),
+                  );
+                } else if (snapshot.hasData) {
+                  var results = snapshot.data!;
+                  var playlists = results[0];
+                  var playlistFiles = results[1];
+                  // var playlists = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(top: 20),
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: PlaylistCard(
+                          playlist: playlists[index],
+                          file: playlistFiles[index],
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Scaffold();
+                }
+              }
+          ),
+        ],
+      ),
     );
   }
 }
@@ -88,38 +149,6 @@ class _CustomDrawer extends StatelessWidget {
   }
 }
 
-class _PlaylistMusic extends StatelessWidget {
-  const _PlaylistMusic({
-    super.key,
-    required this.playlists,
-  });
-
-  final List<Playlist> playlists;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-      child: Column(
-        children: [
-          const SectionHeader(title: 'Playlists'),
-          ListView.builder(
-            shrinkWrap: true,
-            padding: const EdgeInsets.only(top: 20),
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: PlaylistCard(playlist: playlists[index]),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ProximosCursos extends StatelessWidget {
   const _ProximosCursos({

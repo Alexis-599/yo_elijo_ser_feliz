@@ -18,7 +18,7 @@ class FirestoreService {
 
   /// Retrieves a single video(audio) from video document
   Future<Video> getVideo(String videoId) async {
-    var ref = _db.collection('quizzes').doc(videoId);
+    var ref = _db.collection('videos').doc(videoId);
     var snapshot = await ref.get();
     return Video.fromJson(snapshot.data() ?? {});
   }
