@@ -49,7 +49,7 @@ class AllPlaylists extends StatelessWidget {
                   ),
                   // const ShimmerPlaylist(),
                   FutureBuilder(
-                    future: FirebaseApi.getPlaylistCardData(),
+                    future: FirebaseApi.getPlaylistMedia(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -69,6 +69,7 @@ class AllPlaylists extends StatelessWidget {
                         var results = snapshot.data!;
                         var playlists = results[0];
                         var playlistFiles = results[1];
+                        var playlistAuthorImgs = results[2];
                         return ListView.builder(
                           shrinkWrap: true,
                           padding: const EdgeInsets.only(top: 20),
@@ -79,7 +80,8 @@ class AllPlaylists extends StatelessWidget {
                             // return buildPlaylistShimmer();
                             return PlaylistCard(
                               playlist: playlists[index],
-                              file: playlistFiles[index],
+                              playlistImg: playlistFiles[index],
+                              playlistAuthorImg: playlistAuthorImgs[index],
                             );
                           },
                         );

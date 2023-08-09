@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:podcasts_ruben/services/firebase_file.dart';
+import 'package:podcasts_ruben/services/models.dart';
 
-import '../models/playlist_model.dart';
+// import '../models/playlist_model.dart';
 
 class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({super.key});
@@ -11,7 +13,10 @@ class PlaylistScreen extends StatefulWidget {
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
-  Playlist playlist = Get.arguments ?? Playlist.playlists[0];
+  Playlist playlist = Get.arguments[0];
+  FirebaseFile playlistImg = Get.arguments[1];
+  FirebaseFile playlistAuthorImg = Get.arguments[2];
+
   // Song song = Get.arguments ?? Song.songs[0];
 
   @override
@@ -43,38 +48,45 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                _PlaylistInformation(playlist: playlist),
+                _PlaylistInformation(
+                    playlist: playlist,
+                    playlistFile: playlistImg
+                ),
                 const SizedBox(height: 20),
                 const Divider(),
-                PresentationCard(playlist: playlist),
+                PresentationCard(
+                    playlist: playlist,
+                    playlistAuthorImg: playlistAuthorImg
+                ),
                 const Divider(),
                 const SizedBox(height: 20),
+                // Future builder
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: playlist.songs.length,
+                  itemCount: playlist.videos.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        Get.toNamed('/song', arguments: playlist.songs[index]);
+                        Get.toNamed('/song', arguments: playlist.videos[index]);
                       },
                       child: ListTile(
                         leading: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
-                          child: Image(
-                            image: AssetImage(playlist.imageUrl),
+                          child: Image.network(
+                            playlistImg.url,
                             height: MediaQuery.of(context).size.height * 0.1,
                             width: MediaQuery.of(context).size.height * 0.09,
                             fit: BoxFit.cover,
                           ),
                         ),
                         title: Text(
-                          playlist.songs[index].description,
+                          'playlist.songs[index].description',
                           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                               fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         subtitle: Text(
-                          '47:23 ° ${playlist.songs[index].releaseDate}',
+                          '47:23 ° \${playlist.songs[index].releaseDate}',
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall!
@@ -101,9 +113,11 @@ class PresentationCard extends StatelessWidget {
   const PresentationCard({
     super.key,
     required this.playlist,
+    required this.playlistAuthorImg,
   });
 
   final Playlist playlist;
+  final FirebaseFile playlistAuthorImg;
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +125,8 @@ class PresentationCard extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Image(
-            image: AssetImage(playlist.authorImageUrl),
+          child: Image.network(
+            playlistAuthorImg.url,
             height: MediaQuery.of(context).size.height * 0.17,
             width: MediaQuery.of(context).size.height * 0.17,
             fit: BoxFit.cover,
@@ -165,9 +179,11 @@ class _PlaylistInformation extends StatelessWidget {
   const _PlaylistInformation({
     super.key,
     required this.playlist,
+    required this.playlistFile,
   });
 
   final Playlist playlist;
+  final FirebaseFile playlistFile;
 
   @override
   Widget build(BuildContext context) {
@@ -175,8 +191,8 @@ class _PlaylistInformation extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Image(
-            image: AssetImage(playlist.imageUrl),
+          child: Image.network(
+            playlistFile.url,
             height: MediaQuery.of(context).size.height * 0.3,
             width: MediaQuery.of(context).size.height * 0.3,
             fit: BoxFit.cover,

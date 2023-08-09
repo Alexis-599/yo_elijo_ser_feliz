@@ -1,5 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:podcasts_ruben/models/firebase_file.dart';
+import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/services/models.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 
@@ -32,10 +32,12 @@ class FirebaseApi {
         .toList();
   }
 
-  static Future<List> getPlaylistCardData() async {
+  static Future<List> getPlaylistMedia() async {
     final playlists = await FirestoreService().getPlaylists(); // data base info
-    final playlistFiles = await Future.wait(playlists.map(
-            (e) async => await getFile(e.img))); // storage images
-    return [playlists, playlistFiles.toList()];
+    final playlistImg = await Future.wait(playlists.map(
+            (e) async => await getFile(e.img)));
+    final playlistAuthorImg = await Future.wait(playlists.map(
+            (e) async => await getFile(e.img)));
+    return [playlists, playlistImg.toList(), playlistAuthorImg.toList()];
   }
 }

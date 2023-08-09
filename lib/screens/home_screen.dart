@@ -8,9 +8,9 @@ import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/services/models.dart';
+import 'package:podcasts_ruben/widgets/widgets.dart';
 
 import '../models/song_model.dart';
-import '../widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -76,7 +76,7 @@ class _PlaylistMusic extends StatelessWidget {
         children: [
           const SectionHeader(title: 'Playlists'),
           FutureBuilder(
-              future: FirebaseApi.getPlaylistCardData(),
+              future: FirebaseApi.getPlaylistMedia(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return ListView.builder(
@@ -95,7 +95,8 @@ class _PlaylistMusic extends StatelessWidget {
                 } else if (snapshot.hasData) {
                   var results = snapshot.data!;
                   var playlists = results[0];
-                  var playlistFiles = results[1];
+                  var playlistImgs = results[1];
+                  var playlistAuthorImgs = results[2];
                   // var playlists = snapshot.data!;
                   return ListView.builder(
                     shrinkWrap: true,
@@ -107,7 +108,8 @@ class _PlaylistMusic extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: PlaylistCard(
                           playlist: playlists[index],
-                          file: playlistFiles[index],
+                          playlistImg: playlistImgs[index],
+                          playlistAuthorImg: playlistAuthorImgs[index],
                         ),
                       );
                     },

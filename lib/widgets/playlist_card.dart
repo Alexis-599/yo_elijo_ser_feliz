@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/models/firebase_file.dart';
+import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
-// import '../models/playlist_model.dart';
 
 class PlaylistCard extends StatelessWidget {
   const PlaylistCard({
     super.key,
     required this.playlist,
-    required this.file,
+    required this.playlistImg,
+    required this.playlistAuthorImg,
   });
 
   final Playlist playlist;
-  final FirebaseFile file;
+  final FirebaseFile playlistImg;
+  final FirebaseFile playlistAuthorImg;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/playlist', arguments: playlist);
+        Get.toNamed('/playlist', arguments: [playlist, playlistImg,
+          playlistAuthorImg]);
       },
       child: Container(
         height: 75,
@@ -37,7 +39,7 @@ class PlaylistCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Image.network(
-                file.url,
+                playlistImg.url,
                 height: 100,
                 width: 75,
                 fit: BoxFit.cover,

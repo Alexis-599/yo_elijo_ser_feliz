@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:podcasts_ruben/firebase_options.dart';
 import 'package:podcasts_ruben/routes.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
+import 'package:podcasts_ruben/screens/playlist_screen.dart';
 import 'package:podcasts_ruben/theme.dart';
 import 'package:get/get.dart';
 
@@ -42,7 +43,7 @@ class _AppState extends State<App> {
             debugShowCheckedModeBanner: false,
             title: 'Podcasts App',
             theme: appTheme(context),
-            // home: const NavBar(),
+            // home: const PlaylistScreen(),
             getPages: appRoutes,
           );
         }
