@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/services/models.dart';
+import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
 
 // import '../models/playlist_model.dart';
 
@@ -17,11 +22,71 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   FirebaseFile playlistImg = Get.arguments[1];
   FirebaseFile playlistAuthorImg = Get.arguments[2];
 
-  // Song song = Get.arguments ?? Song.songs[0];
+  late Future<List<dynamic>> futureMedia;
+  List<List<dynamic>> results = [[], [], []];
+  var videos = [];
+  var videosImgs = [];
+  var videosAudios = [];
+  // var videosDuration = [];
+  final controller = ScrollController();
+  int chunk = 0;
+  bool hasMore = true;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetch();
+
+    controller.addListener(() {
+      if (controller.position.maxScrollExtent == controller.offset) {
+        fetch();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+
+    super.dispose();
+  }
+
+  // Future<Duration?> getDuration(String path) async {
+  //   final player = AudioPlayer();
+  //   var duration = await player.setUrl(path);
+  //   return duration;
+  // }
+
+  Future fetch() async {
+    if (isLoading) return;
+    isLoading = true;
+    int limit = 15;
+    final newResults =
+        await FirebaseApi.getVideosMediaFromPlaylist(playlist, chunk, limit);
+    // final newDurationResults = await Future.wait(newResults[0].map(
+    //         (video) async => await getDuration(video.path)));
+    setState(() {
+      chunk++;
+      isLoading = false;
+      if (newResults[0].length < limit) {
+        hasMore = false;
+      }
+
+      for (int i = 0; i < results.length; i++) {
+        results[i].addAll(newResults[i]);
+      }
+      // results.addAll(newResults);
+      videos = results[0];
+      videosImgs = results[1];
+      videosAudios = results[2];
+      // videosDuration.addAll(newDurationResults.toList());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -44,65 +109,100 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
           ],
         ),
         body: SingleChildScrollView(
+          controller: controller,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
                 _PlaylistInformation(
-                    playlist: playlist,
-                    playlistFile: playlistImg
-                ),
+                    playlist: playlist, playlistFile: playlistImg),
                 const SizedBox(height: 20),
                 const Divider(),
                 PresentationCard(
-                    playlist: playlist,
-                    playlistAuthorImg: playlistAuthorImg
-                ),
+                    playlist: playlist, playlistAuthorImg: playlistAuthorImg),
                 const Divider(),
                 const SizedBox(height: 20),
                 // Future builder
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: playlist.videos.length,
+                  itemCount: videos.length + 1,
                   itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Get.toNamed('/song', arguments: playlist.videos[index]);
-                      },
-                      child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            playlistImg.url,
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            width: MediaQuery.of(context).size.height * 0.09,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        title: Text(
-                          'playlist.songs[index].description',
-                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        subtitle: Text(
-                          '47:23 ° \${playlist.songs[index].releaseDate}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall!
-                              .copyWith(color: Colors.white),
-                        ),
-                        trailing: const Icon(
-                          Icons.play_circle,
-                          color: Colors.white,
-                        ),
-                      ),
-                    );
+                    if (index < videos.length) {
+                      return _SongSmallCard(
+                        video: videos[index],
+                        videoImg: videosImgs[index],
+                        videoAudio: videosAudios[index],
+                        // videoDuration: videosDuration[index],
+                      );
+                    } else {
+                      return Center(
+                        child: hasMore
+                            ? const SpinKitChasingDots(
+                                color: Colors.white,
+                                size: 50.0,
+                              )
+                            : Container(),
+                      );
+                    }
                   },
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SongSmallCard extends StatelessWidget {
+  const _SongSmallCard({
+    super.key,
+    required this.video,
+    required this.videoImg,
+    required this.videoAudio,
+    // required this.videoDuration,
+  });
+
+  final Video video;
+  final FirebaseFile videoImg;
+  final FirebaseFile videoAudio;
+  // final Duration? videoDuration;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Get.toNamed('/song', arguments: [video, videoImg, videoAudio]);
+      },
+      child: ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Image.network(
+            videoImg.url,
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.height * 0.09,
+            fit: BoxFit.cover,
+          ),
+        ),
+        title: Text(
+          video.title,
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge!
+              .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        subtitle: Text(
+          '\$duration ° ${video.date}',
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall!
+              .copyWith(color: Colors.white),
+        ),
+        trailing: const Icon(
+          Icons.play_circle,
+          color: Colors.white,
         ),
       ),
     );

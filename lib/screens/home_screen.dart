@@ -83,7 +83,7 @@ class _PlaylistMusic extends StatelessWidget {
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(top: 20),
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 7,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
                       return const ShimmerPlaylist();
                     },

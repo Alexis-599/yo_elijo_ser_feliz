@@ -4,8 +4,22 @@ import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
 import 'package:shimmer/shimmer.dart';
 
-class AllPlaylists extends StatelessWidget {
+class AllPlaylists extends StatefulWidget {
   const AllPlaylists({super.key});
+
+  @override
+  State<AllPlaylists> createState() => _AllPlaylistsState();
+}
+
+class _AllPlaylistsState extends State<AllPlaylists> {
+  late Future<List<dynamic>> playlistMedia;
+
+  @override
+  void initState() {
+    super.initState();
+
+    playlistMedia = FirebaseApi.getPlaylistMedia();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +63,7 @@ class AllPlaylists extends StatelessWidget {
                   ),
                   // const ShimmerPlaylist(),
                   FutureBuilder(
-                    future: FirebaseApi.getPlaylistMedia(),
+                    future: playlistMedia,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -68,7 +82,7 @@ class AllPlaylists extends StatelessWidget {
                       } else if (snapshot.hasData) {
                         var results = snapshot.data!;
                         var playlists = results[0];
-                        var playlistFiles = results[1];
+                        var playlistImgs = results[1];
                         var playlistAuthorImgs = results[2];
                         return ListView.builder(
                           shrinkWrap: true,
@@ -80,7 +94,7 @@ class AllPlaylists extends StatelessWidget {
                             // return buildPlaylistShimmer();
                             return PlaylistCard(
                               playlist: playlists[index],
-                              playlistImg: playlistFiles[index],
+                              playlistImg: playlistImgs[index],
                               playlistAuthorImg: playlistAuthorImgs[index],
                             );
                           },

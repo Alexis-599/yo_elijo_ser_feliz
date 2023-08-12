@@ -23,4 +23,23 @@ class FirestoreService {
     return Video.fromJson(snapshot.data() ?? {});
   }
 
+  Future<List<Video>> getVideosFromPlaylist(Playlist playlist, int chunk, int limit) async {
+    var reversedVideos = playlist.videos.reversed.toList();
+    var chunkVideos = _chunk(reversedVideos, limit);
+    var videos = await Future.wait(chunkVideos[chunk].map(
+            (video) async => await getVideo(video['id'])
+    ));
+    return videos.toList();
+  }
+
+  List<List<dynamic>> _chunk(List<dynamic> array, int size) {
+    List<List<dynamic>> chunks = [];
+    int i = 0;
+    while (i < array.length) {
+      int j = i + size;
+      chunks.add(array.sublist(i, j > array.length ? array.length : j));
+      i = j;
+    }
+    return chunks;
+  }
 }

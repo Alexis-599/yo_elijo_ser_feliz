@@ -37,7 +37,20 @@ class FirebaseApi {
     final playlistImg = await Future.wait(playlists.map(
             (e) async => await getFile(e.img)));
     final playlistAuthorImg = await Future.wait(playlists.map(
-            (e) async => await getFile(e.img)));
+            (e) async => await getFile(e.img))); // change to e.authorImg
     return [playlists, playlistImg.toList(), playlistAuthorImg.toList()];
+  }
+
+  static Future<List> getVideosMediaFromPlaylist(Playlist playlist, int chunk, int limit) async {
+    final videos = await FirestoreService().getVideosFromPlaylist(
+        playlist,
+        chunk,
+        limit
+    );
+    final videoImg = await Future.wait(videos.map(
+            (e) async => await getFile(e.img)));
+    final videoAudio = await Future.wait(videos.map(
+            (e) async => await getFile(e.path)));
+    return [videos, videoImg.toList(), videoAudio.toList()];
   }
 }
