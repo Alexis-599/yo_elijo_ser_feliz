@@ -74,7 +74,10 @@ class _PlaylistMusic extends StatelessWidget {
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
       child: Column(
         children: [
-          const SectionHeader(title: 'Playlists'),
+          const SectionHeader(
+              title: 'Playlists',
+              actionRoute: '/all_playlists'
+          ),
           FutureBuilder(
               future: FirebaseApi.getPlaylistMedia(),
               builder: (context, snapshot) {
@@ -167,7 +170,10 @@ class _ProximosCursos extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(right: 20),
-            child: SectionHeader(title: 'Próximos cursos'),
+            child: SectionHeader(
+              title: 'Próximos cursos',
+              actionRoute: '/info',
+            ),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -213,7 +219,10 @@ class _Discover extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(right: 20),
-            child: SectionHeader(title: 'Publicado recientemente'),
+            child: SectionHeader(
+              title: 'Publicado recientemente',
+              hasAction: false,
+            ),
           ),
           const SizedBox(height: 20),
           SizedBox(
