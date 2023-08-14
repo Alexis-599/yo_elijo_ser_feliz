@@ -67,3 +67,31 @@ class ShimmerPlaylist extends StatelessWidget {
     );
   }
 }
+
+class ShimmerVideo extends StatelessWidget {
+  const ShimmerVideo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(
+        maxWidth: 150,
+        maxHeight: 150,
+      ),
+      child: Column(
+        children: [
+          ShimmerWidget.circular(
+            height: 150,
+            width: 150,
+            shapeBorder:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+          const SizedBox(height: 8),
+          const ShimmerWidget.rectangular(height: 10, width: 130),
+          const SizedBox(height: 8),
+          const ShimmerWidget.rectangular(height: 10, width: 100),
+        ],
+      ),
+    );
+  }
+}

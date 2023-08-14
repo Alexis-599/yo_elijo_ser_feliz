@@ -47,6 +47,15 @@ class FirebaseApi {
         chunk,
         limit
     );
+    return getVideosMedia(videos);
+  }
+
+  static Future<List> getRecentVideosMedia() async {
+    final videos = await FirestoreService().getRecentVideos();
+    return getVideosMedia(videos);
+  }
+
+  static Future<List> getVideosMedia(List<Video> videos) async {
     final videoImg = await Future.wait(videos.map(
             (e) async => await getFile(e.img)));
     final videoAudio = await Future.wait(videos.map(

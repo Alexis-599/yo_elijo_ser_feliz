@@ -8,18 +8,14 @@ import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/services/models.dart';
+import 'package:podcasts_ruben/widgets/video_card.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
-
-import '../models/song_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Song> songs = Song.songs;
-    // List<Playlist> playlists = Playlist.playlists;
-
     return StreamBuilder(
       stream: AuthService().userStream,
       builder: (context, snapshot) {
@@ -36,9 +32,9 @@ class HomeScreen extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.blue.shade800.withOpacity(1),
-                      Colors.amber.shade400.withOpacity(1),
-                    ])),
+                  Colors.blue.shade800.withOpacity(1),
+                  Colors.amber.shade400.withOpacity(1),
+                ])),
             child: Scaffold(
               backgroundColor: Colors.transparent,
               appBar: const _CustomAppBar(),
@@ -46,10 +42,10 @@ class HomeScreen extends StatelessWidget {
               drawer: const _CustomDrawer(),
               body: SingleChildScrollView(
                 child: Column(
-                  children: [
-                    const _ProximosCursos(),
-                    _Discover(songs: songs),
-                    const _PlaylistMusic(),
+                  children: const [
+                    _ProximosCursos(),
+                    _Discover(),
+                    _PlaylistMusic(),
                   ],
                 ),
               ),
@@ -75,9 +71,7 @@ class _PlaylistMusic extends StatelessWidget {
       child: Column(
         children: [
           const SectionHeader(
-              title: 'Playlists',
-              actionRoute: '/all_playlists'
-          ),
+              title: 'Playlists', actionRoute: '/all_playlists'),
           FutureBuilder(
               future: FirebaseApi.getPlaylistMedia(),
               builder: (context, snapshot) {
@@ -120,8 +114,7 @@ class _PlaylistMusic extends StatelessWidget {
                 } else {
                   return const Scaffold();
                 }
-              }
-          ),
+              }),
         ],
       ),
     );
@@ -136,9 +129,9 @@ class _CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        // padding: EdgeInsets.zero,
-        children: [
+        child: ListView(
+            // padding: EdgeInsets.zero,
+            children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
@@ -150,12 +143,9 @@ class _CustomDrawer extends StatelessWidget {
               },
             ),
           ),
-        ]
-      )
-    );
+        ]));
   }
 }
-
 
 class _ProximosCursos extends StatelessWidget {
   const _ProximosCursos({
@@ -206,10 +196,10 @@ class _ProximosCursos extends StatelessWidget {
 class _Discover extends StatelessWidget {
   const _Discover({
     super.key,
-    required this.songs,
+    // required this.songs,
   });
 
-  final List<Song> songs;
+  // final List<Song> songs;
 
   @override
   Widget build(BuildContext context) {
@@ -226,15 +216,45 @@ class _Discover extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.28,
-            child: ListView.separated(
-              separatorBuilder: (context, index) {
-                return const SizedBox(width: 10);
-              },
-              scrollDirection: Axis.horizontal,
-              itemCount: songs.length,
-              itemBuilder: (context, index) {
-                return SongCard(song: songs[index]);
+            height: MediaQuery.of(context).size.height * 0.28, // 0.33
+            child: FutureBuilder(
+              future: FirebaseApi.getRecentVideosMedia(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(width: 10);
+                    },
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return const ShimmerVideo();
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return const Text('Error');
+                } else if (snapshot.hasData) {
+                  var results = snapshot.data!;
+                  var videos = results[0];
+                  var videoImgs = results[1];
+                  var videoAudios = results[2];
+                  return ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(width: 10);
+                    },
+                    scrollDirection: Axis.horizontal,
+                    itemCount: videos.length,
+                    itemBuilder: (context, index) {
+                      return VideoCard(
+                        video: videos[index],
+                        videoImg: videoImgs[index],
+                        audio: videoAudios[index],
+                      );
+                    },
+                  );
+                } else {
+                  return Container();
+                }
               },
             ),
           )
@@ -257,9 +277,8 @@ class _CustomAppBar extends StatelessWidget with PreferredSizeWidget {
       // leading: const Icon(Icons.grid_view, size: 35),
       actions: [
         Container(
-          margin: const EdgeInsets.only(right: 20, top: 10),
-          child: const Icon(FontAwesomeIcons.user)
-        ),
+            margin: const EdgeInsets.only(right: 20, top: 10),
+            child: const Icon(FontAwesomeIcons.user)),
       ],
     );
   }
