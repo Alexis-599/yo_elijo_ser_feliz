@@ -68,6 +68,11 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   build_runner: any #2.3.3
   json_serializable: any #6.6.2
+  flutter_native_splash: ^2.0.1+1
+
+flutter_native_splash:
+  color: "#d9ad0d"  #amber
+  image: assets/images/yo_elijo_ser_feliz.png
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
