@@ -71,7 +71,7 @@ dev_dependencies:
   flutter_native_splash: ^2.0.1+1
 
 flutter_native_splash:
-  color: "#d9ad0d"  #amber
+  color: "#ffd04f"  #amber light
   image: assets/images/yo_elijo_ser_feliz.png
 
 # For information on the generic Dart part of this file, see the
