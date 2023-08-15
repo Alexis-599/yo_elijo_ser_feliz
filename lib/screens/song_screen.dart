@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:podcasts_ruben/services/firebase_file.dart';
+import 'package:podcasts_ruben/services/models.dart';
 import 'package:rxdart/rxdart.dart' as rxdart;
 
-import '../models/song_model.dart';
+// import '../models/song_model.dart';
 import '../widgets/widgets.dart';
 
 class SongScreen extends StatefulWidget {
@@ -15,7 +17,9 @@ class SongScreen extends StatefulWidget {
 
 class _SongScreenState extends State<SongScreen> {
   AudioPlayer audioPlayer = AudioPlayer();
-  Song song = Get.arguments ?? Song.songs[0];
+  Video video = Get.arguments[0];
+  FirebaseFile videoImg = Get.arguments[1];
+  FirebaseFile audio = Get.arguments[2];
 
   @override
   void initState() {
@@ -24,7 +28,7 @@ class _SongScreenState extends State<SongScreen> {
     audioPlayer.setAudioSource(
       ConcatenatingAudioSource(
         children: [
-          AudioSource.uri(Uri.parse('asset:///${song.url}')),
+          AudioSource.uri(Uri.parse('asset:///${video.path}')),
         ],
       ),
     );
@@ -49,15 +53,16 @@ class _SongScreenState extends State<SongScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        // iconTheme: const IconThemeData(color: Colors.blueAccent),
       ),
       extendBodyBehindAppBar: true,
       body: Stack(
-        fit: StackFit.expand, //comment out for image to move up
+        // fit: StackFit.expand, //comment out for image to move up
         children: [
-          Image.asset(song.coverUrl, fit: BoxFit.cover),
+          Image.network(videoImg.url, fit: BoxFit.cover),
           const _BackgroundFilter(),
           _MusicPlayer(
-              song: song,
+              video: video,
               seekBarDataStrean: _seekBarDataStrean,
               audioPlayer: audioPlayer)
         ],
@@ -69,13 +74,13 @@ class _SongScreenState extends State<SongScreen> {
 class _MusicPlayer extends StatelessWidget {
   const _MusicPlayer({
     super.key,
-    required this.song,
+    required this.video,
     required Stream<SeekBarData> seekBarDataStrean,
     required this.audioPlayer,
-  }) : _seekBarDataStrean = seekBarDataStrean;
+  }) : _seekBarDataStream = seekBarDataStrean;
 
-  final Song song;
-  final Stream<SeekBarData> _seekBarDataStrean;
+  final Video video;
+  final Stream<SeekBarData> _seekBarDataStream;
   final AudioPlayer audioPlayer;
 
   @override
@@ -87,7 +92,7 @@ class _MusicPlayer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            song.title,
+            video.title,
             style: Theme.of(context).textTheme.headlineSmall!.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -95,14 +100,14 @@ class _MusicPlayer extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            song.description,
+            video.podcast,
             maxLines: 2,
             style: Theme.of(context).textTheme.bodyMedium!
                 .copyWith(color: Colors.white),
           ),
           const SizedBox(height: 20),
           StreamBuilder<SeekBarData>(
-            stream: _seekBarDataStrean,
+            stream: _seekBarDataStream,
             builder: (context, snapshot) {
               final positionData = snapshot.data;
               return SeekBar(

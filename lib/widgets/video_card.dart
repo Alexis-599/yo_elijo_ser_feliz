@@ -20,7 +20,7 @@ class VideoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/song', arguments: video);
+        Get.toNamed('/song', arguments: [video, videoImg, audio]);
       },
       child: Container(
         constraints: const BoxConstraints(
