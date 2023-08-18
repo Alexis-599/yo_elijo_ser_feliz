@@ -1,13 +1,73 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/services/auth.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+// import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   // text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  void signUserIn() async {
+    // show loading circle
+    // showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return const Center(
+    //         child: CircularProgressIndicator(),
+    //       );
+    //     });
+
+    // try sign in
+    try {
+      await AuthService()
+          .emailPasswordLogin(emailController.text, passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      // WRONG EMAIL
+      if (e.code == 'user-not-found') {
+        // show error to user
+        wrongEmailMessage();
+      }
+
+      // WRONG PASSWORD
+      if (e.code == 'wrong-password') {
+        // show error to user
+        wrongPasswordMessage();
+      }
+    }
+
+    // pop the loading circle
+    // Navigator.pop(context);
+  }
+
+  // wrong email message popup
+  void wrongEmailMessage() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            title: Text('Correo electrónico incorrecto'),
+          );
+        });
+  }
+
+  // wrong password message popup
+  void wrongPasswordMessage() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            title: Text('Contraseña incorrecta'),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +75,12 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Colors.amber.shade300,
-                  Colors.amber.shade100,
-                ]
-            )
-        ),
+              Colors.amber.shade300,
+              Colors.amber.shade100,
+            ])),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -36,16 +94,17 @@ class LoginScreen extends StatelessWidget {
                   radius: MediaQuery.of(context).size.height * 0.14,
                   child: CircleAvatar(
                     radius: MediaQuery.of(context).size.height * 0.12,
-                    backgroundImage: const AssetImage('assets/images/yo_elijo_ser_feliz.jpg'),
+                    backgroundImage: const AssetImage(
+                        'assets/images/yo_elijo_ser_feliz.jpg'),
                   ),
                 ),
               ),
 
               const SizedBox(height: 10),
 
-              /// username text-field
+              /// email text-field
               _CustomTextField(
-                controller: usernameController,
+                controller: emailController,
                 hintText: 'Correo electrónico',
                 obscureText: false,
               ),
@@ -79,7 +138,7 @@ class LoginScreen extends StatelessWidget {
 
               /// sign in button
               _MyButton(
-                onTap: () {},
+                onTap: signUserIn,
               ),
 
               const SizedBox(height: 10),
@@ -144,7 +203,7 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                      'Registrarse',
+                    'Registrarse',
                     style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
@@ -202,11 +261,8 @@ class _SquareTile extends StatelessWidget {
   final String imageUrl;
   final Function loginMethod;
 
-  const _SquareTile({
-    super.key,
-    required this.imageUrl,
-    required this.loginMethod
-  });
+  const _SquareTile(
+      {super.key, required this.imageUrl, required this.loginMethod});
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +276,7 @@ class _SquareTile extends StatelessWidget {
           color: Colors.white70,
         ),
         child: Image.asset(
-            imageUrl,
+          imageUrl,
           height: 40,
         ),
       ),
@@ -231,10 +287,7 @@ class _SquareTile extends StatelessWidget {
 class _MyButton extends StatelessWidget {
   final Function()? onTap;
 
-  const _MyButton({
-    super.key,
-    required this.onTap
-  });
+  const _MyButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -262,8 +315,8 @@ class _MyButton extends StatelessWidget {
   }
 }
 
-class _CustomTextField extends StatelessWidget {
-  final controller;
+class _CustomTextField extends StatefulWidget {
+  final TextEditingController? controller;
   final String hintText;
   final bool obscureText;
 
@@ -275,24 +328,46 @@ class _CustomTextField extends StatelessWidget {
   });
 
   @override
+  State<_CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<_CustomTextField> {
+  bool _isObscure = true;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextField(
-        obscureText: obscureText,
-        controller: controller,
+      child: TextFormField(
+        obscureText: _isObscure,
+        controller: widget.controller,
         decoration: InputDecoration(
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          fillColor: Colors.white,
-          filled: true,
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[500])
-        ),
+            suffixIcon: widget.obscureText
+                ? IconButton(
+                    icon: Icon(
+                        _isObscure
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        _isObscure = !_isObscure;
+                      });
+                    },
+                  )
+                : const Icon(
+                    Icons.abc,
+                    color: Colors.white,
+                  ),
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            fillColor: Colors.white,
+            filled: true,
+            hintText: widget.hintText,
+            hintStyle: TextStyle(color: Colors.grey[500])),
       ),
     );
   }

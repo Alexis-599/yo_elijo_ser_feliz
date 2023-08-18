@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
               backgroundColor: Colors.transparent,
               appBar: const _CustomAppBar(),
               bottomNavigationBar: NavBar(indexNum: 0),
-              drawer: const _CustomDrawer(),
+              drawer: _CustomDrawer(),
               body: SingleChildScrollView(
                 child: Column(
                   children: const [
@@ -122,28 +122,55 @@ class _PlaylistMusic extends StatelessWidget {
 }
 
 class _CustomDrawer extends StatelessWidget {
-  const _CustomDrawer({
+  _CustomDrawer({
     super.key,
   });
+  final user = AuthService().user!;
+
+  void logOut() async {
+    await AuthService().signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        child: ListView(
-            // padding: EdgeInsets.zero,
-            children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              child: const Text('Cerrar sesión'),
-              onPressed: () async {
-                await AuthService().signOut();
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/', (route) => false);
-              },
+      child: ListView(
+          // padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.amber.shade200,
+              ),
+              child: Center(child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Sesión iniciada como:',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
+                  ),
+                  Text(
+                    user.email ?? 'INVITADO',
+                    style: Theme.of(context).textTheme.bodyLarge!,
+                  ),
+                ],
+              )),
             ),
-          ),
-        ]));
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                child: const Text('Cerrar sesión'),
+                onPressed: () {
+                  logOut();
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/', (route) => false);
+                },
+              ),
+            ),
+          ]),
+    );
   }
 }
 
