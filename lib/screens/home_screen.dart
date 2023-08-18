@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
+import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
@@ -52,7 +53,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else {
-          return LoginScreen();
+          return LoginOrRegisterScreen();
         }
       },
     );

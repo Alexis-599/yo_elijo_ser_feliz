@@ -2,22 +2,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
-// import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-class LoginScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   final Function()? onTap;
-  const LoginScreen({super.key, required this.onTap});
+  const RegisterScreen({super.key, required this.onTap});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void signUserIn() async {
+  void signUserUp() async {
     // show loading circle
     // showDialog(
     //     context: context,
@@ -27,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     //       );
     //     });
 
-    // try sign in
+    // try creating the user
     try {
       await AuthService()
           .emailPasswordLogin(emailController.text, passwordController.text);
@@ -71,9 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-              Colors.amber.shade300,
-              Colors.amber.shade100,
-            ])),
+                  Colors.amber.shade300,
+                  Colors.amber.shade100,
+                ])),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -115,6 +114,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 10),
 
+                  /// confirm password text-field
+                  _CustomTextField(
+                    controller: passwordController,
+                    hintText: 'Confirmar contraseña',
+                    obscureText: true,
+                  ),
+
+                  const SizedBox(height: 10),
+
                   /// forgot password?
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -131,69 +139,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 15),
 
-                  /// sign in button
+                  /// sign up button
                   MyButton(
-                    text: 'Iniciar Sesión',
-                    onTap: signUserIn,
+                    text: 'Registrarse',
+                    onTap: signUserUp,
                   ),
 
                   const SizedBox(height: 10),
 
-                  /// or continue with
-                  // Row(
-                  //   children: const [
-                  //     Expanded(
-                  //       child: Divider(),
-                  //     ),
-                  //     Text('O continuar con'),
-                  //     Expanded(
-                  //       child: Divider(),
-                  //     ),
-                  //   ],
-                  // ),
-                  //
-                  // const SizedBox(height: 20),
-                  // /// google + apple sign in button
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     _SquareTile(
-                  //         imageUrl: 'assets/images/google.png',
-                  //       loginMethod: AuthService().googleLogin,
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     _SquareTile(
-                  //       imageUrl: 'assets/images/facebook.png',
-                  //       loginMethod: () {},
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     _SquareTile(
-                  //       imageUrl: 'assets/images/apple.png',
-                  //       loginMethod: () {},
-                  //     ),
-                  //     // FutureBuilder<Object>(
-                  //     //   future: SignInWithApple.isAvailable(),
-                  //     //   builder: (context, snapshot) {
-                  //     //     if (snapshot.data == true) {
-                  //     //       return Row(
-                  //     //         children: [
-                  //     //           const SizedBox(width: 10),
-                  //     //           _SquareTile(
-                  //     //             imageUrl: 'assets/images/apple.png',
-                  //     //             loginMethod: AuthService().signInWithApple,
-                  //     //           ),
-                  //     //         ],
-                  //     //       );
-                  //     //     } else {
-                  //     //       return Container();
-                  //     //     }
-                  //     //   },
-                  //     // ),
-                  //   ],
-                  // ),
-                  const SizedBox(height: 80), // 40
+                  const SizedBox(height: 40), // 40
 
-                  const Text('¿No tiene cuenta?'),
+                  const Text('¿Ya tiene una cuenta?'),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       GestureDetector(
                         onTap: widget.onTap,
                         child: const Text(
-                          'Registrarse',
+                          'Iniciar sesión',
                           style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -231,33 +187,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// class _SquareTile extends StatelessWidget {
-//   final String imageUrl;
-//   final Function loginMethod;
-//
-//   const _SquareTile(
-//       {super.key, required this.imageUrl, required this.loginMethod});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: () => loginMethod(),
-//       child: Container(
-//         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
-//         decoration: BoxDecoration(
-//           border: Border.all(color: Colors.white),
-//           borderRadius: BorderRadius.circular(16),
-//           color: Colors.white70,
-//         ),
-//         child: Image.asset(
-//           imageUrl,
-//           height: 40,
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class _CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String hintText;
@@ -286,18 +215,18 @@ class _CustomTextFieldState extends State<_CustomTextField> {
         decoration: InputDecoration(
             suffixIcon: widget.obscureText
                 ? IconButton(
-                    icon: Icon(
-                        _isObscure ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () {
-                      setState(() {
-                        _isObscure = !_isObscure;
-                      });
-                    },
-                  )
+              icon: Icon(
+                  _isObscure ? Icons.visibility_off : Icons.visibility),
+              onPressed: () {
+                setState(() {
+                  _isObscure = !_isObscure;
+                });
+              },
+            )
                 : const Icon(
-                    Icons.abc,
-                    color: Colors.white,
-                  ),
+              Icons.abc,
+              color: Colors.white,
+            ),
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
             ),
@@ -312,38 +241,3 @@ class _CustomTextFieldState extends State<_CustomTextField> {
     );
   }
 }
-
-// class LoginButton extends StatelessWidget {
-//   final Color color;
-//   final IconData icon;
-//   final String text;
-//   final Function loginMethod;
-//
-//   const LoginButton({
-//     super.key,
-//     required this.color,
-//     required this.icon,
-//     required this.text,
-//     required this.loginMethod,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 10),
-//       child: ElevatedButton.icon(
-//         icon: Icon(
-//           icon,
-//           color: Colors.white,
-//           size: 20,
-//         ),
-//         style: TextButton.styleFrom(
-//           padding: const EdgeInsets.all(24),
-//           backgroundColor: color,
-//         ),
-//         onPressed: () => loginMethod(),
-//         label: Text(text),
-//       ),
-//     );
-//   }
-// }
