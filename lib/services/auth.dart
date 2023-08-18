@@ -25,6 +25,12 @@ class AuthService {
         email: email, password: password);
   }
 
+  /// Email & Password Register
+  Future<void> emailPasswordRegister(String email, String password) async {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email, password: password);
+  }
+
   /// Google Login
   Future<void> googleLogin() async {
     try {

@@ -15,6 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   void signUserUp() async {
     // show loading circle
@@ -28,8 +29,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // try creating the user
     try {
-      await AuthService()
-          .emailPasswordLogin(emailController.text, passwordController.text);
+      // check if password is confirmed
+      if (passwordController.text == confirmPasswordController.text) {
+        await AuthService().emailPasswordRegister(
+            emailController.text, passwordController.text);
+      } else {
+        showErrorMessage('Las contraseñas no son las mismas');
+      }
     } on FirebaseAuthException catch (e) {
       // WRONG EMAIL
       if (e.code == 'user-not-found') {
@@ -42,6 +48,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (e.code == 'wrong-password') {
         // show error to user
         showErrorMessage('Contraseña incorrecta');
+      }
+
+      else {
+        showErrorMessage(e.code);
       }
     }
 
@@ -116,25 +126,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   /// confirm password text-field
                   _CustomTextField(
-                    controller: passwordController,
+                    controller: confirmPasswordController,
                     hintText: 'Confirmar contraseña',
                     obscureText: true,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// forgot password?
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '¿Olvidó su contraseña?',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
                   ),
 
                   const SizedBox(height: 15),
