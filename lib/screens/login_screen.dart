@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/screens/forgot_passsword_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
+import 'package:podcasts_ruben/widgets/custom_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
 // import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -98,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 10),
 
                   /// email text-field
-                  _CustomTextField(
+                  CustomTextField(
                     controller: emailController,
                     hintText: 'Correo electrónico',
                     obscureText: false,
@@ -107,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 10),
 
                   /// password text-field
-                  _CustomTextField(
+                  CustomTextField(
                     controller: passwordController,
                     hintText: 'Contraseña',
                     obscureText: true,
@@ -121,9 +123,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          '¿Olvidó su contraseña?',
-                          style: TextStyle(color: Colors.grey[600]),
+                        GestureDetector(
+                          child: const Text(
+                            '¿Olvidó su contraseña?',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const ForgotPasswordScreen();
+                            }));
+                          },
                         ),
                       ],
                     ),
@@ -257,61 +270,6 @@ class _LoginScreenState extends State<LoginScreen> {
 //     );
 //   }
 // }
-
-class _CustomTextField extends StatefulWidget {
-  final TextEditingController? controller;
-  final String hintText;
-  final bool obscureText;
-
-  const _CustomTextField({
-    required this.controller,
-    required this.hintText,
-    required this.obscureText,
-  });
-
-  @override
-  State<_CustomTextField> createState() => _CustomTextFieldState();
-}
-
-class _CustomTextFieldState extends State<_CustomTextField> {
-  bool _isObscure = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextFormField(
-        obscureText: widget.obscureText ? _isObscure : false,
-        controller: widget.controller,
-        decoration: InputDecoration(
-            suffixIcon: widget.obscureText
-                ? IconButton(
-                    icon: Icon(
-                        _isObscure ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () {
-                      setState(() {
-                        _isObscure = !_isObscure;
-                      });
-                    },
-                  )
-                : const Icon(
-                    Icons.abc,
-                    color: Colors.white,
-                  ),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-            ),
-            fillColor: Colors.white,
-            filled: true,
-            hintText: widget.hintText,
-            hintStyle: TextStyle(color: Colors.grey[500])),
-      ),
-    );
-  }
-}
 
 // class LoginButton extends StatelessWidget {
 //   final Color color;

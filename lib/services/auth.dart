@@ -25,6 +25,11 @@ class AuthService {
         email: email, password: password);
   }
 
+  /// Reset Password via Email
+  Future passwordReset(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
   /// Email & Password Register
   Future<void> emailPasswordRegister(String email, String password) async {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(

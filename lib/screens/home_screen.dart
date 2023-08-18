@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else {
-          return LoginOrRegisterScreen();
+          return const LoginOrRegisterScreen();
         }
       },
     );
