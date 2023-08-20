@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
+import 'package:podcasts_ruben/screens/edit_playlists_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
-import 'package:shimmer/shimmer.dart';
+// import 'package:shimmer/shimmer.dart';
 
 class AllPlaylists extends StatefulWidget {
   const AllPlaylists({super.key});
@@ -13,6 +14,7 @@ class AllPlaylists extends StatefulWidget {
 
 class _AllPlaylistsState extends State<AllPlaylists> {
   late Future<List<dynamic>> playlistMedia;
+  bool isAdmin = true;
 
   @override
   void initState() {
@@ -41,25 +43,44 @@ class _AllPlaylistsState extends State<AllPlaylists> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      isDense: true,
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Buscar',
-                      hintStyle: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: Colors.grey.shade500),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.grey.shade500,
+                  Row(
+                    children: [
+                      isAdmin
+                          ? IconButton(
+                              onPressed: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return const EditPlaylistsScreen();
+                                    }));
+                              },
+                              icon: const Icon(Icons.add_box),
+                              iconSize: 55,
+                              color: Colors.white,
+                            )
+                          : const SizedBox.shrink(),
+                      Flexible(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            isDense: true,
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Buscar',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: Colors.grey.shade500),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey.shade500,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    ],
                   ),
                   // const ShimmerPlaylist(),
                   FutureBuilder(
