@@ -117,6 +117,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                               playlist: playlists[index],
                               playlistImg: playlistImgs[index],
                               playlistAuthorImg: playlistAuthorImgs[index],
+                              edit: false,
                             );
                           },
                         );

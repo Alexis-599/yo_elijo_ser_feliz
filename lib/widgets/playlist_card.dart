@@ -5,25 +5,31 @@ import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
-
 class PlaylistCard extends StatelessWidget {
   const PlaylistCard({
     super.key,
     required this.playlist,
     required this.playlistImg,
     required this.playlistAuthorImg,
+    required this.edit,
   });
 
   final Playlist playlist;
   final FirebaseFile playlistImg;
   final FirebaseFile playlistAuthorImg;
+  final bool edit;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/playlist', arguments: [playlist, playlistImg,
-          playlistAuthorImg]);
+        if (edit) {
+          Get.toNamed('/editable_playlist',
+              arguments: [playlist, playlistImg, playlistAuthorImg]);
+        } else {
+          Get.toNamed('/playlist',
+              arguments: [playlist, playlistImg, playlistAuthorImg]);
+        }
       },
       child: Container(
         height: 75,
@@ -66,13 +72,18 @@ class PlaylistCard extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.play_circle,
-                color: Colors.white,
-              ),
-            ),
+            edit
+                ? const Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                  )
+                : IconButton(
+                    onPressed: () {}, // start reproducing complete playlist
+                    icon: const Icon(
+                      Icons.play_circle,
+                      color: Colors.white,
+                    ),
+                  ),
           ],
         ),
       ),

@@ -108,6 +108,7 @@ class _PlaylistMusic extends StatelessWidget {
                           playlist: playlists[index],
                           playlistImg: playlistImgs[index],
                           playlistAuthorImg: playlistAuthorImgs[index],
+                          edit: false,
                         ),
                       );
                     },
