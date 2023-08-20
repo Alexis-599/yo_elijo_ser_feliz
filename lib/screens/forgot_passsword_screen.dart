@@ -65,7 +65,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           MaterialButton(
             onPressed: passwordReset,
             color: Colors.amber,
-            child: const Text('Actualizar contraseña'),
+            child: const Text('Enviar correo'),
           )
         ],
       ),
