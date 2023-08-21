@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+
+// import 'package:just_audio/just_audio.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
-import 'package:podcasts_ruben/services/firestore.dart';
+
+// import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/services/models.dart';
-import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
+// import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
 
 // import '../models/playlist_model.dart';
 
@@ -27,6 +29,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   var videos = [];
   var videosImgs = [];
   var videosAudios = [];
+
   // var videosDuration = [];
   final controller = ScrollController();
   int chunk = 0;
@@ -118,7 +121,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     playlist: playlist, playlistFile: playlistImg),
                 const SizedBox(height: 20),
                 const Divider(),
-                PresentationCard(
+                _PresentationCard(
                     playlist: playlist, playlistAuthorImg: playlistAuthorImg),
                 const Divider(),
                 const SizedBox(height: 20),
@@ -158,7 +161,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
 class _SongSmallCard extends StatelessWidget {
   const _SongSmallCard({
-    super.key,
     required this.video,
     required this.videoImg,
     required this.videoAudio,
@@ -168,6 +170,7 @@ class _SongSmallCard extends StatelessWidget {
   final Video video;
   final FirebaseFile videoImg;
   final FirebaseFile videoAudio;
+
   // final Duration? videoDuration;
 
   @override
@@ -194,7 +197,7 @@ class _SongSmallCard extends StatelessWidget {
               .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         subtitle: Text(
-          '\$duration ° ${video.date}',
+          '58:34 ° ${video.date}',
           style: Theme.of(context)
               .textTheme
               .bodySmall!
@@ -209,9 +212,8 @@ class _SongSmallCard extends StatelessWidget {
   }
 }
 
-class PresentationCard extends StatelessWidget {
-  const PresentationCard({
-    super.key,
+class _PresentationCard extends StatelessWidget {
+  const _PresentationCard({
     required this.playlist,
     required this.playlistAuthorImg,
   });
@@ -233,42 +235,26 @@ class PresentationCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 20),
-        Column(
-          children: [
-            Text(
-              'Información',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Text(
-              '....... ....... .. ... \n. .. .... ...',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(color: Colors.white),
-            ),
-          ],
-        ),
-        const SizedBox(width: 40),
-        Column(
-          children: [
-            Text(
-              'Programas',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Text(
-              '....... ....... .. ... \n. .. .... ...',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(color: Colors.white),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                playlist.author,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                playlist.description,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -277,7 +263,6 @@ class PresentationCard extends StatelessWidget {
 
 class _PlaylistInformation extends StatelessWidget {
   const _PlaylistInformation({
-    super.key,
     required this.playlist,
     required this.playlistFile,
   });
