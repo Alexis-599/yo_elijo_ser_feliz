@@ -2,6 +2,7 @@ import 'dart:async';
 // import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:podcasts_ruben/services/auth.dart';
 // import 'package:rxdart/rxdart.dart';
 // import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/models.dart';
@@ -20,6 +21,21 @@ class FirestoreService {
   //   CollectionReference ref = _db.collection('users');
   //   ref.doc(user!.uid).set({'email': email, 'role': 'user'});
   // }
+
+  Future<bool> getAdminStatus() async {
+    User? user = AuthService().user;
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        return documentSnapshot.get('role') == "admin";
+      } else {
+        return false;
+      }
+    });
+  }
 
   /// Reads all documents from the podcasts collection
   Future<List<Playlist>> getPlaylists() async {

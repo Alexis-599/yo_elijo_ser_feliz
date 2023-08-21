@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/edit_playlists_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
 // import 'package:shimmer/shimmer.dart';
 
@@ -14,14 +15,20 @@ class AllPlaylists extends StatefulWidget {
 
 class _AllPlaylistsState extends State<AllPlaylists> {
   late Future<List<dynamic>> playlistMedia;
-  bool isAdmin = true;
+  late bool _isAdmin = true;
 
   @override
   void initState() {
     super.initState();
-
+    checkAdminStatus();
     playlistMedia = FirebaseApi.getPlaylistMedia();
   }
+
+  void checkAdminStatus() async {
+    setState(() async {
+      _isAdmin = await FirestoreService().getAdminStatus();
+    });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +52,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                 children: [
                   Row(
                     children: [
-                      isAdmin
+                      _isAdmin
                           ? IconButton(
                               onPressed: () {
                                 Navigator.push(context,
