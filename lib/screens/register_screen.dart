@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/services/auth.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/custom_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
 
@@ -17,23 +19,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
 
   void signUserUp() async {
-    // show loading circle
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return const Center(
-    //         child: CircularProgressIndicator(),
-    //       );
-    //     });
+    // const CircularProgressIndicator();
 
     // try creating the user
     try {
-      // check if password is confirmed
       if (passwordController.text == confirmPasswordController.text) {
-        await AuthService().emailPasswordRegister(
-            emailController.text, passwordController.text);
+        // create user
+        // await AuthService().emailPasswordRegister(
+        //     emailController.text.trim(), passwordController.text.trim());
+        await _auth
+            .createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim())
+            .then((value) => {postDetailsToFirestore(emailController.text.trim())})
+            .catchError((e) {});
+
       } else {
         showErrorMessage('Las contraseñas no son iguales');
       }
@@ -55,9 +56,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         showErrorMessage(e.message.toString());
       }
     }
+  }
 
-    // pop the loading circle
-    // Navigator.pop(context);
+  postDetailsToFirestore(String email) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    var user = _auth.currentUser;
+    CollectionReference ref = FirebaseFirestore.instance.collection('users');
+    ref.doc(user!.uid).set({'email': email, 'role': 'user'});
   }
 
   // wrong email message popup
@@ -71,6 +76,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
         });
   }
+
+  // Future postUserDetails() async {
+  //   await FirestoreService().addUserDetails(emailController.text.trim());
+  // }
 
   @override
   Widget build(BuildContext context) {

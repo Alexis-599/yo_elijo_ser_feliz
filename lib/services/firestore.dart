@@ -1,12 +1,25 @@
 import 'dart:async';
 // import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:rxdart/rxdart.dart';
 // import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  // Future addUserDetails(String email) async {
+  //   await _db.collection('users').add({
+  //     'email': email,
+  //     'role': 'user'
+  //   });
+  // }
+  //
+  // postDetailsToFirestore(User? user, String email) async {
+  //   CollectionReference ref = _db.collection('users');
+  //   ref.doc(user!.uid).set({'email': email, 'role': 'user'});
+  // }
 
   /// Reads all documents from the podcasts collection
   Future<List<Playlist>> getPlaylists() async {

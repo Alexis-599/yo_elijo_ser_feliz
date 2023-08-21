@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
+
 // import 'dart:convert';
 // import 'dart:math';
 // import 'package:crypto/crypto.dart';
 // import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
+  // final _auth = FirebaseAuth.instance;
   final userStream = FirebaseAuth.instance.authStateChanges();
   final user = FirebaseAuth.instance.currentUser;
 
@@ -21,8 +24,7 @@ class AuthService {
 
   /// Email & Password Login
   Future<void> emailPasswordLogin(String email, String password) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email, password: password);
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
   }
 
   /// Reset Password via Email
@@ -30,11 +32,16 @@ class AuthService {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
-  /// Email & Password Register
-  Future<void> emailPasswordRegister(String email, String password) async {
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email, password: password);
-  }
+  // /// Email & Password Register
+  // Future<void> emailPasswordRegister(String email, String password) async {
+  //   // await FirebaseAuth.instance
+  //   //     .createUserWithEmailAndPassword(email: email, password: password);
+  //   await _auth
+  //       .createUserWithEmailAndPassword(email: email, password: password)
+  //       .then(
+  //           (value) => {FirestoreService().postDetailsToFirestore(user, email)})
+  //       .catchError((e) {});
+  // }
 
   /// Google Login
   Future<void> googleLogin() async {
@@ -104,5 +111,4 @@ class AuthService {
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
   }
-
 }
