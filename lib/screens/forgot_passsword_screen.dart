@@ -58,9 +58,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 10),
           CustomTextField(
-              controller: _emailController,
-              hintText: 'Correo electrónico',
-              obscureText: false),
+            controller: _emailController,
+            hintText: 'Correo electrónico',
+            isPassword: false,
+          ),
           const SizedBox(height: 10),
           MaterialButton(
             onPressed: passwordReset,

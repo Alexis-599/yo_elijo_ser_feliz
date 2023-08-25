@@ -145,7 +145,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 color: Colors.white,
                                 size: 50.0,
                               )
-                            : Container(),
+                            : const SizedBox.shrink(),
                       );
                     }
                   },

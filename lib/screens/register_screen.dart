@@ -8,6 +8,7 @@ import 'package:podcasts_ruben/widgets/my_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   final Function()? onTap;
+
   const RegisterScreen({super.key, required this.onTap});
 
   @override
@@ -22,19 +23,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _auth = FirebaseAuth.instance;
 
   void signUserUp() async {
-    // const CircularProgressIndicator();
-
     // try creating the user
     try {
       if (passwordController.text == confirmPasswordController.text) {
-        // create user
-        // await AuthService().emailPasswordRegister(
-        //     emailController.text.trim(), passwordController.text.trim());
+        // const CircularProgressIndicator();
         await _auth
-            .createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim())
-            .then((value) => {postDetailsToFirestore(emailController.text.trim())})
+            .createUserWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text.trim())
+            .then((value) =>
+                {postDetailsToFirestore(emailController.text.trim())})
             .catchError((e) {});
-
       } else {
         showErrorMessage('Las contraseñas no son iguales');
       }
@@ -50,16 +49,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (e.code == 'wrong-password') {
         // show error to user
         showErrorMessage('Contraseña incorrecta');
-      }
-
-      else {
+      } else {
         showErrorMessage(e.message.toString());
       }
     }
   }
 
   postDetailsToFirestore(String email) async {
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');
     ref.doc(user!.uid).set({'email': email, 'role': 'user'});
@@ -71,28 +67,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: Colors.amber,
-            title: Text(message),
-          );
-        });
+          backgroundColor: Colors.amber,
+          title: Text(message),
+        );
+      }
+    );
   }
-
-  // Future postUserDetails() async {
-  //   await FirestoreService().addUserDetails(emailController.text.trim());
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.amber.shade300,
-                  Colors.amber.shade100,
-                ])),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.amber.shade300,
+              Colors.amber.shade100,
+            ]
+          )
+        ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -120,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   CustomTextField(
                     controller: emailController,
                     hintText: 'Correo electrónico',
-                    obscureText: false,
+                    isPassword: false,
                   ),
 
                   const SizedBox(height: 10),
@@ -129,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   CustomTextField(
                     controller: passwordController,
                     hintText: 'Contraseña',
-                    obscureText: true,
+                    isPassword: true,
                   ),
 
                   const SizedBox(height: 10),
@@ -138,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   CustomTextField(
                     controller: confirmPasswordController,
                     hintText: 'Confirmar contraseña',
-                    obscureText: true,
+                    isPassword: true,
                   ),
 
                   const SizedBox(height: 15),

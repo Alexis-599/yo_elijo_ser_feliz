@@ -8,6 +8,7 @@ import 'package:podcasts_ruben/widgets/my_button.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
+
   const LoginScreen({super.key, required this.onTap});
 
   @override
@@ -15,41 +16,38 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  String errorMessage = '';
 
   void signUserIn() async {
-    // show loading circle
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return const Center(
-    //         child: CircularProgressIndicator(),
-    //       );
-    //     });
+    if (_formKey.currentState!.validate()) {
+      // try sign in
+      try {
+        await AuthService()
+            .emailPasswordLogin(emailController.text, passwordController.text);
+        errorMessage = '';
+      } on FirebaseAuthException catch (e) {
+        errorMessage = e.message!;
 
-    // try sign in
-    try {
-      await AuthService()
-          .emailPasswordLogin(emailController.text, passwordController.text);
-    } on FirebaseAuthException catch (e) {
-      // WRONG EMAIL
-      if (e.code == 'user-not-found') {
-        // show error to user
-        showErrorMessage(
-            'Correo electrónico incorrecto y/o contraseña incorrecta');
+        // // WRONG EMAIL
+        // if (e.code == 'user-not-found') {
+        //   // show error to user
+        //   showErrorMessage(
+        //       'Correo electrónico incorrecto y/o contraseña incorrecta');
+        // }
+        //
+        // // WRONG PASSWORD
+        // if (e.code == 'wrong-password') {
+        //   // show error to user
+        //   showErrorMessage('Contraseña incorrecta');
+        // }
       }
-
-      // WRONG PASSWORD
-      if (e.code == 'wrong-password') {
-        // show error to user
-        showErrorMessage('Contraseña incorrecta');
-      }
+      setState(() {});
     }
-
-    // pop the loading circle
-    // Navigator.pop(context);
   }
 
   // wrong email message popup
@@ -69,172 +67,193 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
               Colors.amber.shade300,
               Colors.amber.shade100,
-            ])),
+            ],
+          ),
+        ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  /// logo
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      radius: MediaQuery.of(context).size.height * 0.14,
+              child: Form(
+                key: _formKey,
+                // autovalidateMode: AutovalidateMode.disabled,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    /// logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
                       child: CircleAvatar(
-                        radius: MediaQuery.of(context).size.height * 0.12,
-                        backgroundImage: const AssetImage(
-                            'assets/images/yo_elijo_ser_feliz.jpg'),
+                        backgroundColor: Colors.transparent,
+                        radius: MediaQuery.of(context).size.height * 0.14,
+                        child: CircleAvatar(
+                          radius: MediaQuery.of(context).size.height * 0.12,
+                          backgroundImage: const AssetImage(
+                              'assets/images/yo_elijo_ser_feliz.jpg'),
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// email text-field
-                  CustomTextField(
-                    controller: emailController,
-                    hintText: 'Correo electrónico',
-                    obscureText: false,
-                  ),
+                    /// email text-field
+                    CustomTextField(
+                      controller: emailController,
+                      hintText: 'Correo electrónico',
+                      isPassword: false,
+                    ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// password text-field
-                  CustomTextField(
-                    controller: passwordController,
-                    hintText: 'Contraseña',
-                    obscureText: true,
-                  ),
+                    /// password text-field
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: 'Contraseña',
+                      isPassword: true,
+                    ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// forgot password?
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    /// show error message
+                    errorMessage.isNotEmpty
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 25),
+                          child: Text(
+                              errorMessage,
+                              style: TextStyle(color: Colors.red[700]),
+                            ),
+                        )
+                        : const SizedBox.shrink(),
+
+                    const SizedBox(height: 10),
+
+                    /// forgot password?
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            child: const Text(
+                              '¿Olvidó su contraseña?',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return const ForgotPasswordScreen();
+                                },
+                              ));
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// sign in button
+                    MyButton(
+                      text: 'Iniciar Sesión',
+                      onTap: signUserIn,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// or continue with
+                    // Row(
+                    //   children: const [
+                    //     Expanded(
+                    //       child: Divider(),
+                    //     ),
+                    //     Text('O continuar con'),
+                    //     Expanded(
+                    //       child: Divider(),
+                    //     ),
+                    //   ],
+                    // ),
+                    //
+                    // const SizedBox(height: 20),
+                    // /// google + apple sign in button
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     _SquareTile(
+                    //         imageUrl: 'assets/images/google.png',
+                    //       loginMethod: AuthService().googleLogin,
+                    //     ),
+                    //     const SizedBox(width: 10),
+                    //     _SquareTile(
+                    //       imageUrl: 'assets/images/facebook.png',
+                    //       loginMethod: () {},
+                    //     ),
+                    //     const SizedBox(width: 10),
+                    //     _SquareTile(
+                    //       imageUrl: 'assets/images/apple.png',
+                    //       loginMethod: () {},
+                    //     ),
+                    //     // FutureBuilder<Object>(
+                    //     //   future: SignInWithApple.isAvailable(),
+                    //     //   builder: (context, snapshot) {
+                    //     //     if (snapshot.data == true) {
+                    //     //       return Row(
+                    //     //         children: [
+                    //     //           const SizedBox(width: 10),
+                    //     //           _SquareTile(
+                    //     //             imageUrl: 'assets/images/apple.png',
+                    //     //             loginMethod: AuthService().signInWithApple,
+                    //     //           ),
+                    //     //         ],
+                    //     //       );
+                    //     //     } else {
+                    //     //       return Container();
+                    //     //     }
+                    //     //   },
+                    //     // ),
+                    //   ],
+                    // ),
+                    const SizedBox(height: 80),
+                    // 40
+
+                    const Text('¿No tiene cuenta?'),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GestureDetector(
+                          onTap: widget.onTap,
                           child: const Text(
-                            '¿Olvidó su contraseña?',
+                            'Registrarse',
                             style: TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const ForgotPasswordScreen();
-                            }));
-                          },
+                        ),
+                        const Text(' | '),
+                        InkWell(
+                          onTap: AuthService().anonLogin,
+                          child: const Text(
+                            'Ingresar como invitado',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// sign in button
-                  MyButton(
-                    text: 'Iniciar Sesión',
-                    onTap: signUserIn,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// or continue with
-                  // Row(
-                  //   children: const [
-                  //     Expanded(
-                  //       child: Divider(),
-                  //     ),
-                  //     Text('O continuar con'),
-                  //     Expanded(
-                  //       child: Divider(),
-                  //     ),
-                  //   ],
-                  // ),
-                  //
-                  // const SizedBox(height: 20),
-                  // /// google + apple sign in button
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     _SquareTile(
-                  //         imageUrl: 'assets/images/google.png',
-                  //       loginMethod: AuthService().googleLogin,
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     _SquareTile(
-                  //       imageUrl: 'assets/images/facebook.png',
-                  //       loginMethod: () {},
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     _SquareTile(
-                  //       imageUrl: 'assets/images/apple.png',
-                  //       loginMethod: () {},
-                  //     ),
-                  //     // FutureBuilder<Object>(
-                  //     //   future: SignInWithApple.isAvailable(),
-                  //     //   builder: (context, snapshot) {
-                  //     //     if (snapshot.data == true) {
-                  //     //       return Row(
-                  //     //         children: [
-                  //     //           const SizedBox(width: 10),
-                  //     //           _SquareTile(
-                  //     //             imageUrl: 'assets/images/apple.png',
-                  //     //             loginMethod: AuthService().signInWithApple,
-                  //     //           ),
-                  //     //         ],
-                  //     //       );
-                  //     //     } else {
-                  //     //       return Container();
-                  //     //     }
-                  //     //   },
-                  //     // ),
-                  //   ],
-                  // ),
-                  const SizedBox(height: 80), // 40
-
-                  const Text('¿No tiene cuenta?'),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Registrarse',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Text(' | '),
-                      InkWell(
-                        onTap: AuthService().anonLogin,
-                        child: const Text(
-                          'Ingresar como invitado',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
