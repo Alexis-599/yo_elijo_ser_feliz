@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/services/auth.dart';
+
 // import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/custom_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
@@ -25,8 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final _auth = FirebaseAuth.instance;
   String errorMessage = '';
+  bool isLoading = false;
 
   void signUserUp() async {
+    setState(() => isLoading = true);
     if (_formKey.currentState!.validate()) {
       // try creating the user
       try {
@@ -48,8 +51,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           errorMessage = e.code;
         }
       }
-      setState(() {});
     }
+    setState(() => isLoading = false);
   }
 
   postDetailsToFirestore(String email) async {
@@ -63,15 +66,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
               Colors.amber.shade300,
               Colors.amber.shade100,
-            ]
-          )
-        ),
+            ])),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -125,17 +126,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     /// show error message
                     errorMessage.isNotEmpty
                         ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          Text(
-                            errorMessage,
-                            style: TextStyle(color: Colors.red[700]),
-                          ),
-                        ],
-                      ),
-                    )
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Text(
+                                  errorMessage,
+                                  style: TextStyle(color: Colors.red[700]),
+                                ),
+                              ],
+                            ),
+                          )
                         : const SizedBox.shrink(),
 
                     const SizedBox(height: 15),
@@ -144,6 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     MyButton(
                       text: 'Registrarse',
                       onTap: signUserUp,
+                      isLoading: isLoading,
                     ),
 
                     const SizedBox(height: 10),

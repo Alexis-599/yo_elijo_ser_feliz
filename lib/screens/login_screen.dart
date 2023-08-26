@@ -22,8 +22,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   String errorMessage = '';
+  bool isLoading = false;
 
   void signUserIn() async {
+    setState(() => isLoading = true);
     if (_formKey.currentState!.validate()) {
       // try sign in
       try {
@@ -42,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
           errorMessage = e.code;
         }
       }
-      setState(() {});
+      setState(() => isLoading = false);
     }
   }
 
@@ -152,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     MyButton(
                       text: 'Iniciar Sesión',
                       onTap: signUserIn,
+                      isLoading: isLoading,
                     ),
 
                     const SizedBox(height: 10),
