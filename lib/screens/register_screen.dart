@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/services/auth.dart';
-import 'package:podcasts_ruben/services/firestore.dart';
+// import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/custom_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
 
@@ -16,42 +16,39 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
   final _auth = FirebaseAuth.instance;
+  String errorMessage = '';
 
   void signUserUp() async {
-    // try creating the user
-    try {
-      if (passwordController.text == confirmPasswordController.text) {
-        // const CircularProgressIndicator();
-        await _auth
-            .createUserWithEmailAndPassword(
-                email: emailController.text.trim(),
-                password: passwordController.text.trim())
-            .then((value) =>
-                {postDetailsToFirestore(emailController.text.trim())})
-            .catchError((e) {});
-      } else {
-        showErrorMessage('Las contraseñas no son iguales');
+    if (_formKey.currentState!.validate()) {
+      // try creating the user
+      try {
+        if (passwordController.text == confirmPasswordController.text) {
+          await _auth
+              .createUserWithEmailAndPassword(
+                  email: emailController.text.trim(),
+                  password: passwordController.text.trim())
+              .then((value) =>
+                  {postDetailsToFirestore(emailController.text.trim())});
+          errorMessage = '';
+        } else {
+          errorMessage = 'Las contraseñas no son iguales';
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          errorMessage = 'Ese correo electrónico ya está registrado';
+        } else {
+          errorMessage = e.code;
+        }
       }
-    } on FirebaseAuthException catch (e) {
-      // WRONG EMAIL
-      if (e.code == 'user-not-found') {
-        // show error to user
-        showErrorMessage(
-            'Correo electrónico incorrecto y/o contraseña incorrecta');
-      }
-
-      // WRONG PASSWORD
-      if (e.code == 'wrong-password') {
-        // show error to user
-        showErrorMessage('Contraseña incorrecta');
-      } else {
-        showErrorMessage(e.message.toString());
-      }
+      setState(() {});
     }
   }
 
@@ -59,19 +56,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');
     ref.doc(user!.uid).set({'email': email, 'role': 'user'});
-  }
-
-  // wrong email message popup
-  void showErrorMessage(String message) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-          backgroundColor: Colors.amber,
-          title: Text(message),
-        );
-      }
-    );
   }
 
   @override
@@ -91,92 +75,111 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  /// logo
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      radius: MediaQuery.of(context).size.height * 0.14,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    /// logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
                       child: CircleAvatar(
-                        radius: MediaQuery.of(context).size.height * 0.12,
-                        backgroundImage: const AssetImage(
-                            'assets/images/yo_elijo_ser_feliz.jpg'),
+                        backgroundColor: Colors.transparent,
+                        radius: MediaQuery.of(context).size.height * 0.14,
+                        child: CircleAvatar(
+                          radius: MediaQuery.of(context).size.height * 0.12,
+                          backgroundImage: const AssetImage(
+                              'assets/images/yo_elijo_ser_feliz.jpg'),
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// email text-field
-                  CustomTextField(
-                    controller: emailController,
-                    hintText: 'Correo electrónico',
-                    isPassword: false,
-                  ),
+                    /// email text-field
+                    CustomTextField(
+                      controller: emailController,
+                      hintText: 'Correo electrónico',
+                      isPassword: false,
+                    ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// password text-field
-                  CustomTextField(
-                    controller: passwordController,
-                    hintText: 'Contraseña',
-                    isPassword: true,
-                  ),
+                    /// password text-field
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: 'Contraseña',
+                      isPassword: true,
+                    ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// confirm password text-field
-                  CustomTextField(
-                    controller: confirmPasswordController,
-                    hintText: 'Confirmar contraseña',
-                    isPassword: true,
-                  ),
+                    /// confirm password text-field
+                    CustomTextField(
+                      controller: confirmPasswordController,
+                      hintText: 'Confirmar contraseña',
+                      isPassword: true,
+                    ),
 
-                  const SizedBox(height: 15),
+                    /// show error message
+                    errorMessage.isNotEmpty
+                        ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          Text(
+                            errorMessage,
+                            style: TextStyle(color: Colors.red[700]),
+                          ),
+                        ],
+                      ),
+                    )
+                        : const SizedBox.shrink(),
 
-                  /// sign up button
-                  MyButton(
-                    text: 'Registrarse',
-                    onTap: signUserUp,
-                  ),
+                    const SizedBox(height: 15),
 
-                  const SizedBox(height: 10),
+                    /// sign up button
+                    MyButton(
+                      text: 'Registrarse',
+                      onTap: signUserUp,
+                    ),
 
-                  const SizedBox(height: 40), // 40
+                    const SizedBox(height: 10),
 
-                  const Text('¿Ya tiene una cuenta?'),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Iniciar sesión',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+                    const SizedBox(height: 40), // 40
+
+                    const Text('¿Ya tiene una cuenta?'),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: widget.onTap,
+                          child: const Text(
+                            'Iniciar sesión',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      const Text(' | '),
-                      InkWell(
-                        onTap: AuthService().anonLogin,
-                        child: const Text(
-                          'Ingresar como invitado',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+                        const Text(' | '),
+                        InkWell(
+                          onTap: AuthService().anonLogin,
+                          child: const Text(
+                            'Ingresar como invitado',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),

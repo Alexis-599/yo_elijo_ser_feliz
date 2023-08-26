@@ -31,35 +31,19 @@ class _LoginScreenState extends State<LoginScreen> {
             .emailPasswordLogin(emailController.text, passwordController.text);
         errorMessage = '';
       } on FirebaseAuthException catch (e) {
-        errorMessage = e.message!;
 
-        // // WRONG EMAIL
-        // if (e.code == 'user-not-found') {
-        //   // show error to user
-        //   showErrorMessage(
-        //       'Correo electrónico incorrecto y/o contraseña incorrecta');
-        // }
-        //
-        // // WRONG PASSWORD
-        // if (e.code == 'wrong-password') {
-        //   // show error to user
-        //   showErrorMessage('Contraseña incorrecta');
-        // }
+        if (e.code == 'user-not-found') {
+          errorMessage = 'El correo electrónico no está registrado';
+        }
+        else if (e.code == 'wrong-password') {
+          errorMessage = 'Contraseña incorrecta';
+        }
+        else {
+          errorMessage = e.code;
+        }
       }
       setState(() {});
     }
-  }
-
-  // wrong email message popup
-  void showErrorMessage(String message) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: Colors.amber,
-            title: Text(message),
-          );
-        });
   }
 
   @override
@@ -118,16 +102,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       isPassword: true,
                     ),
 
-                    const SizedBox(height: 10),
-
                     /// show error message
                     errorMessage.isNotEmpty
                         ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: Text(
-                              errorMessage,
-                              style: TextStyle(color: Colors.red[700]),
-                            ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              Text(
+                                  errorMessage,
+                                  style: TextStyle(color: Colors.red[700]),
+                                ),
+                            ],
+                          ),
                         )
                         : const SizedBox.shrink(),
 

@@ -11,6 +11,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
   @override
@@ -20,20 +21,30 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void passwordReset() async {
-    try {
-      await AuthService().passwordReset(_emailController.text.trim());
-      showMessage('Enlace de reinicio de contraseña enviado a su correo');
-    } on FirebaseAuthException catch (e) {
-      showMessage(e.message.toString());
+    if (_formKey.currentState!.validate()) {
+      try {
+        await AuthService().passwordReset(_emailController.text.trim());
+        showMessage(
+            'Enlace de reinicio de contraseña enviado a su correo', false);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          showMessage('Este correo electrónico no está registrado', true);
+        } else {
+          showMessage(e.code, true);
+        }
+      }
     }
   }
 
-  void showMessage(String message) {
+  void showMessage(String message, bool isError) {
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Text(message),
+            content: Text(
+              message,
+              style: isError ? TextStyle(color: Colors.red[700]) : null,
+            ),
           );
         });
   }
@@ -45,30 +56,33 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: Colors.amber,
         elevation: 0,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Text(
-              'Ingrese su correo y le enviaremos un link para actualizar su contraseña',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
+              child: Text(
+                'Ingrese su correo y le enviaremos un link para actualizar su contraseña',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20),
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          CustomTextField(
-            controller: _emailController,
-            hintText: 'Correo electrónico',
-            isPassword: false,
-          ),
-          const SizedBox(height: 10),
-          MaterialButton(
-            onPressed: passwordReset,
-            color: Colors.amber,
-            child: const Text('Enviar correo'),
-          )
-        ],
+            const SizedBox(height: 10),
+            CustomTextField(
+              controller: _emailController,
+              hintText: 'Correo electrónico',
+              isPassword: false,
+            ),
+            const SizedBox(height: 10),
+            MaterialButton(
+              onPressed: passwordReset,
+              color: Colors.amber,
+              child: const Text('Enviar correo'),
+            )
+          ],
+        ),
       ),
     );
   }
