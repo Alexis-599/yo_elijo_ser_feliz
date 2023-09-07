@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
@@ -41,7 +41,10 @@ class HomeScreen extends StatelessWidget {
                 ])),
             child: Scaffold(
               backgroundColor: Colors.transparent,
-              appBar: const _CustomAppBar(),
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
               bottomNavigationBar: NavBar(indexNum: 0),
               drawer: _CustomDrawer(),
               body: SingleChildScrollView(
@@ -290,25 +293,4 @@ class _Discover extends StatelessWidget {
       ),
     );
   }
-}
-
-class _CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  const _CustomAppBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      // leading: const Icon(Icons.grid_view, size: 35),
-      actions: [
-        Container(
-            margin: const EdgeInsets.only(right: 20, top: 10),
-            child: const Icon(FontAwesomeIcons.user)),
-      ],
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(56);
 }
