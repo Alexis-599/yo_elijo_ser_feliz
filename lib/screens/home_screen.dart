@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
-import 'package:podcasts_ruben/screens/login_screen.dart';
+
+// import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
-import 'package:podcasts_ruben/services/firestore.dart';
-import 'package:podcasts_ruben/services/models.dart';
+
+// import 'package:podcasts_ruben/services/firestore.dart';
+// import 'package:podcasts_ruben/services/models.dart';
 import 'package:podcasts_ruben/widgets/video_card.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
 
@@ -61,9 +64,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _PlaylistMusic extends StatelessWidget {
-  const _PlaylistMusic({
-    super.key,
-  });
+  const _PlaylistMusic();
 
   @override
   Widget build(BuildContext context) {
@@ -124,9 +125,8 @@ class _PlaylistMusic extends StatelessWidget {
 }
 
 class _CustomDrawer extends StatelessWidget {
-  _CustomDrawer({
-    super.key,
-  });
+  _CustomDrawer();
+
   final user = AuthService().user!;
 
   void logOut() async {
@@ -136,50 +136,54 @@ class _CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-          // padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.amber.shade200,
+      backgroundColor: Colors.grey[900],
+      child: Column(children: [
+        DrawerHeader(
+          child: Column(
+            children: [
+              const Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 80,
               ),
-              child: Center(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Sesión iniciada como:',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
-                  ),
-                  Text(
-                    user.email ?? 'INVITADO',
-                    style: Theme.of(context).textTheme.bodyLarge!,
-                  ),
-                ],
-              )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                child: const Text('Cerrar sesión'),
-                onPressed: () {
-                  logOut();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/', (route) => false);
-                },
+              Text(
+                'Usuario:',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14),
               ),
-            ),
-          ]),
+              Text(
+                user.email ?? 'INVITADO',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        ListTile(
+          leading: const Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
+          onTap: () {
+            logOut();
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil('/', (route) => false);
+          },
+          title: const Text(
+            'Cerrar sesión',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ]),
     );
   }
 }
 
 class _ProximosCursos extends StatelessWidget {
-  const _ProximosCursos({
-    super.key,
-  });
+  const _ProximosCursos();
 
   @override
   Widget build(BuildContext context) {
@@ -223,12 +227,7 @@ class _ProximosCursos extends StatelessWidget {
 }
 
 class _Discover extends StatelessWidget {
-  const _Discover({
-    super.key,
-    // required this.songs,
-  });
-
-  // final List<Song> songs;
+  const _Discover();
 
   @override
   Widget build(BuildContext context) {
@@ -294,9 +293,7 @@ class _Discover extends StatelessWidget {
 }
 
 class _CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  const _CustomAppBar({
-    super.key,
-  });
+  const _CustomAppBar();
 
   @override
   Widget build(BuildContext context) {
