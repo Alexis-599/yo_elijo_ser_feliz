@@ -49,23 +49,43 @@ class _SongScreenState extends State<SongScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        // iconTheme: const IconThemeData(color: Colors.blueAccent),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.blue.shade200,
+            Colors.blue.shade800,
+          ],
+        ),
       ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        // fit: StackFit.expand, //comment out for image to move up
-        children: [
-          Image.network(videoImg.url, fit: BoxFit.cover),
-          const _BackgroundFilter(),
-          _MusicPlayer(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          // iconTheme: const IconThemeData(color: Colors.blueAccent),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.network(
+                videoImg.url,
+                height: MediaQuery.of(context).size.height * 0.43,
+                width: MediaQuery.of(context).size.height * 0.43,
+                fit: BoxFit.cover,
+              ),
+            ),
+            _MusicPlayer(
               video: video,
               seekBarDataStrean: _seekBarDataStrean,
-              audioPlayer: audioPlayer)
-        ],
+              audioPlayer: audioPlayer,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -73,7 +93,6 @@ class _SongScreenState extends State<SongScreen> {
 
 class _MusicPlayer extends StatelessWidget {
   const _MusicPlayer({
-    super.key,
     required this.video,
     required Stream<SeekBarData> seekBarDataStrean,
     required this.audioPlayer,
@@ -94,15 +113,17 @@ class _MusicPlayer extends StatelessWidget {
           Text(
             video.title,
             style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 10),
           Text(
             video.podcast,
             maxLines: 2,
-            style: Theme.of(context).textTheme.bodyMedium!
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
                 .copyWith(color: Colors.white),
           ),
           const SizedBox(height: 20),
@@ -119,46 +140,6 @@ class _MusicPlayer extends StatelessWidget {
           ),
           PlayerButtons(audioPlayer: audioPlayer)
         ],
-      ),
-    );
-  }
-}
-
-class _BackgroundFilter extends StatelessWidget {
-  const _BackgroundFilter({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderMask(
-      shaderCallback: (rect) {
-        return LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.white,
-              Colors.white.withOpacity(0.5),
-              Colors.white.withOpacity(0.0),
-            ],
-            stops: const [
-              0.0,
-              0.4,
-              0.6
-            ]).createShader(rect);
-      },
-      blendMode: BlendMode.dstOut,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.amber.shade400,
-              Colors.blue.shade800,
-            ],
-          ),
-        ),
       ),
     );
   }

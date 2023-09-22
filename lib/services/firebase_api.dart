@@ -37,7 +37,7 @@ class FirebaseApi {
     final playlistImg = await Future.wait(playlists.map(
             (e) async => await getFile(e.img)));
     final playlistAuthorImg = await Future.wait(playlists.map(
-            (e) async => await getFile(e.img))); // change to e.authorImg
+            (e) async => await getFile(e.authorImg))); // change to e.authorImg
     return [playlists, playlistImg.toList(), playlistAuthorImg.toList()];
   }
 
