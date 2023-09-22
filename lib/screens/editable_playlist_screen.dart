@@ -168,34 +168,48 @@ class _PresentationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _EditableImage(
+    return IntrinsicHeight(
+      child: Row(
+        children: [
+          _EditableImage(
             playlistFile: playlistAuthorImg,
-            size: MediaQuery.of(context).size.height * 0.17),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            children: [
-              Text(
-                playlist.author,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                playlist.description,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-              ),
-            ],
+            size: MediaQuery.of(context).size.height * 0.17,
           ),
-        ),
-      ],
+          const SizedBox(width: 20),
+          Expanded(
+            child: Stack(
+              alignment: AlignmentDirectional.bottomEnd,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      playlist.author,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      playlist.description,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge!
+                          .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.edit),
+                  color: Colors.black45,
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

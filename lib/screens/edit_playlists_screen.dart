@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:podcasts_ruben/main.dart';
+// import 'package:get/get.dart';
+// import 'package:podcasts_ruben/main.dart';
+import 'package:podcasts_ruben/screens/add_playlist.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/playlist_card.dart';
 import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
@@ -30,7 +32,12 @@ class _EditPlaylistsScreenState extends State<EditPlaylistsScreen> {
           Container(
               margin: const EdgeInsets.only(right: 10),
               child: IconButton(
-                onPressed: () {}, // add playlist
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                        return const AddPlaylist();
+                      }));
+                }, // add playlist
                 icon: const Icon(Icons.add_box),
                 iconSize: 45,
               )),
