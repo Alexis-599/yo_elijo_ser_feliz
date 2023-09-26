@@ -172,6 +172,7 @@ class _PresentationCard extends StatelessWidget {
       child: Row(
         children: [
           _EditableImage(
+            onTap: () {},
             playlistFile: playlistAuthorImg,
             size: MediaQuery.of(context).size.height * 0.17,
           ),
@@ -270,12 +271,10 @@ class _PlaylistInformation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        GestureDetector(
+        _EditableImage(
           onTap: () {},
-          child: _EditableImage(
-            playlistFile: playlistFile,
-            size: MediaQuery.of(context).size.height * 0.3,
-          ),
+          playlistFile: playlistFile,
+          size: MediaQuery.of(context).size.height * 0.3,
         ),
         const SizedBox(height: 20),
         GestureDetector(
@@ -307,46 +306,51 @@ class _EditableImage extends StatelessWidget {
   const _EditableImage({
     required this.playlistFile,
     required this.size,
+    required this.onTap,
   });
 
   final FirebaseFile playlistFile;
   final double size;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     double editSquareSize = size * 0.2;
 
-    return Stack(
-      alignment: AlignmentDirectional.bottomEnd,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Image.network(
-            playlistFile.url,
-            height: size,
-            width: size,
-            fit: BoxFit.cover,
-          ),
-        ),
-        Container(
-          width: editSquareSize,
-          height: editSquareSize,
-          decoration: ShapeDecoration(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(15),
-                topLeft: Radius.circular(15),
-              ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        alignment: AlignmentDirectional.bottomEnd,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Image.network(
+              playlistFile.url,
+              height: size,
+              width: size,
+              fit: BoxFit.cover,
             ),
-            color: Colors.black.withOpacity(0.5),
           ),
-          child: Icon(
-            Icons.edit,
-            color: Colors.white,
-            size: editSquareSize * 0.6,
+          Container(
+            width: editSquareSize,
+            height: editSquareSize,
+            decoration: ShapeDecoration(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(15),
+                  topLeft: Radius.circular(15),
+                ),
+              ),
+              color: Colors.black.withOpacity(0.5),
+            ),
+            child: Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: editSquareSize * 0.6,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
