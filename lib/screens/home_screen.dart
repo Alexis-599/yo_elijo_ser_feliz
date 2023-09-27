@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
+import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 
@@ -15,53 +16,70 @@ import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/video_card.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: AuthService().userStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingScreen();
-        } else if (snapshot.hasError) {
-          return const Center(
-            child: Text('error'),
+    return hasUserAuthData
+        ? const _DisplayScreen()
+        : StreamBuilder(
+            stream: AuthService().userStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingScreen();
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text('error'),
+                );
+              } else if (snapshot.hasData) {
+                hasUserAuthData = true;
+                return const _DisplayScreen();
+              } else {
+                return const LoginOrRegisterScreen();
+              }
+            },
           );
-        } else if (snapshot.hasData) {
-          return Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                  Colors.blue.shade800.withOpacity(1),
-                  Colors.amber.shade400.withOpacity(1),
-                ])),
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-              ),
-              bottomNavigationBar: NavBar(indexNum: 0),
-              drawer: _CustomDrawer(),
-              body: SingleChildScrollView(
-                child: Column(
-                  children: const [
-                    _ProximosCursos(),
-                    _Discover(),
-                    _PlaylistMusic(),
-                  ],
-                ),
-              ),
-            ),
-          );
-        } else {
-          return const LoginOrRegisterScreen();
-        }
-      },
+  }
+}
+
+class _DisplayScreen extends StatelessWidget {
+  const _DisplayScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+            Colors.blue.shade800.withOpacity(1),
+            Colors.amber.shade400.withOpacity(1),
+          ])),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        bottomNavigationBar: NavBar(indexNum: 0),
+        drawer: _CustomDrawer(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: const [
+              _ProximosCursos(),
+              _Discover(),
+              _PlaylistMusic(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -172,6 +190,7 @@ class _CustomDrawer extends StatelessWidget {
           ),
           onTap: () {
             logOut();
+            hasUserAuthData = false;
             Navigator.of(context)
                 .pushNamedAndRemoveUntil('/', (route) => false);
           },
