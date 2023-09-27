@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
-import 'package:podcasts_ruben/screens/loading_screen.dart';
-import 'package:podcasts_ruben/services/firebase_api.dart';
+// import 'package:podcasts_ruben/screens/loading_screen.dart';
+// import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
 class PlaylistCard extends StatelessWidget {
@@ -73,9 +73,36 @@ class PlaylistCard extends StatelessWidget {
               ),
             ),
             edit
-                ? const Icon(
-                    Icons.edit,
-                    color: Colors.white,
+                ? IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Borrar playlist'),
+                          content: const Text(
+                            'Estás seguro que quieres borrar esta playlist?\n\nSe perderán todos sus datos y contenido.',
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text('SÍ, BORRAR'),
+                              onPressed: () {
+                                // TODO: Delete playlist
+
+                                Navigator.pop(context);
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('CANCELAR'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    }, // delete playlist
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.black45,
+                    ),
                   )
                 : IconButton(
                     onPressed: () {}, // start reproducing complete playlist

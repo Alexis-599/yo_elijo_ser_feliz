@@ -73,6 +73,7 @@ class _EditPlaylistsScreenState extends State<EditPlaylistsScreen> {
                         );
                       } else if (snapshot.hasError) {
                         return const Scaffold(
+                          // TODO: Implement UI for error state
                           body: Text('error'),
                         );
                       } else if (snapshot.hasData) {
