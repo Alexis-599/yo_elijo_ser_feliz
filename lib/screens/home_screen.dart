@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
+// import 'package:podcasts_ruben/main.dart';
 import 'package:podcasts_ruben/screens/loading_screen.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     // AppData appData = AppData();
+    // check to see if auth data is loaded so it doesn't load multiple times
     return appData.hasUserAuthData
         ? const _DisplayScreen()
         : StreamBuilder(
@@ -96,8 +98,23 @@ class _DisplayScreen extends StatelessWidget {
   }
 }
 
-class _PlaylistMusic extends StatelessWidget {
+class _PlaylistMusic extends StatefulWidget {
   const _PlaylistMusic();
+
+  @override
+  State<_PlaylistMusic> createState() => _PlaylistMusicState();
+}
+
+class _PlaylistMusicState extends State<_PlaylistMusic> {
+  AppData appData = AppData();
+
+  late Future<List<dynamic>> playlistMedia;
+
+  @override
+  void initState() {
+    super.initState();
+    playlistMedia = FirebaseApi.getPlaylistMedia();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,50 +124,68 @@ class _PlaylistMusic extends StatelessWidget {
         children: [
           const SectionHeader(
               title: 'Playlists', actionRoute: '/all_playlists'),
-          FutureBuilder(
-              future: FirebaseApi.getPlaylistMedia(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.only(top: 20),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return const ShimmerPlaylist();
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return const Scaffold(
-                    body: Text('error'),
-                  );
-                } else if (snapshot.hasData) {
-                  var results = snapshot.data!;
-                  var playlists = results[0];
-                  var playlistImgs = results[1];
-                  var playlistAuthorImgs = results[2];
-                  // var playlists = snapshot.data!;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.only(top: 20),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: PlaylistCard(
-                          playlist: playlists[index],
-                          playlistImg: playlistImgs[index],
-                          playlistAuthorImg: playlistAuthorImgs[index],
-                          edit: false,
-                        ),
+          appData.playlistMedia.isEmpty
+              ? FutureBuilder(
+                  future: playlistMedia,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 20),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 4,
+                        itemBuilder: (context, index) {
+                          return const ShimmerPlaylist();
+                        },
                       );
-                    },
-                  );
-                } else {
-                  return const Scaffold();
-                }
-              }),
+                    } else if (snapshot.hasError) {
+                      return const Scaffold(
+                        body: Text('error'),
+                      );
+                    } else if (snapshot.hasData) {
+                      appData.playlistMedia = snapshot.data!;
+                      var playlists = appData.playlistMedia[0];
+                      var playlistImgs = appData.playlistMedia[1];
+                      var playlistAuthorImgs = appData.playlistMedia[2];
+                      // var playlists = snapshot.data!;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 20),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 4,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: PlaylistCard(
+                              playlist: playlists[index],
+                              playlistImg: playlistImgs[index],
+                              playlistAuthorImg: playlistAuthorImgs[index],
+                              edit: false,
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Scaffold();
+                    }
+                  })
+              : ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 20),
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: PlaylistCard(
+                        playlist: appData.playlistMedia[0][index],
+                        playlistImg: appData.playlistMedia[1][index],
+                        playlistAuthorImg: appData.playlistMedia[2][index],
+                        edit: false,
+                      ),
+                    );
+                  },
+                ),
         ],
       ),
     );
@@ -161,7 +196,7 @@ class _CustomDrawer extends StatelessWidget {
   _CustomDrawer();
 
   final user = AuthService().user!;
-  AppData appData = AppData();
+  final AppData appData = AppData();
 
   void logOut() async {
     await AuthService().signOut();
@@ -205,6 +240,7 @@ class _CustomDrawer extends StatelessWidget {
             logOut();
             appData.hasUserAuthData = false;
             appData.isAdmin = false;
+            appData.recentVideos = [];
             Navigator.of(context)
                 .pushNamedAndRemoveUntil('/', (route) => false);
           },
@@ -262,8 +298,26 @@ class _ProximosCursos extends StatelessWidget {
   }
 }
 
-class _Discover extends StatelessWidget {
+class _Discover extends StatefulWidget {
   const _Discover();
+
+  @override
+  State<_Discover> createState() => _DiscoverState();
+}
+
+class _DiscoverState extends State<_Discover> {
+  AppData appData = AppData();
+  late Future<List<dynamic>> recentVideos;
+
+  // late List<dynamic> videos;
+  // late List<dynamic> videoImgs;
+  // late List<dynamic> videoAudios;
+
+  @override
+  void initState() {
+    super.initState();
+    recentVideos = FirebaseApi.getRecentVideosMedia();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -281,46 +335,61 @@ class _Discover extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.28, // 0.33
-            child: FutureBuilder(
-              future: FirebaseApi.getRecentVideosMedia(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return ListView.separated(
+            child: appData.recentVideos.isEmpty
+                ? FutureBuilder(
+                    future: recentVideos,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(width: 10);
+                          },
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 4,
+                          itemBuilder: (context, index) {
+                            return const ShimmerVideo();
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text('Error');
+                      } else if (snapshot.hasData) {
+                        appData.recentVideos = snapshot.data!;
+                        var videos = appData.recentVideos[0];
+                        var videoImgs = appData.recentVideos[1];
+                        var videoAudios = appData.recentVideos[2];
+                        return ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(width: 10);
+                          },
+                          scrollDirection: Axis.horizontal,
+                          itemCount: videos.length,
+                          itemBuilder: (context, index) {
+                            return VideoCard(
+                              video: videos[index],
+                              videoImg: videoImgs[index],
+                              audio: videoAudios[index],
+                            );
+                          },
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  )
+                : ListView.separated(
                     separatorBuilder: (context, index) {
                       return const SizedBox(width: 10);
                     },
                     scrollDirection: Axis.horizontal,
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return const ShimmerVideo();
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return const Text('Error');
-                } else if (snapshot.hasData) {
-                  var results = snapshot.data!;
-                  var videos = results[0];
-                  var videoImgs = results[1];
-                  var videoAudios = results[2];
-                  return ListView.separated(
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(width: 10);
-                    },
-                    scrollDirection: Axis.horizontal,
-                    itemCount: videos.length,
+                    itemCount: appData.recentVideos[0].length,
                     itemBuilder: (context, index) {
                       return VideoCard(
-                        video: videos[index],
-                        videoImg: videoImgs[index],
-                        audio: videoAudios[index],
+                        video: appData.recentVideos[0][index],
+                        videoImg: appData.recentVideos[1][index],
+                        audio: appData.recentVideos[2][index],
                       );
                     },
-                  );
-                } else {
-                  return Container();
-                }
-              },
-            ),
+                  ),
           )
         ],
       ),

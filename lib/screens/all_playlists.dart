@@ -26,7 +26,6 @@ class _AllPlaylistsState extends State<AllPlaylists> {
 
   @override
   Widget build(BuildContext context) {
-    print(appData.isAdmin);
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -85,7 +84,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                     ],
                   ),
                   // const ShimmerPlaylist(),
-                  FutureBuilder(
+                  appData.playlistMedia.isEmpty ? FutureBuilder(
                     future: playlistMedia,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -103,10 +102,10 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                           body: Text('error'),
                         );
                       } else if (snapshot.hasData) {
-                        var results = snapshot.data!;
-                        var playlists = results[0];
-                        var playlistImgs = results[1];
-                        var playlistAuthorImgs = results[2];
+                        appData.playlistMedia = snapshot.data!;
+                        var playlists = appData.playlistMedia[0];
+                        var playlistImgs = appData.playlistMedia[1];
+                        var playlistAuthorImgs = appData.playlistMedia[2];
                         return ListView.builder(
                           shrinkWrap: true,
                           padding: const EdgeInsets.only(top: 20),
@@ -126,6 +125,21 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                       } else {
                         return const Scaffold();
                       }
+                    },
+                  ) : ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(top: 20),
+                    physics: const NeverScrollableScrollPhysics(),
+                    // itemCount: 7,
+                    itemCount: appData.playlistMedia[0].length,
+                    itemBuilder: (context, index) {
+                      // return buildPlaylistShimmer();
+                      return PlaylistCard(
+                        playlist: appData.playlistMedia[0][index],
+                        playlistImg: appData.playlistMedia[1][index],
+                        playlistAuthorImg: appData.playlistMedia[2][index],
+                        edit: false,
+                      );
                     },
                   ),
                 ],
