@@ -10,6 +10,7 @@ import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 // import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
 
 // import 'package:podcasts_ruben/services/firestore.dart';
 // import 'package:podcasts_ruben/services/models.dart';
@@ -24,9 +25,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  AppData appData = AppData();
+
+  void setAdminStatus() async {
+    bool isAdmin = await FirestoreService().getAdminStatus();
+    setState(() {
+      appData.isAdmin = isAdmin;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return hasUserAuthData
+    // AppData appData = AppData();
+    return appData.hasUserAuthData
         ? const _DisplayScreen()
         : StreamBuilder(
             stream: AuthService().userStream,
@@ -38,7 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text('error'),
                 );
               } else if (snapshot.hasData) {
-                hasUserAuthData = true;
+                appData.hasUserAuthData = true;
+                setAdminStatus();
                 return const _DisplayScreen();
               } else {
                 return const LoginOrRegisterScreen();
@@ -149,6 +161,7 @@ class _CustomDrawer extends StatelessWidget {
   _CustomDrawer();
 
   final user = AuthService().user!;
+  AppData appData = AppData();
 
   void logOut() async {
     await AuthService().signOut();
@@ -190,7 +203,8 @@ class _CustomDrawer extends StatelessWidget {
           ),
           onTap: () {
             logOut();
-            hasUserAuthData = false;
+            appData.hasUserAuthData = false;
+            appData.isAdmin = false;
             Navigator.of(context)
                 .pushNamedAndRemoveUntil('/', (route) => false);
           },
