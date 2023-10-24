@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
 // import 'package:just_audio/just_audio.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
@@ -159,7 +160,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 }
 
-class _SongSmallCard extends StatelessWidget {
+class _SongSmallCard extends StatefulWidget {
   const _SongSmallCard({
     required this.video,
     required this.videoImg,
@@ -171,33 +172,62 @@ class _SongSmallCard extends StatelessWidget {
   final FirebaseFile videoImg;
   final FirebaseFile videoAudio;
 
-  // final Duration? videoDuration;
+  @override
+  State<_SongSmallCard> createState() => _SongSmallCardState();
+}
+
+class _SongSmallCardState extends State<_SongSmallCard> {
+  late AudioPlayer _audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer()..setUrl(widget.videoAudio.url);
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration? duration) {
+    if (duration == null) {
+      return '--:--';
+    }
+    else {
+      String minutes = duration.inMinutes.toString().padLeft(2, '0');
+      String seconds =
+      duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+      return '$minutes:$seconds';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/song', arguments: [video, videoImg, videoAudio]);
+        Get.toNamed('/song', arguments: [widget.video, widget.videoImg, widget.videoAudio]);
       },
       child: ListTile(
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: Image.network(
-            videoImg.url,
+            widget.videoImg.url,
             height: MediaQuery.of(context).size.height * 0.1,
             width: MediaQuery.of(context).size.height * 0.09,
             fit: BoxFit.cover,
           ),
         ),
         title: Text(
-          video.title,
+          widget.video.title,
           style: Theme.of(context)
               .textTheme
               .bodyLarge!
               .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         subtitle: Text(
-          '58:34 ° ${video.date}',
+          '${_formatDuration(_audioPlayer.duration)} ° ${widget.video.date}',
           style: Theme.of(context)
               .textTheme
               .bodySmall!
