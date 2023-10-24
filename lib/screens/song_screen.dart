@@ -1,3 +1,4 @@
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
@@ -6,7 +7,7 @@ import 'package:podcasts_ruben/services/models.dart';
 import 'package:rxdart/rxdart.dart' as rxdart;
 
 // import '../models/song_model.dart';
-import '../widgets/widgets.dart';
+// import '../widgets/widgets.dart';
 
 class SongScreen extends StatefulWidget {
   const SongScreen({super.key});
@@ -16,36 +17,46 @@ class SongScreen extends StatefulWidget {
 }
 
 class _SongScreenState extends State<SongScreen> {
-  AudioPlayer audioPlayer = AudioPlayer();
   Video video = Get.arguments[0];
   FirebaseFile videoImg = Get.arguments[1];
   FirebaseFile audio = Get.arguments[2];
 
+  late AudioPlayer _audioPlayer;
+  final _playlist = ConcatenatingAudioSource(
+    children: [],
+  );
+
+  Stream<PositionData> get _positionDataStream =>
+      rxdart.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+        _audioPlayer.positionStream,
+        _audioPlayer.bufferedPositionStream,
+        _audioPlayer.durationStream,
+        (position, bufferedPosition, duration) => PositionData(
+          position,
+          bufferedPosition,
+          duration ?? Duration.zero,
+        ),
+      );
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer()..setUrl(audio.url);
 
-    audioPlayer.setAudioSource(
-      ConcatenatingAudioSource(
-        children: [
-          AudioSource.uri(Uri.parse('asset:///${video.path}')),
-        ],
-      ),
-    );
+    // _audioPlayer.setAudioSource(
+    //   ConcatenatingAudioSource(
+    //     children: [
+    //       AudioSource.uri(Uri.parse('asset:///${video.path}')),
+    //     ],
+    //   ),
+    // );
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
-
-  Stream<SeekBarData> get _seekBarDataStrean =>
-      rxdart.Rx.combineLatest2<Duration, Duration?, SeekBarData>(
-          audioPlayer.positionStream, audioPlayer.durationStream,
-          (Duration position, Duration? duration) {
-        return SeekBarData(position, duration ?? Duration.zero);
-      });
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +92,8 @@ class _SongScreenState extends State<SongScreen> {
             ),
             _MusicPlayer(
               video: video,
-              seekBarDataStrean: _seekBarDataStrean,
-              audioPlayer: audioPlayer,
+              positionDataStream: _positionDataStream,
+              audioPlayer: _audioPlayer,
             ),
           ],
         ),
@@ -93,14 +104,16 @@ class _SongScreenState extends State<SongScreen> {
 
 class _MusicPlayer extends StatelessWidget {
   const _MusicPlayer({
-    required this.video,
-    required Stream<SeekBarData> seekBarDataStrean,
-    required this.audioPlayer,
-  }) : _seekBarDataStream = seekBarDataStrean;
+    required Video video,
+    required Stream<PositionData> positionDataStream,
+    required AudioPlayer audioPlayer,
+  })  : _video = video,
+        _audioPlayer = audioPlayer,
+        _positionDataStream = positionDataStream;
 
-  final Video video;
-  final Stream<SeekBarData> _seekBarDataStream;
-  final AudioPlayer audioPlayer;
+  final Video _video;
+  final Stream<PositionData> _positionDataStream;
+  final AudioPlayer _audioPlayer;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +124,7 @@ class _MusicPlayer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            video.title,
+            _video.title,
             style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -119,7 +132,7 @@ class _MusicPlayer extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            video.podcast,
+            _video.podcast,
             maxLines: 2,
             style: Theme.of(context)
                 .textTheme
@@ -127,20 +140,85 @@ class _MusicPlayer extends StatelessWidget {
                 .copyWith(color: Colors.white),
           ),
           const SizedBox(height: 20),
-          StreamBuilder<SeekBarData>(
-            stream: _seekBarDataStream,
+          StreamBuilder(
+            stream: _positionDataStream,
             builder: (context, snapshot) {
               final positionData = snapshot.data;
-              return SeekBar(
-                position: positionData?.position ?? Duration.zero,
-                duration: positionData?.duration ?? Duration.zero,
-                onChangedEnd: audioPlayer.seek,
+              return ProgressBar(
+                barHeight: 6,
+                baseBarColor: Colors.grey[600],
+                bufferedBarColor: Colors.grey,
+                progressBarColor: Colors.white,
+                thumbColor: Colors.white,
+                thumbRadius: 8,
+                timeLabelTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+                progress: positionData?.position ?? Duration.zero,
+                buffered: positionData?.bufferedPosition ?? Duration.zero,
+                total: positionData?.duration ?? Duration.zero,
+                onSeek: _audioPlayer.seek,
               );
             },
           ),
-          PlayerButtons(audioPlayer: audioPlayer)
+          // const SizedBox(height: 20),
+          _Controls(audioPlayer: _audioPlayer),
         ],
       ),
     );
   }
+}
+
+class _Controls extends StatelessWidget {
+  const _Controls({
+    super.key,
+    required this.audioPlayer,
+  });
+
+  final AudioPlayer audioPlayer;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: audioPlayer.playerStateStream,
+      builder: (context, snapshot) {
+        final playerState = snapshot.data;
+        final processingState = playerState?.processingState;
+        final playing = playerState?.playing;
+        if (!(playing ?? false)) {
+          return IconButton(
+            onPressed: audioPlayer.play,
+            iconSize: 75,
+            color: Colors.white,
+            icon: const Icon(Icons.play_arrow_rounded),
+          );
+        } else if (processingState != ProcessingState.completed) {
+          return IconButton(
+            onPressed: audioPlayer.pause,
+            iconSize: 75,
+            color: Colors.white,
+            icon: const Icon(Icons.pause_rounded),
+          );
+        }
+        return const Icon(
+          Icons.play_arrow_rounded,
+          size: 75,
+          color: Colors.white,
+        );
+      },
+    );
+  }
+}
+
+class PositionData {
+  const PositionData(
+    this.position,
+    this.bufferedPosition,
+    this.duration,
+  );
+
+  final Duration position;
+  final Duration bufferedPosition;
+  final Duration duration;
 }
