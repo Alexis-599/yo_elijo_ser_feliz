@@ -162,7 +162,6 @@ class _MusicPlayer extends StatelessWidget {
               );
             },
           ),
-          // const SizedBox(height: 20),
           _Controls(audioPlayer: _audioPlayer),
         ],
       ),
@@ -180,33 +179,51 @@ class _Controls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: audioPlayer.playerStateStream,
-      builder: (context, snapshot) {
-        final playerState = snapshot.data;
-        final processingState = playerState?.processingState;
-        final playing = playerState?.playing;
-        if (!(playing ?? false)) {
-          return IconButton(
-            onPressed: audioPlayer.play,
-            iconSize: 75,
-            color: Colors.white,
-            icon: const Icon(Icons.play_arrow_rounded),
-          );
-        } else if (processingState != ProcessingState.completed) {
-          return IconButton(
-            onPressed: audioPlayer.pause,
-            iconSize: 75,
-            color: Colors.white,
-            icon: const Icon(Icons.pause_rounded),
-          );
-        }
-        return const Icon(
-          Icons.play_arrow_rounded,
-          size: 75,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed:
+              audioPlayer.hasPrevious ? audioPlayer.seekToPrevious : null,
+          iconSize: 60,
           color: Colors.white,
-        );
-      },
+          icon: const Icon(Icons.skip_previous_rounded),
+        ),
+        StreamBuilder(
+          stream: audioPlayer.playerStateStream,
+          builder: (context, snapshot) {
+            final playerState = snapshot.data;
+            final processingState = playerState?.processingState;
+            final playing = playerState?.playing;
+            if (!(playing ?? false)) {
+              return IconButton(
+                onPressed: audioPlayer.play,
+                iconSize: 75,
+                color: Colors.white,
+                icon: const Icon(Icons.play_arrow_rounded),
+              );
+            } else if (processingState != ProcessingState.completed) {
+              return IconButton(
+                onPressed: audioPlayer.pause,
+                iconSize: 75,
+                color: Colors.white,
+                icon: const Icon(Icons.pause_rounded),
+              );
+            }
+            return const Icon(
+              Icons.play_arrow_rounded,
+              size: 75,
+              color: Colors.white,
+            );
+          },
+        ),
+        IconButton(
+          onPressed: audioPlayer.hasNext ? audioPlayer.seekToNext : null,
+          iconSize: 60,
+          color: Colors.white,
+          icon: const Icon(Icons.skip_next_rounded),
+        ),
+      ],
     );
   }
 }
