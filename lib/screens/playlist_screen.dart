@@ -227,7 +227,8 @@ class _SongSmallCardState extends State<_SongSmallCard> {
               .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         subtitle: Text(
-          '${_formatDuration(_audioPlayer.duration)} ° ${widget.video.date}',
+          '0:00 ° ${widget.video.date}',
+          // '${_formatDuration(_audioPlayer.duration)} ° ${widget.video.date}',
           style: Theme.of(context)
               .textTheme
               .bodySmall!
