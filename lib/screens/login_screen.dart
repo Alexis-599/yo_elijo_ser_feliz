@@ -44,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
           errorMessage = e.code;
         }
       }
-      setState(() => isLoading = false);
     }
+    setState(() => isLoading = false);
   }
 
   @override
