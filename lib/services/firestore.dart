@@ -24,7 +24,7 @@ class FirestoreService {
 
   Future<bool> getAdminStatus() async {
     User? user = AuthService().user;
-    return await FirebaseFirestore.instance
+    return await _db
         .collection('users')
         .doc(user!.uid)
         .get()

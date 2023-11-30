@@ -177,17 +177,18 @@ class _SongSmallCard extends StatefulWidget {
 }
 
 class _SongSmallCardState extends State<_SongSmallCard> {
-  late AudioPlayer _audioPlayer;
+  // late AudioPlayer _audioPlayer;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setUrl(widget.videoAudio.url);
+    // TODO: Move this to background thread (future)
+    // _audioPlayer = AudioPlayer()..setUrl(widget.videoAudio.url);
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose();
     super.dispose();
   }
 
