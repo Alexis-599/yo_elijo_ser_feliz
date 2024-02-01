@@ -84,9 +84,9 @@ class _DisplayScreen extends StatelessWidget {
         ),
         bottomNavigationBar: NavBar(indexNum: 0),
         drawer: _CustomDrawer(),
-        body: SingleChildScrollView(
+        body: const SingleChildScrollView(
           child: Column(
-            children: const [
+            children: [
               _ProximosCursos(),
               _Discover(),
               _PlaylistMusic(),
