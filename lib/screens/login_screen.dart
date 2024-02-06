@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/context_extension.dart';
 import 'package:podcasts_ruben/screens/forgot_passsword_screen.dart';
+import 'package:podcasts_ruben/screens/home_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/widgets/custom_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
@@ -33,14 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
             .emailPasswordLogin(emailController.text, passwordController.text);
         errorMessage = '';
       } on FirebaseAuthException catch (e) {
-
         if (e.code == 'user-not-found') {
           errorMessage = 'El correo electrónico no está registrado';
-        }
-        else if (e.code == 'wrong-password') {
+        } else if (e.code == 'wrong-password') {
           errorMessage = 'Contraseña incorrecta';
-        }
-        else {
+        } else {
           errorMessage = e.code;
         }
       }
@@ -93,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: emailController,
                       hintText: 'Correo electrónico',
                       isPassword: false,
+                      isEmail: false,
                     ),
 
                     const SizedBox(height: 10),
@@ -102,22 +104,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: passwordController,
                       hintText: 'Contraseña',
                       isPassword: true,
+                      isEmail: false,
                     ),
 
                     /// show error message
                     errorMessage.isNotEmpty
                         ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              Text(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Text(
                                   errorMessage,
                                   style: TextStyle(color: Colors.red[700]),
                                 ),
-                            ],
-                          ),
-                        )
+                              ],
+                            ),
+                          )
                         : const SizedBox.shrink(),
 
                     const SizedBox(height: 10),
@@ -159,58 +162,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 10),
 
-                    /// or continue with
-                    // Row(
-                    //   children: const [
-                    //     Expanded(
-                    //       child: Divider(),
-                    //     ),
-                    //     Text('O continuar con'),
-                    //     Expanded(
-                    //       child: Divider(),
-                    //     ),
-                    //   ],
-                    // ),
-                    //
-                    // const SizedBox(height: 20),
-                    // /// google + apple sign in button
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     _SquareTile(
-                    //         imageUrl: 'assets/images/google.png',
-                    //       loginMethod: AuthService().googleLogin,
-                    //     ),
-                    //     const SizedBox(width: 10),
-                    //     _SquareTile(
-                    //       imageUrl: 'assets/images/facebook.png',
-                    //       loginMethod: () {},
-                    //     ),
-                    //     const SizedBox(width: 10),
-                    //     _SquareTile(
-                    //       imageUrl: 'assets/images/apple.png',
-                    //       loginMethod: () {},
-                    //     ),
-                    //     // FutureBuilder<Object>(
-                    //     //   future: SignInWithApple.isAvailable(),
-                    //     //   builder: (context, snapshot) {
-                    //     //     if (snapshot.data == true) {
-                    //     //       return Row(
-                    //     //         children: [
-                    //     //           const SizedBox(width: 10),
-                    //     //           _SquareTile(
-                    //     //             imageUrl: 'assets/images/apple.png',
-                    //     //             loginMethod: AuthService().signInWithApple,
-                    //     //           ),
-                    //     //         ],
-                    //     //       );
-                    //     //     } else {
-                    //     //       return Container();
-                    //     //     }
-                    //     //   },
-                    //     // ),
-                    //   ],
-                    // ),
+                    // / or continue with
+                    const Row(
+                      children: [
+                        Expanded(
+                          child: Divider(),
+                        ),
+                        Text('O continuar con'),
+                        Expanded(
+                          child: Divider(),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// google + apple sign in button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (Platform.isAndroid)
+                          _SquareTile(
+                            imageUrl: 'assets/images/google.png',
+                            loginMethod: () {
+                              AuthService().googleLogin().whenComplete(
+                                    () => context.pushAndClearAll(
+                                      const HomeScreen(),
+                                    ),
+                                  );
+                            },
+                          ),
+                        const SizedBox(width: 10),
+                        _SquareTile(
+                          imageUrl: 'assets/images/facebook.png',
+                          loginMethod: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        if (Platform.isIOS)
+                          _SquareTile(
+                            imageUrl: 'assets/images/apple.png',
+                            loginMethod: () {},
+                          ),
+                        // FutureBuilder<Object>(
+                        //   future: SignInWithApple.isAvailable(),
+                        //   builder: (context, snapshot) {
+                        //     if (snapshot.data == true) {
+                        //       return Row(
+                        //         children: [
+                        //           const SizedBox(width: 10),
+                        //           _SquareTile(
+                        //             imageUrl: 'assets/images/apple.png',
+                        //             loginMethod: AuthService().signInWithApple,
+                        //           ),
+                        //         ],
+                        //       );
+                        //     } else {
+                        //       return Container();
+                        //     }
+                        //   },
+                        // ),
+                      ],
+                    ),
                     const SizedBox(height: 80),
                     // 40
 
@@ -231,7 +243,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const Text(' | '),
                         InkWell(
-                          onTap: AuthService().anonLogin,
+                          onTap: () {
+                            AuthService().anonLogin();
+                            context.pushAndClearAll(const HomeScreen());
+                          },
                           child: const Text(
                             'Ingresar como invitado',
                             style: TextStyle(
@@ -253,32 +268,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// class _SquareTile extends StatelessWidget {
-//   final String imageUrl;
-//   final Function loginMethod;
-//
-//   const _SquareTile(
-//       {super.key, required this.imageUrl, required this.loginMethod});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: () => loginMethod(),
-//       child: Container(
-//         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
-//         decoration: BoxDecoration(
-//           border: Border.all(color: Colors.white),
-//           borderRadius: BorderRadius.circular(16),
-//           color: Colors.white70,
-//         ),
-//         child: Image.asset(
-//           imageUrl,
-//           height: 40,
-//         ),
-//       ),
-//     );
-//   }
-// }
+class _SquareTile extends StatelessWidget {
+  final String imageUrl;
+  final VoidCallback loginMethod;
+
+  const _SquareTile({required this.imageUrl, required this.loginMethod});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: loginMethod,
+      child: Container(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white70,
+        ),
+        child: Image.asset(
+          imageUrl,
+          height: 40,
+        ),
+      ),
+    );
+  }
+}
 
 // class LoginButton extends StatelessWidget {
 //   final Color color;

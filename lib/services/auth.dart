@@ -1,64 +1,85 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 
-// import 'dart:convert';
-// import 'dart:math';
-// import 'package:crypto/crypto.dart';
-// import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+// final authProvider = Provider<AuthService>((ref) => AuthService());
 
-class AuthService {
-  // final _auth = FirebaseAuth.instance;
+class AuthService extends ChangeNotifier {
   final userStream = FirebaseAuth.instance.authStateChanges();
-  final user = FirebaseAuth.instance.currentUser;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? get currentUser => _auth.currentUser;
 
   /// Anonymous Firebase Login
   Future<void> anonLogin() async {
-    try {
-      await FirebaseAuth.instance.signInAnonymously();
-    } on FirebaseAuthException catch (e) {
-      // handle error
-    }
+    await FirebaseAuth.instance.signInAnonymously().catchError((e) {
+      Fluttertoast.showToast(msg: 'An unknown error occured');
+      return e;
+    }).whenComplete(
+        () => Fluttertoast.showToast(msg: 'Annonymous login successfully'));
   }
 
   /// Email & Password Login
   Future<void> emailPasswordLogin(String email, String password) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password)
+        .catchError((e) {
+      Fluttertoast.showToast(msg: 'An unknown error occured');
+      return e;
+    }).whenComplete(() => Fluttertoast.showToast(msg: 'Login successfully'));
   }
 
   /// Reset Password via Email
   Future passwordReset(String email) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    await FirebaseAuth.instance
+        .sendPasswordResetEmail(email: email)
+        .catchError((e) {
+      Fluttertoast.showToast(msg: 'An unknown error occured');
+      return e;
+    }).whenComplete(
+            () => Fluttertoast.showToast(msg: 'Email sent successfully'));
   }
 
-  // /// Email & Password Register
-  // Future<void> emailPasswordRegister(String email, String password) async {
-  //   // await FirebaseAuth.instance
-  //   //     .createUserWithEmailAndPassword(email: email, password: password);
-  //   await _auth
-  //       .createUserWithEmailAndPassword(email: email, password: password)
-  //       .then(
-  //           (value) => {FirestoreService().postDetailsToFirestore(user, email)})
-  //       .catchError((e) {});
-  // }
+  // Email & Password Register
+  Future<void> emailPasswordRegister(
+      String email, String password, String name) async {
+    await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((value) => {
+              FirestoreService().postDetailsToFirestore(
+                email: email,
+                name: name,
+                imageUrl: '',
+              )
+            })
+        .catchError((e) {
+      Fluttertoast.showToast(msg: 'An unknown error occured');
+      return e;
+    }).whenComplete(() => Fluttertoast.showToast(msg: 'Register successfully'));
+  }
 
   /// Google Login
   Future<void> googleLogin() async {
-    try {
-      final googleUser = await GoogleSignIn().signIn();
+    final googleUser = await GoogleSignIn().signIn();
 
-      if (googleUser == null) return;
+    if (googleUser == null) return;
 
-      final googleAuth = await googleUser.authentication;
-      final authCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+    final googleAuth = await googleUser.authentication;
+    final authCredential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(authCredential);
+    if (userCredential.user != null) {
+      FirestoreService().postDetailsToFirestore(
+        email: userCredential.user!.email!,
+        name: userCredential.user!.displayName!,
+        imageUrl: userCredential.user!.photoURL!,
       );
-
-      await FirebaseAuth.instance.signInWithCredential(authCredential);
-    } on FirebaseAuthException catch (e) {
-      // handle error
     }
   }
 
@@ -109,6 +130,11 @@ class AuthService {
   // }
 
   Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
+    await FirebaseAuth.instance.signOut().catchError((e) {
+      Fluttertoast.showToast(msg: 'An unknown error occured');
+      return e;
+    }).whenComplete(() => Fluttertoast.showToast(msg: 'Logout successfully'));
   }
 }
+
+final authService = ChangeNotifierProvider<AuthService>((ref) => AuthService());

@@ -1,64 +1,32 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-// import 'package:flutter_spinkit/flutter_spinkit.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
+import 'package:podcasts_ruben/context_extension.dart';
 import 'package:podcasts_ruben/data.dart';
-// import 'package:podcasts_ruben/main.dart';
-import 'package:podcasts_ruben/screens/loading_screen.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 
-// import 'package:podcasts_ruben/screens/login_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
-import 'package:podcasts_ruben/services/firestore.dart';
-
-// import 'package:podcasts_ruben/services/firestore.dart';
-// import 'package:podcasts_ruben/services/models.dart';
 import 'package:podcasts_ruben/widgets/video_card.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authService);
 
-class _HomeScreenState extends State<HomeScreen> {
-  AppData appData = AppData();
-
-  void setAdminStatus() async {
-    bool isAdmin = await FirestoreService().getAdminStatus();
-    setState(() {
-      appData.isAdmin = isAdmin;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // AppData appData = AppData();
-    // check to see if auth data is loaded so it doesn't load multiple times
-    return appData.hasUserAuthData
-        ? const _DisplayScreen()
-        : StreamBuilder(
-            stream: AuthService().userStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LoadingScreen();
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text('error'),
-                );
-              } else if (snapshot.hasData) {
-                appData.hasUserAuthData = true;
-                setAdminStatus();
-                return const _DisplayScreen();
-              } else {
-                return const LoginOrRegisterScreen();
-              }
-            },
-          );
+    if (auth.currentUser != null) {
+      return const _DisplayScreen();
+    } else {
+      return const LoginOrRegisterScreen();
+    }
   }
 }
 
@@ -82,8 +50,24 @@ class _DisplayScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        bottomNavigationBar: NavBar(indexNum: 0),
-        drawer: _CustomDrawer(),
+        bottomNavigationBar: const NavBar(indexNum: 0),
+        drawer: StreamBuilder<UserModel?>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .snapshots()
+                .map((event) => UserModel.fromJson(event.data()!)),
+            builder: (context, snap) {
+              if (snap.hasData && snap.data != null) {
+                return _CustomDrawer(
+                  userModel: snap.data!,
+                );
+              } else if (snap.hasError) {
+                return Container();
+              } else {
+                return const CircularProgressIndicator();
+              }
+            }),
         body: const SingleChildScrollView(
           child: Column(
             children: [
@@ -193,9 +177,11 @@ class _PlaylistMusicState extends State<_PlaylistMusic> {
 }
 
 class _CustomDrawer extends StatelessWidget {
-  _CustomDrawer();
+  final UserModel userModel;
 
-  final user = AuthService().user!;
+  _CustomDrawer({required this.userModel});
+
+  // final user = AuthService().user!;
   final AppData appData = AppData();
 
   void logOut() async {
@@ -206,50 +192,83 @@ class _CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Colors.grey[900],
-      child: Column(children: [
-        DrawerHeader(
-          child: Column(
-            children: [
-              const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 80,
-              ),
-              Text(
-                'Usuario:',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14),
-              ),
-              Text(
-                user.email ?? 'INVITADO',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
-            ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                EdgeInsets.only(top: Platform.isAndroid ? 50 : 100, left: 17),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      image: userModel.imageUrl == null ||
+                              userModel.imageUrl!.isEmpty
+                          ? null
+                          : DecorationImage(
+                              image: NetworkImage(userModel.imageUrl!))),
+
+                  // padding: const EdgeInsets.all(4),
+                  child:
+                      userModel.imageUrl == null || userModel.imageUrl!.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 60,
+                            )
+                          : Container(),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  userModel.name,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  userModel.email,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                const Divider(
+                  indent: 0,
+                  endIndent: 90,
+                ),
+              ],
+            ),
           ),
-        ),
-        ListTile(
-          leading: const Icon(
-            Icons.logout,
-            color: Colors.white,
+          ListTile(
+            leading: const Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onTap: () {
+              logOut();
+              appData.hasUserAuthData = false;
+              appData.isAdmin = false;
+              appData.recentVideos = [];
+              context.pushAndClearAll(const LoginOrRegisterScreen());
+            },
+            title: const Text(
+              'Cerrar sesión',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
-          onTap: () {
-            logOut();
-            appData.hasUserAuthData = false;
-            appData.isAdmin = false;
-            appData.recentVideos = [];
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil('/', (route) => false);
-          },
-          title: const Text(
-            'Cerrar sesión',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

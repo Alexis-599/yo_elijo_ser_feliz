@@ -2,7 +2,7 @@ import 'dart:async';
 // import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:podcasts_ruben/services/auth.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 // import 'package:rxdart/rxdart.dart';
 // import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/models.dart';
@@ -10,32 +10,49 @@ import 'package:podcasts_ruben/services/models.dart';
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Future addUserDetails(String email) async {
-  //   await _db.collection('users').add({
-  //     'email': email,
-  //     'role': 'user'
+  Future addUserDetails(String email) async {
+    await _db.collection('users').add({'email': email, 'role': 'user'});
+  }
+
+  postDetailsToFirestore({
+    required String email,
+    required String name,
+    required String imageUrl,
+  }) async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      var ref =
+          _db.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
+      await ref.get().then((value) {
+        if (!value.exists) {
+          var user = UserModel(
+            id: ref.id,
+            name: name,
+            username: email.split("@").first,
+            email: email,
+            imageUrl: imageUrl,
+            isAdmin: false,
+            currentPlan: 'free',
+          );
+          ref.set(user.toMap());
+        }
+      });
+    }
+  }
+
+  // Future<bool> getAdminStatus() async {
+  //   // User? user = AuthService().user;
+  //   return await _db
+  //       .collection('users')
+  //       .doc('user!.uid')
+  //       .get()
+  //       .then((DocumentSnapshot documentSnapshot) {
+  //     if (documentSnapshot.exists) {
+  //       return documentSnapshot.get('role') == "admin";
+  //     } else {
+  //       return false;
+  //     }
   //   });
   // }
-  //
-  // postDetailsToFirestore(User? user, String email) async {
-  //   CollectionReference ref = _db.collection('users');
-  //   ref.doc(user!.uid).set({'email': email, 'role': 'user'});
-  // }
-
-  Future<bool> getAdminStatus() async {
-    User? user = AuthService().user;
-    return await _db
-        .collection('users')
-        .doc(user!.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        return documentSnapshot.get('role') == "admin";
-      } else {
-        return false;
-      }
-    });
-  }
 
   /// Reads all documents from the podcasts collection
   Future<List<Playlist>> getPlaylists() async {
@@ -113,10 +130,23 @@ class FirestoreService {
 
     //convert back to my format
     return recentParsed
-        .map((date) =>
-            '${date.day.toString().padLeft(2, '0')}'
-                '-${date.month.toString().padLeft(2, '0')}'
-                '-${date.year}')
+        .map((date) => '${date.day.toString().padLeft(2, '0')}'
+            '-${date.month.toString().padLeft(2, '0')}'
+            '-${date.year}')
         .toList();
+  }
+}
+
+Stream<UserModel?>? getCurrentUserData() {
+  if (FirebaseAuth.instance.currentUser != null) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+          (value) => UserModel.fromJson(value.data()!),
+        );
+  } else {
+    return null;
   }
 }

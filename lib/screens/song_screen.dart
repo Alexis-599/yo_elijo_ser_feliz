@@ -1,30 +1,29 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/services/models.dart';
 import 'package:rxdart/rxdart.dart' as rxdart;
 
-// import '../models/song_model.dart';
-// import '../widgets/widgets.dart';
-
 class SongScreen extends StatefulWidget {
-  const SongScreen({super.key});
+  const SongScreen(
+      {super.key,
+      required this.video,
+      required this.videoImg,
+      required this.audio});
+  final Video video;
+  final FirebaseFile videoImg;
+  final FirebaseFile audio;
 
   @override
   State<SongScreen> createState() => _SongScreenState();
 }
 
 class _SongScreenState extends State<SongScreen> {
-  Video video = Get.arguments[0];
-  FirebaseFile videoImg = Get.arguments[1];
-  FirebaseFile audio = Get.arguments[2];
-
   late AudioPlayer _audioPlayer;
-  final _playlist = ConcatenatingAudioSource(
-    children: [],
-  );
+  // final _playlist = ConcatenatingAudioSource(
+  //   children: [],
+  // );
 
   Stream<PositionData> get _positionDataStream =>
       rxdart.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -41,7 +40,7 @@ class _SongScreenState extends State<SongScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setUrl(audio.url);
+    _audioPlayer = AudioPlayer()..setUrl(widget.audio.url);
 
     // _audioPlayer.setAudioSource(
     //   ConcatenatingAudioSource(
@@ -84,14 +83,14 @@ class _SongScreenState extends State<SongScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Image.network(
-                videoImg.url,
+                widget.videoImg.url,
                 height: MediaQuery.of(context).size.height * 0.43,
                 width: MediaQuery.of(context).size.height * 0.43,
                 fit: BoxFit.cover,
               ),
             ),
             _MusicPlayer(
-              video: video,
+              video: widget.video,
               positionDataStream: _positionDataStream,
               audioPlayer: _audioPlayer,
             ),
@@ -171,7 +170,6 @@ class _MusicPlayer extends StatelessWidget {
 
 class _Controls extends StatelessWidget {
   const _Controls({
-    super.key,
     required this.audioPlayer,
   });
 

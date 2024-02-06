@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:podcasts_ruben/screens/editable_playlist_screen.dart';
+import 'package:podcasts_ruben/screens/playlist_screen.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
 // import 'package:podcasts_ruben/screens/loading_screen.dart';
 // import 'package:podcasts_ruben/services/firebase_api.dart';
@@ -24,11 +25,31 @@ class PlaylistCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (edit) {
-          Get.toNamed('/editable_playlist',
-              arguments: [playlist, playlistImg, playlistAuthorImg]);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EditablePlaylistScreen(
+                playlist: playlist,
+                playlistImg: playlistImg,
+                playlistAuthorImg: playlistAuthorImg,
+              ),
+            ),
+          );
+          // Get.toNamed('/editable_playlist',
+          //     arguments: [playlist, playlistImg, playlistAuthorImg]);
         } else {
-          Get.toNamed('/playlist',
-              arguments: [playlist, playlistImg, playlistAuthorImg]);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PlaylistScreen(
+                playlist: playlist,
+                playlistImg: playlistImg,
+                playlistAuthorImg: playlistAuthorImg,
+              ),
+            ),
+          );
+          // Get.toNamed('/playlist',
+          //     arguments: [playlist, playlistImg, playlistAuthorImg]);
         }
       },
       child: Container(

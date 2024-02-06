@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:podcasts_ruben/screens/song_screen.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/services/models.dart';
-
 
 class VideoCard extends StatelessWidget {
   const VideoCard({
@@ -20,7 +19,11 @@ class VideoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/song', arguments: [video, videoImg, audio]);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => SongScreen(
+                    video: video, videoImg: videoImg, audio: audio)));
       },
       child: Container(
         constraints: const BoxConstraints(
@@ -45,8 +48,7 @@ class VideoCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                fontSize: 14
-              ),
+                  fontSize: 14),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

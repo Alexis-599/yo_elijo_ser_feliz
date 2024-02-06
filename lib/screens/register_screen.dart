@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/context_extension.dart';
+import 'package:podcasts_ruben/screens/home_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
 
 // import 'package:podcasts_ruben/services/firestore.dart';
@@ -21,10 +22,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // text editing controllers
   final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  final _auth = FirebaseAuth.instance;
+  // final _auth = FirebaseAuth.instance;
   String errorMessage = '';
   bool isLoading = false;
 
@@ -34,12 +36,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // try creating the user
       try {
         if (passwordController.text == confirmPasswordController.text) {
-          await _auth
-              .createUserWithEmailAndPassword(
-                  email: emailController.text.trim(),
-                  password: passwordController.text.trim())
-              .then((value) =>
-                  {postDetailsToFirestore(emailController.text.trim())});
+          await AuthService()
+              .emailPasswordRegister(
+                emailController.text.trim(),
+                passwordController.text.trim(),
+                nameController.text.trim(),
+              )
+              .whenComplete(() => context.pushTo(const HomeScreen()));
+
           errorMessage = '';
         } else {
           errorMessage = 'Las contraseñas no son iguales';
@@ -55,14 +59,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => isLoading = false);
   }
 
-  postDetailsToFirestore(String email) async {
-    var user = _auth.currentUser;
-    CollectionReference ref = FirebaseFirestore.instance.collection('users');
-    ref.doc(user!.uid).set({'email': email, 'role': 'user'});
-  }
-
   @override
   Widget build(BuildContext context) {
+    // final auth = ref.watch(authService);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -100,9 +100,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     /// email text-field
                     CustomTextField(
+                      controller: nameController,
+                      hintText: 'nombre completo',
+                      isPassword: false,
+                      isEmail: false,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// email text-field
+                    CustomTextField(
                       controller: emailController,
                       hintText: 'Correo electrónico',
                       isPassword: false,
+                      isEmail: true,
                     ),
 
                     const SizedBox(height: 10),
@@ -112,6 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: passwordController,
                       hintText: 'Contraseña',
                       isPassword: true,
+                      isEmail: false,
                     ),
 
                     const SizedBox(height: 10),
@@ -121,6 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: confirmPasswordController,
                       hintText: 'Confirmar contraseña',
                       isPassword: true,
+                      isEmail: false,
                     ),
 
                     /// show error message

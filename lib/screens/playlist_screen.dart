@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:podcasts_ruben/screens/song_screen.dart';
 
 // import 'package:just_audio/just_audio.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
@@ -14,17 +13,21 @@ import 'package:podcasts_ruben/services/models.dart';
 // import '../models/playlist_model.dart';
 
 class PlaylistScreen extends StatefulWidget {
-  const PlaylistScreen({super.key});
+  const PlaylistScreen(
+      {super.key,
+      required this.playlist,
+      required this.playlistImg,
+      required this.playlistAuthorImg});
+
+  final Playlist playlist;
+  final FirebaseFile playlistImg;
+  final FirebaseFile playlistAuthorImg;
 
   @override
   State<PlaylistScreen> createState() => _PlaylistScreenState();
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
-  Playlist playlist = Get.arguments[0];
-  FirebaseFile playlistImg = Get.arguments[1];
-  FirebaseFile playlistAuthorImg = Get.arguments[2];
-
   late Future<List<dynamic>> futureMedia;
   List<List<dynamic>> results = [[], [], []];
   var videos = [];
@@ -67,8 +70,8 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     if (isLoading) return;
     isLoading = true;
     int limit = 15;
-    final newResults =
-        await FirebaseApi.getVideosMediaFromPlaylist(playlist, chunk, limit);
+    final newResults = await FirebaseApi.getVideosMediaFromPlaylist(
+        widget.playlist, chunk, limit);
     // final newDurationResults = await Future.wait(newResults[0].map(
     //         (video) async => await getDuration(video.path)));
     setState(() {
@@ -119,11 +122,13 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             child: Column(
               children: [
                 _PlaylistInformation(
-                    playlist: playlist, playlistFile: playlistImg),
+                    playlist: widget.playlist,
+                    playlistFile: widget.playlistImg),
                 const SizedBox(height: 20),
                 const Divider(),
                 _PresentationCard(
-                    playlist: playlist, playlistAuthorImg: playlistAuthorImg),
+                    playlist: widget.playlist,
+                    playlistAuthorImg: widget.playlistAuthorImg),
                 const Divider(),
                 const SizedBox(height: 20),
                 // Future builder
@@ -192,23 +197,29 @@ class _SongSmallCardState extends State<_SongSmallCard> {
     super.dispose();
   }
 
-  String _formatDuration(Duration? duration) {
-    if (duration == null) {
-      return '--:--';
-    }
-    else {
-      String minutes = duration.inMinutes.toString().padLeft(2, '0');
-      String seconds =
-      duration.inSeconds.remainder(60).toString().padLeft(2, '0');
-      return '$minutes:$seconds';
-    }
-  }
+  // String _formatDuration(Duration? duration) {
+  //   if (duration == null) {
+  //     return '--:--';
+  //   } else {
+  //     String minutes = duration.inMinutes.toString().padLeft(2, '0');
+  //     String seconds =
+  //         duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+  //     return '$minutes:$seconds';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/song', arguments: [widget.video, widget.videoImg, widget.videoAudio]);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => SongScreen(
+                  video: widget.video,
+                  videoImg: widget.videoImg,
+                  audio: widget.videoAudio,
+                )));
+        // Get.toNamed('/song',
+        //     arguments: [widget.video, widget.videoImg, widget.videoAudio]);
       },
       child: ListTile(
         leading: ClipRRect(
