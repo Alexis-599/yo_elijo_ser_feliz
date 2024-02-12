@@ -12,13 +12,14 @@ class InfoScreen extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.blue.shade800.withOpacity(1),
-                  Colors.amber.shade400.withOpacity(1),
-                ])),
+              Colors.blue.shade800.withOpacity(1),
+              Colors.amber.shade400.withOpacity(1),
+            ])),
         child: SafeArea(
+          bottom: false,
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            bottomNavigationBar: NavBar(indexNum: 2),
+            bottomNavigationBar: const NavBar(indexNum: 2),
             body: SingleChildScrollView(
               child: Column(
                 children: [
@@ -31,7 +32,9 @@ class InfoScreen extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall!
-                              .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                              .copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                         ),
                         ListView.builder(
                           shrinkWrap: true,
@@ -44,7 +47,8 @@ class InfoScreen extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: const Image(
-                                  image: AssetImage('assets/images/yo_elijo_ser_feliz.jpg'),
+                                  image: AssetImage(
+                                      'assets/images/yo_elijo_ser_feliz.jpg'),
                                   height: 150,
                                   width: 150,
                                   fit: BoxFit.cover,
@@ -54,9 +58,9 @@ class InfoScreen extends StatelessWidget {
                           },
                         ),
                         const SizedBox(height: 30),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: const [
+                          children: [
                             Image(
                               image: AssetImage('assets/images/spotify.png'),
                               height: 80,

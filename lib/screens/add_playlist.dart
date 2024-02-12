@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/widgets/edit_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
 
@@ -71,13 +70,12 @@ class AddPlaylist extends StatelessWidget {
 
 class _EditableImage extends StatelessWidget {
   const _EditableImage({
-    this.playlistFile,
     this.isAuthor = false,
     required this.size,
     required this.onTap,
   });
 
-  final FirebaseFile? playlistFile;
+  // final FirebaseFile? playlistFile;
   final double size;
   final Function()? onTap;
   final bool isAuthor;

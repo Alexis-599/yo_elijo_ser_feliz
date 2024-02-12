@@ -74,6 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: _emailController,
               hintText: 'Correo electrónico',
               isPassword: false,
+              isEmail: false,
             ),
             const SizedBox(height: 10),
             MaterialButton(

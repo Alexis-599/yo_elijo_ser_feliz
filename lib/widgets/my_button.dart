@@ -6,6 +6,7 @@ class MyButton extends StatelessWidget {
   final bool isLoading;
 
   const MyButton({
+    super.key,
     required this.onTap,
     required this.text,
     required this.isLoading,
@@ -24,7 +25,13 @@ class MyButton extends StatelessWidget {
         ),
         child: Center(
           child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                )
               : Text(
                   text,
                   style: const TextStyle(

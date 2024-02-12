@@ -21,7 +21,8 @@ class Playlist {
     this.videos = const [],
   });
 
-  factory Playlist.fromJson(Map<String, dynamic> json) => _$PlaylistFromJson(json);
+  factory Playlist.fromJson(Map<String, dynamic> json) =>
+      _$PlaylistFromJson(json);
   Map<String, dynamic> toJson() => _$PlaylistToJson(this);
 }
 
@@ -30,7 +31,8 @@ class Podcasts {
   final List<Playlist> playlists;
   Podcasts({this.playlists = const []});
 
-  factory Podcasts.fromJson(Map<String, dynamic> json) => _$PodcastsFromJson(json);
+  factory Podcasts.fromJson(Map<String, dynamic> json) =>
+      _$PodcastsFromJson(json);
   Map<String, dynamic> toJson() => _$PodcastsToJson(this);
 }
 

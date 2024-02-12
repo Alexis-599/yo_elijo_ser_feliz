@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:podcasts_ruben/routes.dart';
 import 'package:podcasts_ruben/screens/all_playlists.dart';
 import 'package:podcasts_ruben/screens/home_screen.dart';
 import 'package:podcasts_ruben/screens/info_screen.dart';
@@ -22,7 +19,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String,Widget> pages = {
+    Map<String, Widget> pages = {
       '/': const HomeScreen(),
       '/all_playlists': const AllPlaylists(),
       '/info': const InfoScreen(),
@@ -34,30 +31,30 @@ class SectionHeader extends StatelessWidget {
           title,
           style: Theme.of(context)
               .textTheme
-              .headline6!
+              .titleLarge!
               .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         hasAction
             ? InkWell(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                    pages[actionRoute] ?? const Placeholder(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
-              },
-              child: Text(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          pages[actionRoute] ?? const Placeholder(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                },
+                child: Text(
                   actionText,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge!
                       .copyWith(color: Colors.white),
                 ),
-            )
+              )
             : Container(),
       ],
     );

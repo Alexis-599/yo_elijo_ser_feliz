@@ -4,14 +4,17 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String hintText;
   final bool isPassword;
+  final bool isEmail;
 
   // final String? Function(String?)? validator;
   // final void Function(String?)? onSaved;
 
   const CustomTextField({
+    super.key,
     required this.controller,
     required this.hintText,
     required this.isPassword,
+    required this.isEmail,
     // required this.validator,
     // required this.onSaved,
   });
@@ -61,24 +64,27 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 RegExp regex = RegExp(r'^.{6,}$');
                 if (value!.isEmpty) {
                   return "La contraseña no puede estar vacía";
-                }
-                else if (!regex.hasMatch(value)) {
+                } else if (!regex.hasMatch(value)) {
                   return ("La contraseña debe de tener mínimo 6 caracteres");
                 } else {
                   return null;
                 }
               }
-            : (value) {
-                RegExp regex = RegExp(r"^[a-zA-Z\d+_.-]+@[a-zA-Z\d.-]+.[a-z]");
-                if (value!.isEmpty) {
-                  return "El correo electrónico no puede estar vacío";
-                }
-                else if (!regex.hasMatch(value)) {
-                  return ("El formato del correo electrónico es inválido");
-                } else {
-                  return null;
-                }
-              },
+            : widget.isEmail
+                ? (value) {
+                    RegExp regex =
+                        RegExp(r"^[a-zA-Z\d+_.-]+@[a-zA-Z\d.-]+.[a-z]");
+                    if (value!.isEmpty) {
+                      return "El correo electrónico no puede estar vacío";
+                    } else if (!regex.hasMatch(value)) {
+                      return ("El formato del correo electrónico es inválido");
+                    } else {
+                      return null;
+                    }
+                  }
+                : (value) {
+                    return;
+                  },
         onSaved: (value) {
           widget.controller?.text = value!;
         },

@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,7 +28,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -43,16 +49,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBn0_R3mF5J1Xx7LYD7pMhdoCgvz-RNZMQ',
-    appId: '1:673696485534:web:dba29eafbc7975fda1ab8f',
-    messagingSenderId: '673696485534',
-    projectId: 'podcasts-yo-elijo-ser-feliz',
-    authDomain: 'podcasts-yo-elijo-ser-feliz.firebaseapp.com',
-    storageBucket: 'podcasts-yo-elijo-ser-feliz.appspot.com',
-    measurementId: 'G-94ZJQ7JK0R',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo',
     appId: '1:673696485534:android:1ac31e3fe729e9aea1ab8f',
@@ -63,21 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g',
-    appId: '1:673696485534:ios:579ae9ead7ecd3a9a1ab8f',
+    appId: '1:673696485534:ios:7edb13e66e0f8653a1ab8f',
     messagingSenderId: '673696485534',
     projectId: 'podcasts-yo-elijo-ser-feliz',
     storageBucket: 'podcasts-yo-elijo-ser-feliz.appspot.com',
-    iosClientId: '673696485534-vuc42s3lj34rn0bcp8qqa8urpurnv1nk.apps.googleusercontent.com',
-    iosBundleId: 'com.example.podcastsRuben',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g',
-    appId: '1:673696485534:ios:579ae9ead7ecd3a9a1ab8f',
-    messagingSenderId: '673696485534',
-    projectId: 'podcasts-yo-elijo-ser-feliz',
-    storageBucket: 'podcasts-yo-elijo-ser-feliz.appspot.com',
-    iosClientId: '673696485534-vuc42s3lj34rn0bcp8qqa8urpurnv1nk.apps.googleusercontent.com',
-    iosBundleId: 'com.example.podcastsRuben',
+    androidClientId: '673696485534-g657ude8gam8qlvabrboc9f8qn70qc7t.apps.googleusercontent.com',
+    iosClientId: '673696485534-2r9velr7bnk85cmrnoptb69h64crmssm.apps.googleusercontent.com',
+    iosBundleId: 'com.alexisapps.podcastsruben',
   );
 }

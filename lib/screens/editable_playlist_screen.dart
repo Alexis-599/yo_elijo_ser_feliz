@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:get/get.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firebase_file.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
 class EditablePlaylistScreen extends StatefulWidget {
-  const EditablePlaylistScreen({super.key});
+  const EditablePlaylistScreen(
+      {super.key,
+      required this.playlist,
+      required this.playlistImg,
+      required this.playlistAuthorImg});
+
+  final Playlist playlist;
+  final FirebaseFile playlistImg;
+  final FirebaseFile playlistAuthorImg;
 
   @override
   State<EditablePlaylistScreen> createState() => _EditablePlaylistScreenState();
 }
 
 class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
-  Playlist playlist = Get.arguments[0];
-  FirebaseFile playlistImg = Get.arguments[1];
-  FirebaseFile playlistAuthorImg = Get.arguments[2];
-
   late Future<List<dynamic>> futureMedia;
   List<List<dynamic>> results = [[], [], []];
   var videos = [];
@@ -57,7 +60,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
     isLoading = true;
     int limit = 15;
     final newResults =
-        await FirebaseApi.getVideosMediaFromPlaylist(playlist, chunk, limit);
+        await FirebaseApi.getVideosMediaFromPlaylist(Playlist(), chunk, limit);
     // final newDurationResults = await Future.wait(newResults[0].map(
     //         (video) async => await getDuration(video.path)));
     setState(() {
@@ -116,11 +119,13 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
               child: Column(
                 children: [
                   _PlaylistInformation(
-                      playlist: playlist, playlistFile: playlistImg),
+                      playlist: widget.playlist,
+                      playlistFile: widget.playlistImg),
                   const SizedBox(height: 20),
                   const Divider(),
                   _PresentationCard(
-                      playlist: playlist, playlistAuthorImg: playlistAuthorImg),
+                      playlist: widget.playlist,
+                      playlistAuthorImg: widget.playlistAuthorImg),
                   const Divider(),
                   const SizedBox(height: 20),
                   // Future builder
@@ -194,10 +199,8 @@ class _PresentationCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       playlist.description,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge!
-                          .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.normal, fontSize: 16),
                     ),
                   ],
                 ),

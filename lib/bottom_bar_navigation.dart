@@ -3,13 +3,11 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:podcasts_ruben/screens/all_playlists.dart';
 import 'package:podcasts_ruben/screens/home_screen.dart';
 import 'package:podcasts_ruben/screens/info_screen.dart';
-import 'package:podcasts_ruben/screens/login_screen.dart';
-import 'package:podcasts_ruben/services/auth.dart';
 
 class NavBar extends StatelessWidget {
-  int indexNum = 0;
+  final int indexNum;
 
-  NavBar({super.key, required this.indexNum});
+  const NavBar({super.key, this.indexNum = 0});
 
   @override
   Widget build(BuildContext context) {
