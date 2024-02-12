@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
-import 'package:podcasts_ruben/context_extension.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
@@ -14,19 +11,16 @@ import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/video_card.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authService);
-
-    if (auth.currentUser != null) {
-      return const _DisplayScreen();
-    } else {
-      return const LoginOrRegisterScreen();
-    }
+  Widget build(BuildContext context) {
+    return FirebaseAuth.instance.currentUser != null
+        ? const _DisplayScreen()
+        : const LoginOrRegisterScreen();
   }
 }
 
@@ -35,6 +29,8 @@ class _DisplayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final authService = Provider.of<AuthService>(context);
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -51,23 +47,7 @@ class _DisplayScreen extends StatelessWidget {
           elevation: 0,
         ),
         bottomNavigationBar: const NavBar(indexNum: 0),
-        drawer: StreamBuilder<UserModel?>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .snapshots()
-                .map((event) => UserModel.fromJson(event.data()!)),
-            builder: (context, snap) {
-              if (snap.hasData && snap.data != null) {
-                return _CustomDrawer(
-                  userModel: snap.data!,
-                );
-              } else if (snap.hasError) {
-                return Container();
-              } else {
-                return const CircularProgressIndicator();
-              }
-            }),
+        drawer: _CustomDrawer(),
         body: const SingleChildScrollView(
           child: Column(
             children: [
@@ -177,9 +157,9 @@ class _PlaylistMusicState extends State<_PlaylistMusic> {
 }
 
 class _CustomDrawer extends StatelessWidget {
-  final UserModel userModel;
+  // final UserModel userModel;
 
-  _CustomDrawer({required this.userModel});
+  _CustomDrawer();
 
   // final user = AuthService().user!;
   final AppData appData = AppData();
@@ -190,77 +170,85 @@ class _CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Drawer(
       backgroundColor: Colors.grey[900],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding:
-                EdgeInsets.only(top: Platform.isAndroid ? 50 : 100, left: 17),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      image: userModel.imageUrl == null ||
-                              userModel.imageUrl!.isEmpty
-                          ? null
-                          : DecorationImage(
-                              image: NetworkImage(userModel.imageUrl!))),
+          Consumer<UserModel?>(builder: (context, user, b) {
+            if (user == null) {
+              return Padding(
+                padding: EdgeInsets.only(
+                    top: Platform.isAndroid ? 50 : 100, left: 17),
+                child: const Text('Please wait, we are getting your data'),
+              );
+            }
+            return Padding(
+              padding:
+                  EdgeInsets.only(top: Platform.isAndroid ? 50 : 100, left: 17),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.white,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        image: user.imageUrl == null || user.imageUrl!.isEmpty
+                            ? null
+                            : DecorationImage(
+                                image: NetworkImage(user.imageUrl!))),
 
-                  // padding: const EdgeInsets.all(4),
-                  child:
-                      userModel.imageUrl == null || userModel.imageUrl!.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 60,
-                            )
-                          : Container(),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  userModel.name,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  userModel.email,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Colors.white,
-                      ),
-                ),
-                const Divider(
-                  indent: 0,
-                  endIndent: 90,
-                ),
-              ],
-            ),
-          ),
+                    // padding: const EdgeInsets.all(4),
+                    child: user.imageUrl == null || user.imageUrl!.isEmpty
+                        ? const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 60,
+                          )
+                        : Container(),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    user.name,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    user.username,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                  const Divider(
+                    indent: 0,
+                    endIndent: 90,
+                  ),
+                ],
+              ),
+            );
+          }),
           ListTile(
             leading: const Icon(
               Icons.logout,
               color: Colors.white,
             ),
             onTap: () {
-              logOut();
+              authService.signOut();
               appData.hasUserAuthData = false;
               appData.isAdmin = false;
               appData.recentVideos = [];
-              context.pushAndClearAll(const LoginOrRegisterScreen());
             },
             title: const Text(
               'Cerrar sesión',

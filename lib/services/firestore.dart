@@ -2,6 +2,7 @@ import 'dart:async';
 // import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 // import 'package:rxdart/rxdart.dart';
 // import 'package:podcasts_ruben/services/auth.dart';
@@ -14,28 +15,32 @@ class FirestoreService {
     await _db.collection('users').add({'email': email, 'role': 'user'});
   }
 
-  postDetailsToFirestore({
-    required String email,
-    required String name,
-    required String imageUrl,
-  }) async {
-    if (FirebaseAuth.instance.currentUser != null) {
-      var ref =
-          _db.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
-      await ref.get().then((value) {
-        if (!value.exists) {
-          var user = UserModel(
-            id: ref.id,
-            name: name,
-            username: email.split("@").first,
-            email: email,
-            imageUrl: imageUrl,
-            isAdmin: false,
-            currentPlan: 'free',
-          );
-          ref.set(user.toMap());
-        }
-      });
+  postDetailsToFirestore(
+      {
+      // required String email,
+      String? name,
+      // String? imageUrl,
+      User? loginUser}) async {
+    try {
+      if (loginUser != null) {
+        var ref = _db.collection('users').doc(loginUser.uid);
+        await ref.get().then((value) {
+          if (!value.exists) {
+            var user = UserModel(
+              id: ref.id,
+              name: name ?? loginUser.displayName ?? 'N/A',
+              username: loginUser.email!.split("@").first,
+              email: loginUser.email!,
+              imageUrl: loginUser.photoURL,
+              isAdmin: false,
+              currentPlan: 'free',
+            );
+            ref.set(user.toMap());
+          }
+        });
+      }
+    } on FirebaseException catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
     }
   }
 
@@ -135,18 +140,18 @@ class FirestoreService {
             '-${date.year}')
         .toList();
   }
-}
 
-Stream<UserModel?>? getCurrentUserData() {
-  if (FirebaseAuth.instance.currentUser != null) {
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .snapshots()
-        .map(
-          (value) => UserModel.fromJson(value.data()!),
-        );
-  } else {
-    return null;
+  Stream<UserModel?>? get currentUserData {
+    if (FirebaseAuth.instance.currentUser != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .snapshots()
+          .map(
+            (value) => UserModel.fromJson(value.data()!),
+          );
+    } else {
+      return null;
+    }
   }
 }

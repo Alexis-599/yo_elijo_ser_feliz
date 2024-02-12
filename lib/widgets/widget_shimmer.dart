@@ -51,11 +51,11 @@ class ShimmerPlaylist extends StatelessWidget {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           ),
           const SizedBox(width: 20),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 ShimmerWidget.rectangular(height: 16, width: 180),
                 SizedBox(height: 8),
                 ShimmerWidget.rectangular(height: 14, width: 80),

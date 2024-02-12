@@ -59,12 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g',
-    appId: '1:673696485534:ios:579ae9ead7ecd3a9a1ab8f',
+    appId: '1:673696485534:ios:7edb13e66e0f8653a1ab8f',
     messagingSenderId: '673696485534',
     projectId: 'podcasts-yo-elijo-ser-feliz',
     storageBucket: 'podcasts-yo-elijo-ser-feliz.appspot.com',
     androidClientId: '673696485534-g657ude8gam8qlvabrboc9f8qn70qc7t.apps.googleusercontent.com',
-    iosClientId: '673696485534-vuc42s3lj34rn0bcp8qqa8urpurnv1nk.apps.googleusercontent.com',
-    iosBundleId: 'com.example.podcastsRuben',
+    iosClientId: '673696485534-2r9velr7bnk85cmrnoptb69h64crmssm.apps.googleusercontent.com',
+    iosBundleId: 'com.alexisapps.podcastsruben',
   );
 }
