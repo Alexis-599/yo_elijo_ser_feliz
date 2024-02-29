@@ -3,9 +3,7 @@ import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/screens/edit_playlists_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
-// import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
-// import 'package:shimmer/shimmer.dart';
 
 class AllPlaylists extends StatefulWidget {
   const AllPlaylists({super.key});

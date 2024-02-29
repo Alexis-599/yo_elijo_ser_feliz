@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
+import 'package:podcasts_ruben/data.dart';
+import 'package:podcasts_ruben/screens/add_course.dart';
+import 'package:podcasts_ruben/screens/course_detail.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -27,31 +31,55 @@ class InfoScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Text(
-                          'Próximos cursos',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Próximos cursos',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                            ),
+                            AppData().isAdmin
+                                ? IconButton(
+                                    onPressed: () {
+                                      Get.to(() => const AddCourse());
+                                      // Navigator.push(context,
+                                      //     MaterialPageRoute(builder: (context) {
+                                      //   return const EditPlaylistsScreen();
+                                      // }));
+                                    },
+                                    icon: const Icon(Icons.add_box),
+                                    iconSize: 50,
+                                    color: Colors.white,
+                                  )
+                                : const SizedBox.shrink(),
+                          ],
                         ),
                         ListView.builder(
                           shrinkWrap: true,
                           padding: const EdgeInsets.only(top: 20),
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: 5,
+                          itemCount: AppData().courses.length,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: const Image(
-                                  image: AssetImage(
-                                      'assets/images/yo_elijo_ser_feliz.jpg'),
-                                  height: 150,
-                                  width: 150,
-                                  fit: BoxFit.cover,
+                              child: GestureDetector(
+                                onTap: () => Get.to(() => CourseDetailScreen(
+                                      courseModel: AppData().courses[index],
+                                    )),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image(
+                                    image: AssetImage(
+                                        AppData().courses[index].image),
+                                    height: 150,
+                                    width: 150,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             );

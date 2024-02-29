@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
+import 'package:podcasts_ruben/screens/app_settings.dart';
+import 'package:podcasts_ruben/screens/course_detail.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
 
 import 'package:podcasts_ruben/services/auth.dart';
@@ -19,17 +22,22 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FirebaseAuth.instance.currentUser != null
-        ? const _DisplayScreen()
+        ? const DisplayScreen()
         : const LoginOrRegisterScreen();
   }
 }
 
-class _DisplayScreen extends StatelessWidget {
-  const _DisplayScreen();
+class DisplayScreen extends StatelessWidget {
+  const DisplayScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     // final authService = Provider.of<AuthService>(context);
+
+    final currentUser = context.watch<UserModel?>();
+    if (currentUser != null) {
+      AppData().isAdmin = currentUser.isAdmin;
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -178,82 +186,117 @@ class _CustomDrawer extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Consumer<UserModel?>(builder: (context, user, b) {
-            if (user == null) {
-              return Padding(
-                padding: EdgeInsets.only(
-                    top: Platform.isAndroid ? 50 : 100, left: 17),
-                child: const Text('Please wait, we are getting your data'),
-              );
-            }
-            return Padding(
-              padding:
-                  EdgeInsets.only(top: Platform.isAndroid ? 50 : 100, left: 17),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          Consumer<UserModel?>(
+            builder: (context, user, b) {
+              if (user == null) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 100),
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                    ),
+                    onTap: () {
+                      authService.signOut();
+                      appData.hasUserAuthData = false;
+                      appData.isAdmin = false;
+                      appData.recentVideos = [];
+                    },
+                    title: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              }
+              return Column(
                 children: [
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        image: user.imageUrl == null || user.imageUrl!.isEmpty
-                            ? null
-                            : DecorationImage(
-                                image: NetworkImage(user.imageUrl!))),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: Platform.isAndroid ? 50 : 100, left: 17),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.white,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              image: user.imageUrl == null ||
+                                      user.imageUrl!.isEmpty
+                                  ? null
+                                  : DecorationImage(
+                                      image: NetworkImage(user.imageUrl!))),
 
-                    // padding: const EdgeInsets.all(4),
-                    child: user.imageUrl == null || user.imageUrl!.isEmpty
-                        ? const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 60,
-                          )
-                        : Container(),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user.name,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          // padding: const EdgeInsets.all(4),
+                          child: user.imageUrl == null || user.imageUrl!.isEmpty
+                              ? const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 60,
+                                )
+                              : Container(),
                         ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    user.username,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Colors.white,
+                        const SizedBox(height: 12),
+                        Text(
+                          user.name,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
                         ),
+                        const SizedBox(height: 3),
+                        Text(
+                          user.username,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                    color: Colors.white,
+                                  ),
+                        ),
+                        const Divider(
+                          indent: 0,
+                          endIndent: 90,
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(
-                    indent: 0,
-                    endIndent: 90,
+                  ListTile(
+                    leading: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                    ),
+                    onTap: () {
+                      authService.signOut();
+                      appData.hasUserAuthData = false;
+                      appData.isAdmin = false;
+                      appData.recentVideos = [];
+                    },
+                    title: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
+                  if (user.isAdmin)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                      ),
+                      onTap: () => Get.to(() => const AppSettings()),
+                      title: const Text(
+                        'Ajustes de Aplicacion',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                 ],
-              ),
-            );
-          }),
-          ListTile(
-            leading: const Icon(
-              Icons.logout,
-              color: Colors.white,
-            ),
-            onTap: () {
-              authService.signOut();
-              appData.hasUserAuthData = false;
-              appData.isAdmin = false;
-              appData.recentVideos = [];
+              );
             },
-            title: const Text(
-              'Cerrar sesión',
-              style: TextStyle(color: Colors.white),
-            ),
           ),
         ],
       ),
@@ -285,15 +328,19 @@ class _ProximosCursos extends StatelessWidget {
                 return const SizedBox(width: 10);
               },
               scrollDirection: Axis.horizontal,
-              itemCount: 5,
+              itemCount: AppData().courses.length,
               itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: const Image(
-                    image: AssetImage('assets/images/yo_elijo_ser_feliz.jpg'),
-                    height: 150,
-                    width: 250,
-                    fit: BoxFit.cover,
+                return GestureDetector(
+                  onTap: () => Get.to(() => CourseDetailScreen(
+                      courseModel: AppData().courses[index])),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: const Image(
+                      image: AssetImage('assets/images/yo_elijo_ser_feliz.jpg'),
+                      height: 150,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 );
               },
