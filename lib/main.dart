@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/firebase_options.dart';
 import 'package:podcasts_ruben/screens/home_screen.dart';
@@ -17,6 +18,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Stripe.publishableKey = AppData.stripeLivePublishableKey;
+  // AppData().fetchPodcasts();
 
   runApp(const App());
 }
@@ -37,6 +39,8 @@ class _AppState extends State<App> {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
+            ChangeNotifierProvider<DashboardProvider>(
+                create: (_) => DashboardProvider()),
             StreamProvider.value(
               value: FirestoreService().currentUserData,
               initialData: null,

@@ -5,7 +5,7 @@ class UserModel {
   final String email;
   final String? imageUrl;
   final bool isAdmin;
-  final String? currentPlan;
+  final List<String>? coursesIds;
 
   UserModel({
     required this.id,
@@ -14,7 +14,7 @@ class UserModel {
     required this.email,
     required this.imageUrl,
     required this.isAdmin,
-    required this.currentPlan,
+    required this.coursesIds,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
@@ -25,7 +25,7 @@ class UserModel {
       email: map['email'] ?? '',
       imageUrl: map['imageUrl'],
       isAdmin: map['isAdmin'] ?? false,
-      currentPlan: map['currentPlan'],
+      coursesIds: map['currentPlan'] ?? [],
     );
   }
 
@@ -37,7 +37,7 @@ class UserModel {
       'email': email,
       'imageUrl': imageUrl,
       'isAdmin': isAdmin,
-      'currentPlan': currentPlan,
+      'coursesIds': coursesIds,
     };
   }
 }

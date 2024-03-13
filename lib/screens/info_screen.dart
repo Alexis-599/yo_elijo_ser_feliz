@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/screens/add_course.dart';
 import 'package:podcasts_ruben/screens/course_detail.dart';
@@ -23,7 +22,7 @@ class InfoScreen extends StatelessWidget {
           bottom: false,
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            bottomNavigationBar: const NavBar(indexNum: 2),
+            // bottomNavigationBar: const NavBar(),
             body: SingleChildScrollView(
               child: Column(
                 children: [

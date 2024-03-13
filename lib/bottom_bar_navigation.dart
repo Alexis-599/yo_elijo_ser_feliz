@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:podcasts_ruben/screens/all_playlists.dart';
-import 'package:podcasts_ruben/screens/home_screen.dart';
-import 'package:podcasts_ruben/screens/info_screen.dart';
+import 'package:provider/provider.dart';
 
 class NavBar extends StatelessWidget {
-  final int indexNum;
-
-  const NavBar({super.key, this.indexNum = 0});
+  const NavBar({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final prov = Provider.of<DashboardProvider>(context);
     return Container(
       color: Colors.black,
       child: Padding(
@@ -22,43 +21,9 @@ class NavBar extends StatelessWidget {
           activeColor: Colors.white,
           tabBackgroundColor: Colors.grey.shade900,
           gap: 20,
-          selectedIndex: indexNum,
+          selectedIndex: prov.navCurrentIndex,
           onTabChange: (index) {
-            switch (index) {
-              case 0:
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        const HomeScreen(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
-                break;
-              case 1:
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        const AllPlaylists(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
-                break;
-              case 2:
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        const InfoScreen(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
-                break;
-            }
+            prov.changeIndex(index);
           },
           padding: const EdgeInsets.all(16),
           tabs: const [
@@ -78,5 +43,14 @@ class NavBar extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class DashboardProvider extends ChangeNotifier {
+  int navCurrentIndex = 0;
+
+  changeIndex(c) {
+    navCurrentIndex = c;
+    notifyListeners();
   }
 }

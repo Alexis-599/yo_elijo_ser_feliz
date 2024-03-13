@@ -6,6 +6,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:http/http.dart' as http;
 import 'package:podcasts_ruben/models/course_model.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key, required this.courseModel});
@@ -55,10 +56,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                const Text(
-                  'Buy asd dsa,nsdnnasd d',
+                Text(
+                  widget.courseModel.title,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                Text(
+                  widget.courseModel.subtitle,
+                  style: TextStyle(
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                Text(
+                  widget.courseModel.description,
+                  style: TextStyle(
+                    color: Colors.grey.shade300,
                   ),
                 ),
               ],
@@ -122,6 +135,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             note: "Contact us for any questions on your order.",
                             onSuccess: (Map params) async {
                               print("onSuccess: $params");
+                              FirestoreService()
+                                  .postUserCourseIds(widget.courseModel.id);
                             },
                             onError: (error) {
                               print("onError: $error");

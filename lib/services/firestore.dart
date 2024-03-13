@@ -1,11 +1,8 @@
 import 'dart:async';
-// import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
-// import 'package:rxdart/rxdart.dart';
-// import 'package:podcasts_ruben/services/auth.dart';
 import 'package:podcasts_ruben/services/models.dart';
 
 class FirestoreService {
@@ -15,12 +12,7 @@ class FirestoreService {
     await _db.collection('users').add({'email': email, 'role': 'user'});
   }
 
-  postDetailsToFirestore(
-      {
-      // required String email,
-      String? name,
-      // String? imageUrl,
-      User? loginUser}) async {
+  postDetailsToFirestore({String? name, User? loginUser}) async {
     try {
       if (loginUser != null) {
         var ref = _db.collection('users').doc(loginUser.uid);
@@ -33,7 +25,7 @@ class FirestoreService {
               email: loginUser.email!,
               imageUrl: loginUser.photoURL,
               isAdmin: false,
-              currentPlan: 'free',
+              coursesIds: [],
             );
             ref.set(user.toMap());
           }
@@ -44,20 +36,23 @@ class FirestoreService {
     }
   }
 
-  // Future<bool> getAdminStatus() async {
-  //   // User? user = AuthService().user;
-  //   return await _db
-  //       .collection('users')
-  //       .doc('user!.uid')
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     if (documentSnapshot.exists) {
-  //       return documentSnapshot.get('role') == "admin";
-  //     } else {
-  //       return false;
-  //     }
-  //   });
-  // }
+  postUserCourseIds(id) async {
+    try {
+      if (FirebaseAuth.instance.currentUser != null) {
+        var ref =
+            _db.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
+        await ref.get().then((value) {
+          if (value.exists) {
+            ref.set({
+              "coursesIds": FieldValue.arrayUnion([id]),
+            });
+          }
+        });
+      }
+    } on FirebaseException catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
 
   /// Reads all documents from the podcasts collection
   Future<List<Playlist>> getPlaylists() async {
