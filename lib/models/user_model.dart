@@ -25,7 +25,7 @@ class UserModel {
       email: map['email'] ?? '',
       imageUrl: map['imageUrl'],
       isAdmin: map['isAdmin'] ?? false,
-      coursesIds: map['currentPlan'] ?? [],
+      coursesIds: map['coursesIds'] ?? [],
     );
   }
 

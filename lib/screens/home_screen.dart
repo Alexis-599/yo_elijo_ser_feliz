@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
@@ -46,8 +47,6 @@ class DisplayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final authService = Provider.of<AuthService>(context);
-
     final currentUser = context.watch<UserModel?>();
     if (currentUser != null) {
       AppData().isAdmin = currentUser.isAdmin;
@@ -70,210 +69,132 @@ class DisplayScreen extends StatelessWidget {
         ),
         // bottomNavigationBar: const NavBar(),
         drawer: CustomDrawer(),
-        body: const SingleChildScrollView(
-          child: Column(
-            children: [
-              ProximosCursos(),
-              // _Discover(),
-              // _PlaylistMusic(),
-            ],
-          ),
+        body: ListView(
+          children: const [
+            ProximosCursos(),
+            RecentVideosHome(),
+            RecentPlaylistHome(),
+          ],
         ),
       ),
     );
   }
 }
 
-// class _PlaylistMusic extends StatefulWidget {
-//   const _PlaylistMusic();
+class RecentVideosHome extends StatelessWidget {
+  const RecentVideosHome({super.key});
 
-//   @override
-//   State<_PlaylistMusic> createState() => _PlaylistMusicState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(
+            'Publicado recientemente',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemBuilder: (context, index) {
+              final video = AppData().recentVideos[index];
+              return Container(
+                margin: const EdgeInsets.all(5),
+                width: 150,
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: CachedNetworkImage(
+                        imageUrl: video.thumbnailUrl,
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      video.title,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            itemCount: AppData().recentVideos.length,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-// class _PlaylistMusicState extends State<_PlaylistMusic> {
-//   AppData appData = AppData();
+class RecentPlaylistHome extends StatelessWidget {
+  const RecentPlaylistHome({super.key});
 
-//   late Future<List<dynamic>> playlistMedia;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     playlistMedia = FirebaseApi.getPlaylistMedia();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-//       child: Column(
-//         children: [
-//           const SectionHeader(
-//               title: 'Playlists', actionRoute: '/all_playlists'),
-//           appData.playlistMedia.isEmpty
-//               ? FutureBuilder(
-//                   future: playlistMedia,
-//                   builder: (context, snapshot) {
-//                     if (snapshot.connectionState == ConnectionState.waiting) {
-//                       return ListView.builder(
-//                         shrinkWrap: true,
-//                         padding: const EdgeInsets.only(top: 20),
-//                         physics: const NeverScrollableScrollPhysics(),
-//                         itemCount: 4,
-//                         itemBuilder: (context, index) {
-//                           return const ShimmerPlaylist();
-//                         },
-//                       );
-//                     } else if (snapshot.hasError) {
-//                       return const Scaffold(
-//                         body: Text('error'),
-//                       );
-//                     } else if (snapshot.hasData) {
-//                       appData.playlistMedia = snapshot.data!;
-//                       var playlists = appData.playlistMedia[0];
-//                       var playlistImgs = appData.playlistMedia[1];
-//                       var playlistAuthorImgs = appData.playlistMedia[2];
-//                       // var playlists = snapshot.data!;
-//                       return ListView.builder(
-//                         shrinkWrap: true,
-//                         padding: const EdgeInsets.only(top: 20),
-//                         physics: const NeverScrollableScrollPhysics(),
-//                         itemCount: 4,
-//                         itemBuilder: (context, index) {
-//                           return Padding(
-//                             padding: const EdgeInsets.symmetric(horizontal: 20),
-//                             child: PlaylistCard(
-//                               playlist: playlists[index],
-//                               playlistImg: playlistImgs[index],
-//                               playlistAuthorImg: playlistAuthorImgs[index],
-//                               edit: false,
-//                             ),
-//                           );
-//                         },
-//                       );
-//                     } else {
-//                       return const Scaffold();
-//                     }
-//                   })
-//               : ListView.builder(
-//                   shrinkWrap: true,
-//                   padding: const EdgeInsets.only(top: 20),
-//                   physics: const NeverScrollableScrollPhysics(),
-//                   itemCount: 4,
-//                   itemBuilder: (context, index) {
-//                     return Padding(
-//                       padding: const EdgeInsets.symmetric(horizontal: 20),
-//                       child: PlaylistCard(
-//                         playlist: appData.playlistMedia[0][index],
-//                         playlistImg: appData.playlistMedia[1][index],
-//                         playlistAuthorImg: appData.playlistMedia[2][index],
-//                         edit: false,
-//                       ),
-//                     );
-//                   },
-//                 ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-// class _Discover extends StatefulWidget {
-//   const _Discover();
-
-//   @override
-//   State<_Discover> createState() => _DiscoverState();
-// }
-
-// class _DiscoverState extends State<_Discover> {
-//   AppData appData = AppData();
-//   late Future<List<dynamic>> recentVideos;
-
-//   // late List<dynamic> videos;
-//   // late List<dynamic> videoImgs;
-//   // late List<dynamic> videoAudios;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     recentVideos = FirebaseApi.getRecentVideosMedia();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20),
-//       child: Column(
-//         children: [
-//           const Padding(
-//             padding: EdgeInsets.only(right: 20),
-//             child: SectionHeader(
-//               title: 'Publicado recientemente',
-//               hasAction: false,
-//             ),
-//           ),
-//           const SizedBox(height: 20),
-//           SizedBox(
-//             height: MediaQuery.of(context).size.height * 0.28, // 0.33
-//             child: appData.recentVideos.isEmpty
-//                 ? FutureBuilder(
-//                     future: recentVideos,
-//                     builder: (context, snapshot) {
-//                       if (snapshot.connectionState == ConnectionState.waiting) {
-//                         return ListView.separated(
-//                           separatorBuilder: (context, index) {
-//                             return const SizedBox(width: 10);
-//                           },
-//                           scrollDirection: Axis.horizontal,
-//                           itemCount: 4,
-//                           itemBuilder: (context, index) {
-//                             return const ShimmerVideo();
-//                           },
-//                         );
-//                       } else if (snapshot.hasError) {
-//                         return const Text('Error');
-//                       } else if (snapshot.hasData) {
-//                         appData.recentVideos = snapshot.data!;
-//                         var videos = appData.recentVideos[0];
-//                         var videoImgs = appData.recentVideos[1];
-//                         var videoAudios = appData.recentVideos[2];
-//                         return ListView.separated(
-//                           separatorBuilder: (context, index) {
-//                             return const SizedBox(width: 10);
-//                           },
-//                           scrollDirection: Axis.horizontal,
-//                           itemCount: videos.length,
-//                           itemBuilder: (context, index) {
-//                             return VideoCard(
-//                               video: videos[index],
-//                               videoImg: videoImgs[index],
-//                               audio: videoAudios[index],
-//                             );
-//                           },
-//                         );
-//                       } else {
-//                         return Container();
-//                       }
-//                     },
-//                   )
-//                 : ListView.separated(
-//                     separatorBuilder: (context, index) {
-//                       return const SizedBox(width: 10);
-//                     },
-//                     scrollDirection: Axis.horizontal,
-//                     itemCount: appData.recentVideos[0].length,
-//                     itemBuilder: (context, index) {
-//                       return VideoCard(
-//                         video: appData.recentVideos[0][index],
-//                         videoImg: appData.recentVideos[1][index],
-//                         audio: appData.recentVideos[2][index],
-//                       );
-//                     },
-//                   ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(right: 20, left: 20),
+          child: SectionHeader(
+            title: 'lista de reproducción reciente',
+            // actionRoute: '/info',
+          ),
+        ),
+        SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemBuilder: (context, index) {
+              final video = AppData().recentVideos[index];
+              return Container(
+                margin: const EdgeInsets.all(5),
+                width: 150,
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: CachedNetworkImage(
+                        imageUrl: video.thumbnailUrl,
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      video.title,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            itemCount: AppData().recentVideos.length,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -39,9 +39,7 @@ class CustomDrawer extends StatelessWidget {
                     ),
                     onTap: () {
                       authService.signOut();
-                      // appData.hasUserAuthData = false;
                       appData.isAdmin = false;
-                      // appData.recentVideos = [];
                     },
                     title: const Text(
                       'Cerrar sesión',

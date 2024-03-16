@@ -38,14 +38,17 @@ class _AppState extends State<App> {
       builder: (context, snapshot) {
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
-            ChangeNotifierProvider<DashboardProvider>(
-                create: (_) => DashboardProvider()),
             StreamProvider.value(
               value: FirestoreService().currentUserData,
               initialData: null,
-              catchError: (context, error) => null,
+              catchError: (context, error) {
+                print(error);
+                return null;
+              },
             ),
+            ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
+            ChangeNotifierProvider<DashboardProvider>(
+                create: (_) => DashboardProvider()),
           ],
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,

@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_video.dart';
 
 class AppData {
   static final AppData _instance = AppData._internal();
   late bool isAdmin;
-  // late bool hasUserAuthData;
-  // late List<dynamic> recentVideos;
-  // late List<dynamic> playlistMedia;
+  late List<YouTubeVideo> recentVideos;
+  late List<YouTubePlaylist> recentPlaylist;
 
   factory AppData() {
     return _instance;
@@ -17,15 +16,9 @@ class AppData {
 
   AppData._internal() {
     isAdmin = false;
-    // hasUserAuthData = false;
-    // recentVideos = [];
-    // playlistMedia = [];
+    recentVideos = [];
+    recentPlaylist = [];
   }
-
-  // Future<void> loadData() async {
-  //   recentVideos = await FirebaseApi.getRecentVideosMedia();
-  //   playlistMedia = await FirebaseApi.getPlaylistMedia();
-  // }
 
   var courses = [
     CourseModel(
@@ -75,9 +68,9 @@ class AppData {
     ),
   ];
 
-  static const androidGCPKEy = "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo";
+  // static const apiKey = "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo";
   static const iosGCPKEy = "AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g";
-  static const String apiKey = 'AIzaSyBn0_R3mF5J1Xx7LYD7pMhdoCgvz-RNZMQ';
+  static const apiKey = 'AIzaSyBn0_R3mF5J1Xx7LYD7pMhdoCgvz-RNZMQ';
 
   static const stripeLivePublishableKey =
       "pk_live_51O8ULJDTJQhkfNaOpAjAjEvV3iu0gyWgi82v5ujJ7vhuM5ezMzjG5pu35Up3GnP2b3b0AkICfqbiECCnCnlCe4Ak0006HgHMXc";
@@ -95,32 +88,10 @@ class AppData {
   static const paypalLiveSecretKey =
       'EAoOss-wm7Nf6E8VZCqHc_bd1kYoTRlmckRhRImv-XIN0F7gDOdrc8I0S6pgAP_oEnPmWAonV8Vk1-pr';
 
-  // Future<String> fetchPodcasts() async {
-  //   const sha1 = "40:0b:57:28:bd:09:0e:d1:f8:12:d3:2c:0e:5f:55:d7:4c:8d:bc:23";
-  //   const packageName = "com.alexis599apps.podcasts_ruben";
-  //   const hEADERS = {
-  //     'Content-Type': 'application/json',
-  //     'X-Android-Package': packageName,
-  //     'X-Android-Cert': sha1,
-  //   };
-  //   const String apiUrl =
-  //       'https://www.googleapis.com/youtube/v3/playlists?part=PLDsYoS8mDh35-cVTB1JKGRiUxkc6XChMv&key=AIzaSyBn0_R3mF5J1Xx7LYD7pMhdoCgvz-RNZMQ';
-
-  //   final response = await http.get(Uri.parse(apiUrl), headers: hEADERS);
-  //   return response.body;
-
-  //   // if (response.statusCode == 200) {
-  //   //   log(response.body.toString());
-  //   //   return response.statusCode;
-  //   // } else {
-  //   //   throw Exception('Failed to load podcasts');
-  //   // }
-  // }
-
   static const List playListIds = [
     'PLDsYoS8mDh35-cVTB1JKGRiUxkc6XChMv',
-    // 'PLDsYoS8mDh37EQZ6cXaI3eNc8ytA78h3p',
-    // 'PLDsYoS8mDh36n7K_v4rA36Gq_TzArKy58',
+    'PLDsYoS8mDh37EQZ6cXaI3eNc8ytA78h3p',
+    'PLDsYoS8mDh36n7K_v4rA36Gq_TzArKy58',
     'PLDsYoS8mDh34-aP2h54cruBMNMKpDNW1G',
     'PLDsYoS8mDh34svq2_P5gWOaicRCxveccA',
     'PLDsYoS8mDh35fuPbBb51AAeOJV0wq7NRc',
@@ -129,23 +100,25 @@ class AppData {
     'PLDsYoS8mDh34l_bqTKnh7Bvjm2Ovmcr_K',
   ];
 
-  Future<PlaylistModel> fetchPlaylistItems(playlistId) async {
+  Future<YouTubePlaylist> fetchPlaylistDetails(playlistId) async {
     final String apiUrl =
-        'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=$playlistId&key=$apiKey';
+        'https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&id=$playlistId&key=$apiKey';
 
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      return PlaylistModel.fromJson(data);
+      final Map<String, dynamic> playlistData = data['items'][0];
+      return YouTubePlaylist.fromJson(playlistData);
     } else {
-      throw Exception('Failed to load playlist items');
+      throw Exception('Failed to load playlist details');
     }
   }
 
-  Future<List<YouTubeVideo>> fetchAllPlaylistItems(playlistId) async {
+  Future<List<YouTubeVideo>> fetchAllPlaylistItems(
+      {playlistId, maxResults}) async {
     String baseUrl =
-        'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=$playlistId&key=$apiKey';
+        'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=$playlistId&key=$apiKey&maxResults=$maxResults';
 
     List<YouTubeVideo> allVideos = [];
     String? pageToken;
@@ -163,7 +136,11 @@ class AppData {
         final List<dynamic> items = data['items'];
 
         for (var item in items) {
-          allVideos.add(YouTubeVideo.fromJson(item));
+          Map<String, dynamic> thumbnail =
+              item['snippet']['thumbnails'] as Map<String, dynamic>;
+          if (thumbnail.isNotEmpty) {
+            allVideos.add(YouTubeVideo.fromJson(item));
+          }
         }
 
         pageToken = data['nextPageToken'];
