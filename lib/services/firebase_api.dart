@@ -3,7 +3,26 @@
 // import 'package:podcasts_ruben/services/models.dart';
 // import 'package:podcasts_ruben/services/firestore.dart';
 
-// class FirebaseApi {
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
+
+class FirebaseApi {
+  static Stream<List<PlayListModel>?> getPlaylists() {
+    return FirebaseFirestore.instance.collection('playlists').snapshots().map(
+          (value) =>
+              value.docs.map((e) => PlayListModel.fromJson(e.data())).toList(),
+        );
+  }
+
+  static Stream<List<PlayListModel>?> getFilterPlaylists(List<String> ids) {
+    return FirebaseFirestore.instance.collection('playlists').snapshots().map(
+          (value) => value.docs
+              .map((e) => PlayListModel.fromJson(e.data()))
+              .where((element) => ids.contains(element.id))
+              .toList(),
+        );
+  }
+}
 //   static Future<List<String>> _getDownloadLinks(List<Reference> refs) =>
 //     Future.wait(refs.map((ref) => ref.getDownloadURL()).toList());
 

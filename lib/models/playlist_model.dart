@@ -1,95 +1,45 @@
-// import 'song_model.dart';
+class PlayListModel {
+  final String id;
+  final String creatorName;
+  final String creatorDetails;
+  final String creatorPic;
 
-// class Playlist {
-//   final String title;
-//   final List<Song> songs;
-//   final String imageUrl;
-//   final String authorImageUrl;
+  PlayListModel({
+    required this.id,
+    required this.creatorName,
+    required this.creatorDetails,
+    required this.creatorPic,
+  });
 
-//   Playlist({
-//     required this.title,
-//     required this.songs,
-//     required this.imageUrl,
-//     required this.authorImageUrl,
-//   });
-
-//   // static List<Playlist> playlists = [
-//   //   Playlist(
-//   //     title: 'Mujer, madre y amante',
-//   //     songs: Song.songs,
-//   //     imageUrl: 'assets/images/yo_elijo_ser_feliz.jpg',
-//   //     authorImageUrl: 'assets/images/adriana_carreon.jpg',
-//   //   ),
-//   //   Playlist(
-//   //     title: 'Espiritualidad día a día',
-//   //     songs: Song.songs,
-//   //     imageUrl: 'assets/images/yo_elijo_ser_feliz.jpg',
-//   //     authorImageUrl: 'assets/images/ruben_carreon.jpg',
-//   //   ),
-//   //   Playlist(
-//   //     title: 'Rituales Lulú Kuri',
-//   //     songs: Song.songs,
-//   //     imageUrl: 'assets/images/yo_elijo_ser_feliz.jpg',
-//   //     authorImageUrl: 'assets/images/yo_elijo_ser_feliz.jpg',
-//   //   ),
-//   // ];
-// }
-import 'package:podcasts_ruben/models/youtube_video.dart';
-
-class PlaylistModel {
-  String? kind;
-  String? etag;
-  String? nextPageToken;
-  List<YouTubeVideo>? videos;
-  PageInfo? pageInfo;
-
-  PlaylistModel(
-      {this.kind, this.etag, this.nextPageToken, this.videos, this.pageInfo});
-
-  PlaylistModel.fromJson(Map<String, dynamic> json) {
-    kind = json['kind'];
-    etag = json['etag'];
-    nextPageToken = json['nextPageToken'];
-    if (json['items'] != null) {
-      videos = <YouTubeVideo>[];
-      json['items'].forEach((v) {
-        videos!.add(YouTubeVideo.fromJson(v));
-      });
-    }
-    pageInfo =
-        json['pageInfo'] != null ? PageInfo.fromJson(json['pageInfo']) : null;
+  factory PlayListModel.fromJson(Map<String, dynamic> map) {
+    return PlayListModel(
+      id: map['id'],
+      creatorName: map['creatorName'],
+      creatorDetails: map['creatorDetails'],
+      creatorPic: map['creatorPic'],
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['kind'] = kind;
-    data['etag'] = etag;
-    data['nextPageToken'] = nextPageToken;
-    if (videos != null) {
-      data['videos'] = videos!.map((v) => v.toJson()).toList();
-    }
-    if (pageInfo != null) {
-      data['pageInfo'] = pageInfo!.toJson();
-    }
-    return data;
-  }
-}
-
-class PageInfo {
-  int? totalResults;
-  int? resultsPerPage;
-
-  PageInfo({this.totalResults, this.resultsPerPage});
-
-  PageInfo.fromJson(Map<String, dynamic> json) {
-    totalResults = json['totalResults'];
-    resultsPerPage = json['resultsPerPage'];
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'creatorName': creatorName,
+      'creatorDetails': creatorDetails,
+      'creatorPic': creatorPic,
+    };
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['totalResults'] = totalResults;
-    data['resultsPerPage'] = resultsPerPage;
-    return data;
+  PlayListModel copyWith({
+    String? id,
+    String? creatorName,
+    String? creatorDetails,
+    String? creatorPic,
+  }) {
+    return PlayListModel(
+      id: id ?? this.id,
+      creatorName: creatorName ?? this.creatorName,
+      creatorDetails: creatorDetails ?? this.creatorName,
+      creatorPic: creatorPic ?? this.creatorPic,
+    );
   }
 }

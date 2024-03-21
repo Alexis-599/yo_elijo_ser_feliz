@@ -1,5 +1,3 @@
-import 'package:podcasts_ruben/services/models.dart';
-
 class CourseModel {
   final String id;
   final String title;
@@ -7,7 +5,6 @@ class CourseModel {
   final String description;
   final String price;
   final String image;
-  final List<Video> courseVideos;
 
   CourseModel({
     required this.id,
@@ -16,7 +13,6 @@ class CourseModel {
     required this.subtitle,
     required this.description,
     required this.price,
-    required this.courseVideos,
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
@@ -27,7 +23,6 @@ class CourseModel {
       subtitle: json['subtitle'] ?? '',
       description: json['description'] ?? '',
       price: json['price'],
-      courseVideos: json['courseVideos'] ?? <Video>[],
     );
   }
 
@@ -39,7 +34,24 @@ class CourseModel {
       'subtitle': subtitle,
       'description': description,
       'price': price,
-      'courseVideos': courseVideos,
     };
+  }
+
+  CourseModel copyWith({
+    String? id,
+    String? title,
+    String? subtitle,
+    String? description,
+    String? price,
+    String? image,
+  }) {
+    return CourseModel(
+      id: id ?? this.id,
+      image: image ?? this.image,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      description: description ?? this.description,
+      price: price ?? this.price,
+    );
   }
 }

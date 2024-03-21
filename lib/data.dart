@@ -7,8 +7,6 @@ import 'package:podcasts_ruben/models/youtube_video.dart';
 class AppData {
   static final AppData _instance = AppData._internal();
   late bool isAdmin;
-  late List<YouTubeVideo> recentVideos;
-  late List<YouTubePlaylist> recentPlaylist;
 
   factory AppData() {
     return _instance;
@@ -16,57 +14,9 @@ class AppData {
 
   AppData._internal() {
     isAdmin = false;
-    recentVideos = [];
-    recentPlaylist = [];
   }
 
-  var courses = [
-    CourseModel(
-      id: '1',
-      image: 'assets/images/yo_elijo_ser_feliz.jpg',
-      title: 'Course 1',
-      subtitle: "flutter course",
-      description: 'a new flutter course',
-      price: '100',
-      courseVideos: [],
-    ),
-    CourseModel(
-      id: '2',
-      image: 'assets/images/yo_elijo_ser_feliz.jpg',
-      title: 'Course 2',
-      subtitle: "dart course",
-      description: 'a new dart course',
-      price: '100',
-      courseVideos: [],
-    ),
-    CourseModel(
-      id: '3',
-      image: 'assets/images/yo_elijo_ser_feliz.jpg',
-      title: 'Course 3',
-      subtitle: "react course",
-      description: 'a new react course',
-      price: '100',
-      courseVideos: [],
-    ),
-    CourseModel(
-      id: '4',
-      image: 'assets/images/yo_elijo_ser_feliz.jpg',
-      title: 'Course 4',
-      subtitle: "next js course",
-      description: 'a new next js course',
-      price: '100',
-      courseVideos: [],
-    ),
-    CourseModel(
-      id: '5',
-      image: 'assets/images/yo_elijo_ser_feliz.jpg',
-      title: 'Course 5',
-      subtitle: "laravel course",
-      description: 'a new laravel course',
-      price: '100',
-      courseVideos: [],
-    ),
-  ];
+  List<CourseModel> courses = [];
 
   // static const apiKey = "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo";
   static const iosGCPKEy = "AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g";
@@ -150,5 +100,25 @@ class AppData {
     } while (pageToken != null);
 
     return allVideos;
+  }
+
+  Future<List<YouTubeVideo>> fetchRecentPodcastVideosFromChannels(
+      List<String> playlistIds) async {
+    List<YouTubeVideo> recentVideos = [];
+
+    // Fetch recent videos from each playlist
+    for (String playlistId in playlistIds) {
+      List<YouTubeVideo> playlistVideos =
+          await fetchAllPlaylistItems(playlistId: playlistId, maxResults: 5);
+      recentVideos.addAll(
+          playlistVideos.take(5)); // Take top 5 videos from each playlist
+    }
+
+    // Sort combined list of recent videos by publication date
+    recentVideos.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+
+    return recentVideos
+        .take(5)
+        .toList(); // Take top 5 videos from the combined list
   }
 }

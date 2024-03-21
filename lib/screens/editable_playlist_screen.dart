@@ -1,359 +1,172 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_spinkit/flutter_spinkit.dart';
-// import 'package:podcasts_ruben/services/firebase_api.dart';
-// import 'package:podcasts_ruben/services/firebase_file.dart';
-// import 'package:podcasts_ruben/services/models.dart';
+import 'dart:io';
 
-// class EditablePlaylistScreen extends StatefulWidget {
-//   const EditablePlaylistScreen(
-//       {super.key,
-//       required this.playlist,
-//       required this.playlistImg,
-//       required this.playlistAuthorImg});
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
+import 'package:podcasts_ruben/screens/add_playlist.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
+import 'package:podcasts_ruben/widgets/edit_text_field.dart';
+import 'package:podcasts_ruben/widgets/my_button.dart';
 
-//   final Playlist playlist;
-//   final FirebaseFile playlistImg;
-//   final FirebaseFile playlistAuthorImg;
+class EditablePlaylistScreen extends StatefulWidget {
+  const EditablePlaylistScreen({
+    super.key,
+    required this.playlist,
+    required this.playlistModel,
+  });
 
-//   @override
-//   State<EditablePlaylistScreen> createState() => _EditablePlaylistScreenState();
-// }
+  final PlayListModel playlistModel;
+  final YouTubePlaylist playlist;
 
-// class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
-//   late Future<List<dynamic>> futureMedia;
-//   List<List<dynamic>> results = [[], [], []];
-//   var videos = [];
-//   var videosImgs = [];
+  @override
+  State<EditablePlaylistScreen> createState() => _EditablePlaylistScreenState();
+}
 
-//   // var videosDuration = [];
-//   final controller = ScrollController();
-//   int chunk = 0;
-//   bool hasMore = true;
-//   bool isLoading = false;
+class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+  late String image;
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     fetch();
-//     controller.addListener(() {
-//       if (controller.position.maxScrollExtent == controller.offset) {
-//         fetch();
-//       }
-//     });
-//   }
+  getImage() async {
+    var file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      image = file.path;
+      setState(() {});
+    }
+  }
 
-//   @override
-//   void dispose() {
-//     controller.dispose();
+  @override
+  void initState() {
+    super.initState();
+    nameController =
+        TextEditingController(text: widget.playlistModel.creatorName);
+    descriptionController =
+        TextEditingController(text: widget.playlistModel.creatorDetails);
+    image = widget.playlistModel.creatorPic;
+  }
 
-//     super.dispose();
-//   }
+  editPlaylist() {
+    final playList = widget.playlistModel.copyWith(
+      creatorName: nameController.text.trim(),
+      creatorDetails: descriptionController.text.trim(),
+      creatorPic: image,
+    );
+    FirestoreService().editPlayList(playList);
+  }
 
-//   // Future<Duration?> getDuration(String path) async {
-//   //   final player = AudioPlayer();
-//   //   var duration = await player.setUrl(path);
-//   //   return duration;
-//   // }
-
-//   Future fetch() async {
-//     if (isLoading) return;
-//     isLoading = true;
-//     int limit = 15;
-//     final newResults =
-//         await FirebaseApi.getVideosMediaFromPlaylist(Playlist(), chunk, limit);
-//     // final newDurationResults = await Future.wait(newResults[0].map(
-//     //         (video) async => await getDuration(video.path)));
-//     setState(() {
-//       chunk++;
-//       isLoading = false;
-//       if (newResults[0].length < limit) {
-//         hasMore = false;
-//       }
-
-//       for (int i = 0; i < results.length; i++) {
-//         results[i].addAll(newResults[i]);
-//       }
-//       // results.addAll(newResults);
-//       videos = results[0];
-//       videosImgs = results[1];
-//       // videosDuration.addAll(newDurationResults.toList());
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black87,
-//         elevation: 0,
-//         actions: [
-//           Container(
-//             margin: const EdgeInsets.only(right: 10, top: 10),
-//             child: const Icon(Icons.search, size: 35),
-//           ),
-//         ],
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {},
-//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-//         backgroundColor: Colors.white,
-//         // backgroundColor: Colors.transparent,
-//         child: const Icon(Icons.add, size: 40, color: Colors.black87),
-//       ),
-//       body: SizedBox.expand(
-//         child: Container(
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               begin: Alignment.topCenter,
-//               end: Alignment.bottomCenter,
-//               colors: [
-//                 Colors.amber.shade300,
-//                 Colors.amber.shade100,
-//               ],
-//             ),
-//           ),
-//           child: SingleChildScrollView(
-//             controller: controller,
-//             child: Padding(
-//               padding: const EdgeInsets.all(20.0),
-//               child: Column(
-//                 children: [
-//                   _PlaylistInformation(
-//                       playlist: widget.playlist,
-//                       playlistFile: widget.playlistImg),
-//                   const SizedBox(height: 20),
-//                   const Divider(),
-//                   _PresentationCard(
-//                       playlist: widget.playlist,
-//                       playlistAuthorImg: widget.playlistAuthorImg),
-//                   const Divider(),
-//                   const SizedBox(height: 20),
-//                   // Future builder
-//                   ListView.builder(
-//                     shrinkWrap: true,
-//                     physics: const NeverScrollableScrollPhysics(),
-//                     itemCount: videos.length + 1,
-//                     itemBuilder: (context, index) {
-//                       if (index < videos.length) {
-//                         return _SongSmallCard(
-//                           video: videos[index],
-//                           videoImg: videosImgs[index],
-//                           // videoDuration: videosDuration[index],
-//                         );
-//                       } else {
-//                         return Center(
-//                           child: hasMore
-//                               ? const SpinKitChasingDots(
-//                                   color: Colors.white,
-//                                   size: 50.0,
-//                                 )
-//                               : const SizedBox.shrink(),
-//                         );
-//                       }
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _PresentationCard extends StatelessWidget {
-//   const _PresentationCard({
-//     required this.playlist,
-//     required this.playlistAuthorImg,
-//   });
-
-//   final Playlist playlist;
-//   final FirebaseFile playlistAuthorImg;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return IntrinsicHeight(
-//       child: Row(
-//         children: [
-//           _EditableImage(
-//             onTap: () {},
-//             playlistFile: playlistAuthorImg,
-//             size: MediaQuery.of(context).size.height * 0.17,
-//           ),
-//           const SizedBox(width: 20),
-//           Expanded(
-//             child: Stack(
-//               alignment: AlignmentDirectional.bottomEnd,
-//               children: [
-//                 Column(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Text(
-//                       playlist.author,
-//                       style: Theme.of(context)
-//                           .textTheme
-//                           .titleMedium!
-//                           .copyWith(fontWeight: FontWeight.bold, fontSize: 18),
-//                     ),
-//                     const SizedBox(height: 10),
-//                     Text(
-//                       playlist.description,
-//                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-//                           fontWeight: FontWeight.normal, fontSize: 16),
-//                     ),
-//                   ],
-//                 ),
-//                 IconButton(
-//                   onPressed: () {},
-//                   icon: const Icon(Icons.edit),
-//                   color: Colors.black45,
-//                 )
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class _SongSmallCard extends StatelessWidget {
-//   const _SongSmallCard({
-//     required this.video,
-//     required this.videoImg,
-//     // required this.videoDuration,
-//   });
-
-//   final Video video;
-//   final FirebaseFile videoImg;
-
-//   // final Duration? videoDuration;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListTile(
-//       leading: ClipRRect(
-//         borderRadius: BorderRadius.circular(15),
-//         child: Image.network(
-//           videoImg.url,
-//           height: MediaQuery.of(context).size.height * 0.1,
-//           width: MediaQuery.of(context).size.height * 0.09,
-//           fit: BoxFit.cover,
-//         ),
-//       ),
-//       title: Text(
-//         video.title,
-//         style: Theme.of(context)
-//             .textTheme
-//             .bodyLarge!
-//             .copyWith(fontWeight: FontWeight.bold),
-//       ),
-//       subtitle: Text(
-//         '58:34 ° ${video.date}',
-//         style: Theme.of(context).textTheme.bodySmall!,
-//       ),
-//       trailing: IconButton(
-//         icon: const Icon(Icons.edit),
-//         onPressed: () {},
-//       ),
-//     );
-//   }
-// }
-
-// class _PlaylistInformation extends StatelessWidget {
-//   const _PlaylistInformation({
-//     required this.playlist,
-//     required this.playlistFile,
-//   });
-
-//   final Playlist playlist;
-//   final FirebaseFile playlistFile;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         _EditableImage(
-//           onTap: () {},
-//           playlistFile: playlistFile,
-//           size: MediaQuery.of(context).size.height * 0.3,
-//         ),
-//         const SizedBox(height: 20),
-//         GestureDetector(
-//           onTap: () {},
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Text(
-//                 playlist.title,
-//                 style: Theme.of(context)
-//                     .textTheme
-//                     .headlineSmall!
-//                     .copyWith(fontWeight: FontWeight.bold),
-//               ),
-//               const SizedBox(width: 10),
-//               const Icon(
-//                 Icons.edit,
-//                 color: Colors.black45,
-//               )
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class _EditableImage extends StatelessWidget {
-//   const _EditableImage({
-//     required this.playlistFile,
-//     required this.size,
-//     required this.onTap,
-//   });
-
-//   final FirebaseFile playlistFile;
-//   final double size;
-//   final Function()? onTap;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     double editSquareSize = size * 0.2;
-
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Stack(
-//         alignment: AlignmentDirectional.bottomEnd,
-//         children: [
-//           ClipRRect(
-//             borderRadius: BorderRadius.circular(15),
-//             child: Image.network(
-//               playlistFile.url,
-//               height: size,
-//               width: size,
-//               fit: BoxFit.cover,
-//             ),
-//           ),
-//           Container(
-//             width: editSquareSize,
-//             height: editSquareSize,
-//             decoration: ShapeDecoration(
-//               shape: const RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.only(
-//                   bottomRight: Radius.circular(15),
-//                   topLeft: Radius.circular(15),
-//                 ),
-//               ),
-//               color: Colors.black.withOpacity(0.5),
-//             ),
-//             child: Icon(
-//               Icons.edit,
-//               color: Colors.white,
-//               size: editSquareSize * 0.6,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black87,
+        elevation: 0,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 10, top: 10),
+            child: const Icon(Icons.search, size: 30),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.off(() => const AddPlaylist());
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        backgroundColor: Colors.white,
+        child: const Icon(Icons.add, size: 40, color: Colors.black87),
+      ),
+      body: SizedBox.expand(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.amber.shade300,
+                Colors.amber.shade100,
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 15),
+                      height: 250,
+                      width: 250,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: image.contains('http')
+                            ? DecorationImage(
+                                image: CachedNetworkImageProvider(image),
+                                fit: BoxFit.cover,
+                              )
+                            : DecorationImage(
+                                image: FileImage(File(image)),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                          onTap: () => getImage(),
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15)),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  EditTextField(
+                    label: 'Name',
+                    text: widget.playlistModel.creatorName,
+                    onChanged: (v) {},
+                    controller: nameController,
+                  ),
+                  const SizedBox(height: 15),
+                  EditTextField(
+                    label: 'Detail',
+                    text: widget.playlistModel.creatorName,
+                    onChanged: (v) {},
+                    controller: descriptionController,
+                  ),
+                  const SizedBox(height: 15),
+                  MyButton(
+                    onTap: () => editPlaylist(),
+                    text: 'Save',
+                    isLoading: false,
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

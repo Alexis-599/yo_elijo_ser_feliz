@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
 import 'package:podcasts_ruben/widgets/youtube_player.dart';
 
@@ -9,8 +10,10 @@ class PlaylistScreen extends StatelessWidget {
   const PlaylistScreen({
     super.key,
     required this.playlist,
+    required this.playlistModel,
   });
 
+  final PlayListModel playlistModel;
   final YouTubePlaylist playlist;
 
   @override
@@ -57,7 +60,8 @@ class PlaylistScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
-                      image: CachedNetworkImageProvider(playlist.thumbnailUrl),
+                      image:
+                          CachedNetworkImageProvider(playlistModel.creatorPic),
                       fit: BoxFit.fitHeight,
                     ),
                   ),
@@ -117,7 +121,6 @@ class PlaylistScreen extends StatelessWidget {
                                     youtubeVideos: snap.data!,
                                     currentVideoIndex: index,
                                   ));
-                              AppData().recentVideos.add(video);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,13 +135,14 @@ class PlaylistScreen extends StatelessWidget {
                                         image: DecorationImage(
                                           image: CachedNetworkImageProvider(
                                               video.thumbnailUrl),
-                                          fit: BoxFit.fitHeight,
+                                          fit: BoxFit.fill,
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 20),
                                     SizedBox(
-                                      width: 200,
+                                      width: MediaQuery.of(context).size.width *
+                                          .45,
                                       child: Text(
                                         video.title,
                                         style: const TextStyle(

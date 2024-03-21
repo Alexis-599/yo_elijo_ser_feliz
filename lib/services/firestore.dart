@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 
 class FirestoreService {
@@ -53,7 +56,63 @@ class FirestoreService {
     }
   }
 
-  // /// Reads all documents from the podcasts collection
+  postNewPlayList(PlayListModel playListModel) async {
+    final link = await uploadImageToStorageAndGetLink(
+        playListModel.creatorPic, playListModel.id);
+    if (link != null) {
+      final p = playListModel.copyWith(creatorPic: link);
+      await _db.collection('playlists').doc(p.id).set(
+            p.toMap(),
+          );
+    }
+  }
+
+  deletePlayList(String id) async {
+    await _db.collection('playlists').doc(id).delete();
+  }
+
+  editPlayList(PlayListModel playListModel) async {
+    if (!playListModel.creatorPic.contains('http')) {
+      final link = await uploadImageToStorageAndGetLink(
+          playListModel.creatorPic, playListModel.id);
+      if (link != null) {
+        final p = playListModel.copyWith(creatorPic: link);
+        await _db.collection('playlists').doc(p.id).set(
+              p.toMap(),
+            );
+      }
+    } else {
+      await _db
+          .collection('playlists')
+          .doc(playListModel.id)
+          .set(playListModel.toMap());
+    }
+  }
+
+  Future<String?> uploadImageToStorageAndGetLink(String path, String id) async {
+    final ref = FirebaseStorage.instance.ref('playlist').child(id);
+
+    await ref.putData(await File(path).readAsBytes()).whenComplete(() => null);
+    return await ref.getDownloadURL();
+  }
+
+  Stream<UserModel?>? get currentUserData {
+    if (FirebaseAuth.instance.currentUser != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .snapshots()
+          .map(
+            (value) => UserModel.fromJson(value.data()!),
+          );
+    } else {
+      return null;
+    }
+  }
+}
+
+
+// /// Reads all documents from the podcasts collection
   // Future<List<Playlist>> getPlaylists() async {
   //   var ref = _db.collection('podcasts');
   //   var snapshot = await ref.get();
@@ -134,18 +193,3 @@ class FirestoreService {
   //           '-${date.year}')
   //       .toList();
   // }
-
-  Stream<UserModel?>? get currentUserData {
-    if (FirebaseAuth.instance.currentUser != null) {
-      return FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .snapshots()
-          .map(
-            (value) => UserModel.fromJson(value.data()!),
-          );
-    } else {
-      return null;
-    }
-  }
-}

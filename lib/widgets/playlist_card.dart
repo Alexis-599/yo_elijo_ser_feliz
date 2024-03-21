@@ -2,18 +2,27 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/screens/editable_playlist_screen.dart';
 import 'package:podcasts_ruben/screens/playlist_screen.dart';
+import 'package:podcasts_ruben/services/firestore.dart';
+import 'package:podcasts_ruben/widgets/alert_dialog.dart';
 import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
 
 class P2Card extends StatelessWidget {
-  const P2Card({super.key, required this.playListId});
+  const P2Card({
+    super.key,
+    required this.playlist,
+    this.isEditScreen = false,
+  });
 
-  final String playListId;
+  final PlayListModel playlist;
+  final bool isEditScreen;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: AppData().fetchPlaylistDetails(playListId),
+      future: AppData().fetchPlaylistDetails(playlist.id),
       builder: (c, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return const Padding(
@@ -46,11 +55,51 @@ class P2Card extends StatelessWidget {
             child: Text(snap.error.toString()),
           );
         } else if (snap.hasData && snap.data != null) {
-          final playlist = snap.data!;
+          final youtubePlaylist = snap.data!;
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: GestureDetector(
-              onTap: () => Get.to(() => PlaylistScreen(playlist: playlist)),
+            child: InkWell(
+              onTap: () => Get.to(() => isEditScreen
+                  ? EditablePlaylistScreen(
+                      playlist: youtubePlaylist, playlistModel: playlist)
+                  : PlaylistScreen(
+                      playlist: youtubePlaylist,
+                      playlistModel: playlist,
+                    )),
+              onLongPress: AppData().isAdmin
+                  ? () {
+                      Get.bottomSheet(
+                        SizedBox(
+                          height: 200,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {},
+                                icon: const Icon(Icons.edit),
+                                label: const Text('Edit Playlist'),
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  FirestoreService()
+                                      .deletePlayList(playlist.id);
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                label: const Text(
+                                  'Delete Playlist',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        backgroundColor: Colors.white,
+                      );
+                    }
+                  : null,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,8 +111,8 @@ class P2Card extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           image: DecorationImage(
-                            image: CachedNetworkImageProvider(
-                                playlist.thumbnailUrl),
+                            image:
+                                CachedNetworkImageProvider(playlist.creatorPic),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -74,9 +123,9 @@ class P2Card extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: 200,
+                            width: MediaQuery.of(context).size.width * .45,
                             child: Text(
-                              playlist.title,
+                              playlist.creatorName,
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
@@ -84,7 +133,7 @@ class P2Card extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "${playlist.itemCount} episodios",
+                            "${youtubePlaylist.itemCount} episodios",
                             style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -94,11 +143,33 @@ class P2Card extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(
-                    Icons.play_circle_fill_outlined,
-                    color: Colors.white,
-                    size: 35,
-                  ),
+                  isEditScreen
+                      ? GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => CustomAdaptiveAlertDialog(
+                                alertMsg:
+                                    'Are you sure you want to delete this playlist from your app?',
+                                actiionBtnName: 'Yes',
+                                onAction: () {
+                                  FirestoreService()
+                                      .deletePlayList(playlist.id);
+                                },
+                              ),
+                            );
+                          },
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.grey.shade700,
+                            size: 25,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.play_circle_fill_outlined,
+                          color: Colors.white,
+                          size: 35,
+                        ),
                 ],
               ),
             ),

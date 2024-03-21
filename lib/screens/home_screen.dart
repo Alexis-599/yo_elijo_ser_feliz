@@ -1,14 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
+import 'package:podcasts_ruben/models/youtube_video.dart';
 import 'package:podcasts_ruben/screens/all_playlists.dart';
 import 'package:podcasts_ruben/screens/info_screen.dart';
 import 'package:podcasts_ruben/screens/login_or_register_screen.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
 
 import 'package:podcasts_ruben/widgets/widgets.dart';
+import 'package:podcasts_ruben/widgets/youtube_player.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -67,12 +72,11 @@ class DisplayScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        // bottomNavigationBar: const NavBar(),
         drawer: CustomDrawer(),
         body: ListView(
           children: const [
             ProximosCursos(),
-            RecentVideosHome(),
+            RecentlyPublished(),
             RecentPlaylistHome(),
           ],
         ),
@@ -81,8 +85,8 @@ class DisplayScreen extends StatelessWidget {
   }
 }
 
-class RecentVideosHome extends StatelessWidget {
-  const RecentVideosHome({super.key});
+class RecentlyPublished extends StatelessWidget {
+  const RecentlyPublished({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -101,40 +105,69 @@ class RecentVideosHome extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemBuilder: (context, index) {
-              final video = AppData().recentVideos[index];
-              return Container(
-                margin: const EdgeInsets.all(5),
-                width: 150,
-                child: Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: CachedNetworkImage(
-                        imageUrl: video.thumbnailUrl,
-                        height: 150,
-                        width: 150,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      video.title,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            itemCount: AppData().recentVideos.length,
+          height: 220,
+          child: StreamProvider.value(
+            value: FirebaseApi.getPlaylists(),
+            initialData: null,
+            catchError: (context, error) => null,
+            child: Consumer<List<PlayListModel>?>(
+                builder: (context, playlists, b) {
+              if (playlists == null) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return FutureBuilder<List<YouTubeVideo>>(
+                  future: AppData().fetchRecentPodcastVideosFromChannels(
+                      playlists.map((e) => e.id).toList()),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          var video = snapshot.data![index];
+                          return GestureDetector(
+                            onTap: () => Get.to(() => VideoPlayerScreen(
+                                youtubeVideos: snapshot.data!,
+                                currentVideoIndex: index)),
+                            child: Container(
+                              margin: const EdgeInsets.all(5),
+                              width: 150,
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: CachedNetworkImage(
+                                      imageUrl: video.thumbnailUrl,
+                                      height: 150,
+                                      width: 150,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    video.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  });
+            }),
           ),
         ),
       ],
@@ -147,54 +180,39 @@ class RecentPlaylistHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(right: 20, left: 20),
-          child: SectionHeader(
+    return Padding(
+      padding: const EdgeInsets.only(right: 20, left: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
             title: 'lista de reproducción reciente',
-            // actionRoute: '/info',
           ),
-        ),
-        SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemBuilder: (context, index) {
-              final video = AppData().recentVideos[index];
-              return Container(
-                margin: const EdgeInsets.all(5),
-                width: 150,
-                child: Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: CachedNetworkImage(
-                        imageUrl: video.thumbnailUrl,
-                        height: 150,
-                        width: 150,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      video.title,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            itemCount: AppData().recentVideos.length,
+          const SizedBox(height: 15),
+          StreamProvider.value(
+            value: FirebaseApi.getPlaylists(),
+            initialData: null,
+            catchError: (context, error) => null,
+            child: Consumer<List<PlayListModel>?>(
+              builder: (context, playlists, b) {
+                if (playlists == null) {
+                  return const CircularProgressIndicator();
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: playlists.length > 5 ? 5 : playlists.length,
+                  itemBuilder: (c, i) {
+                    return P2Card(
+                      playlist: playlists[i],
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

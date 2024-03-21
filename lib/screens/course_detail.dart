@@ -51,14 +51,14 @@ class CourseDetailScreen extends StatelessWidget {
                     const SizedBox(
                       width: 10,
                     ),
-                    Text(
-                      "- ${courseModel.courseVideos.length} videos",
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    // Text(
+                    //   "- ${courseModel.courseVideos.length} videos",
+                    //   style: const TextStyle(
+                    //     fontSize: 25,
+                    //     fontWeight: FontWeight.bold,
+                    //     color: Colors.white,
+                    //   ),
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 12),
