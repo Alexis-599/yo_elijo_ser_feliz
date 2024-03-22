@@ -34,71 +34,82 @@ class _AllPlaylistsState extends State<AllPlaylists> {
         bottom: false,
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                Row(
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 30,
+                  bottom: 5,
+                ),
+                child: Row(
                   children: [
                     appData.isAdmin
-                        ? IconButton(
-                            onPressed: () {
+                        ? GestureDetector(
+                            onTap: () {
                               Get.to(() => const EditPlaylistsScreen());
                             },
-                            icon: const Icon(Icons.add_box),
-                            iconSize: 55,
-                            color: Colors.white,
+                            child: const Icon(
+                              Icons.add_box,
+                              size: 55,
+                              color: Colors.white,
+                            ),
                           )
                         : const SizedBox.shrink(),
                     Flexible(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          isDense: true,
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: 'Buscar',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(color: Colors.grey.shade500),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.grey.shade500,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
+                      child: SizedBox(
+                        height: 45,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            isDense: true,
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Buscar',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: Colors.grey.shade500),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey.shade500,
+                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 5),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 15),
-                StreamProvider.value(
-                  value: FirebaseApi.getPlaylists(),
-                  initialData: null,
-                  catchError: (context, error) => null,
-                  child: Consumer<List<PlayListModel>?>(
-                    builder: (context, playlists, b) {
-                      if (playlists == null) {
-                        return const CircularProgressIndicator();
-                      }
-                      return Expanded(
-                        child: ListView.builder(
-                          itemCount: playlists.length,
-                          itemBuilder: (c, i) {
-                            return P2Card(
-                              playlist: playlists[i],
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
+              ),
+              StreamProvider.value(
+                value: FirebaseApi.getPlaylists(),
+                initialData: null,
+                catchError: (context, error) => null,
+                child: Consumer<List<PlayListModel>?>(
+                  builder: (context, playlists, b) {
+                    if (playlists == null) {
+                      return const CircularProgressIndicator();
+                    }
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: playlists.length,
+                        itemBuilder: (c, i) {
+                          return P2Card(
+                            playlist: playlists[i],
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

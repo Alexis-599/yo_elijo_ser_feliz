@@ -78,6 +78,7 @@ class DisplayScreen extends StatelessWidget {
             ProximosCursos(),
             RecentlyPublished(),
             RecentPlaylistHome(),
+            SizedBox(height: 50)
           ],
         ),
       ),
