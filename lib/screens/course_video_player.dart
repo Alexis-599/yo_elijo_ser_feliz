@@ -1,46 +1,45 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/models/youtube_video.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:podcasts_ruben/models/course_video.dart';
+import 'package:video_player/video_player.dart';
 
-class VideoPlayerScreen extends StatefulWidget {
-  final List<YouTubeVideo> youtubeVideos;
+class CourseVideoPlayerScreen extends StatefulWidget {
+  final List<CourseVideo> courseVideos;
   final int currentVideoIndex;
 
-  const VideoPlayerScreen(
-      {super.key,
-      required this.youtubeVideos,
-      required this.currentVideoIndex});
+  const CourseVideoPlayerScreen(
+      {super.key, required this.courseVideos, required this.currentVideoIndex});
 
   @override
-  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+  State<CourseVideoPlayerScreen> createState() =>
+      _CourseVideoPlayerScreenState();
 }
 
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late YoutubePlayerController youtubePlayerController;
+class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
+  VideoPlayerController? videoPlayerController;
 
-  late YouTubeVideo youTubeVideo;
+  // late CourseVideo courseVideo;
   int currentIndex = 0;
   Duration position = Duration.zero;
   bool isPlaying = false;
-  Duration buffer = Duration.zero;
   Duration duration = Duration.zero;
 
   playVideo(index) {
-    youTubeVideo = widget.youtubeVideos[index];
-    youtubePlayerController = YoutubePlayerController(
-      initialVideoId: youTubeVideo.id,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
-    );
-
-    youtubePlayerController.addListener(() {
-      position = youtubePlayerController.value.position;
-      duration = youtubePlayerController.value.metaData.duration;
-      isPlaying = youtubePlayerController.value.isPlaying;
+    videoPlayerController?.dispose();
+    videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.courseVideos[index].link))
+      ..initialize().then((value) {
+        setState(() {
+          if (videoPlayerController!.value.isInitialized) {
+            videoPlayerController!.play();
+          }
+        });
+      });
+    videoPlayerController!.addListener(() {
+      position = videoPlayerController!.value.position;
+      duration = videoPlayerController!.value.duration;
+      isPlaying = videoPlayerController!.value.isPlaying;
       if (mounted) {
         setState(() {});
       }
@@ -51,39 +50,32 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     currentIndex = widget.currentVideoIndex;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(''));
     playVideo(currentIndex);
-    youTubeVideo = widget.youtubeVideos[currentIndex];
   }
 
   void _playPreviousVideo() {
     if (currentIndex > 0) {
       setState(() {
         currentIndex--;
-        youTubeVideo = widget.youtubeVideos[currentIndex];
-        youtubePlayerController.load(widget.youtubeVideos[currentIndex].id);
+        playVideo(currentIndex);
       });
     }
   }
 
   void _playNextVideo() {
-    if (currentIndex < widget.youtubeVideos.length - 1) {
+    if (currentIndex < widget.courseVideos.length - 1) {
       setState(() {
         currentIndex++;
-        youTubeVideo = widget.youtubeVideos[currentIndex];
-        youtubePlayerController.load(widget.youtubeVideos[currentIndex].id);
+        playVideo(currentIndex);
       });
     }
   }
 
   @override
   void dispose() {
-    youtubePlayerController.removeListener(() {});
-    youtubePlayerController.dispose();
+    videoPlayerController?.removeListener(() {});
+    videoPlayerController?.dispose();
     super.dispose();
   }
 
@@ -104,35 +96,43 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             backgroundColor: Colors.transparent,
             body: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
                 children: [
-                  IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: YoutubePlayer(
-                      controller: youtubePlayerController,
-                      showVideoProgressIndicator: true,
-                      aspectRatio: 1 / 1,
-                      topActions: const [],
-                      bottomActions: const [],
-                      thumbnail: CachedNetworkImage(
-                        imageUrl: youTubeVideo.thumbnailUrl,
-                        fit: BoxFit.cover,
-                      ),
-                      progressIndicatorColor: Colors.amber,
+                  SizedBox(
+                    height: 400,
+                    width: double.infinity,
+                    child: AspectRatio(
+                      aspectRatio: double.parse(
+                          widget.courseVideos[currentIndex].aspectRatio),
+                      child: videoPlayerController != null &&
+                              videoPlayerController!.value.isInitialized
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: VideoPlayer(videoPlayerController!),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    widget.courseVideos[currentIndex].thumbnail,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 50),
                   Text(
-                    youTubeVideo.title,
+                    widget.courseVideos[currentIndex].title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -159,7 +159,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                           value: position.inMilliseconds.toDouble(),
                           onChanged: (value) async {
                             final p = Duration(milliseconds: value.toInt());
-                            youtubePlayerController.seekTo(p);
+                            videoPlayerController!.seekTo(p);
                           },
                         ),
                       ),
@@ -198,10 +198,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       IconButton(
                         onPressed: () {
                           if (isPlaying) {
-                            youtubePlayerController.pause();
+                            videoPlayerController!.pause();
                             setState(() {});
                           } else {
-                            youtubePlayerController.play();
+                            videoPlayerController!.play();
                             setState(() {});
                           }
                         },

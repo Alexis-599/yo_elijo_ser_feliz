@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
+import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/screens/add_course.dart';
-import 'package:podcasts_ruben/screens/course_detail.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
+import 'package:podcasts_ruben/widgets/course_card.dart';
+import 'package:provider/provider.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -27,7 +30,8 @@ class InfoScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding:
+                        const EdgeInsets.only(left: 20, right: 20, top: 10),
                     child: Column(
                       children: [
                         Row(
@@ -58,31 +62,33 @@ class InfoScreen extends StatelessWidget {
                                 : const SizedBox.shrink(),
                           ],
                         ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.only(top: 20),
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: AppData().courses.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: GestureDetector(
-                                onTap: () => Get.to(() => CourseDetailScreen(
-                                      courseModel: AppData().courses[index],
-                                    )),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image(
-                                    image: AssetImage(
-                                        AppData().courses[index].image),
-                                    height: 150,
-                                    width: 150,
-                                    fit: BoxFit.cover,
+                        StreamProvider.value(
+                          value: FirebaseApi.getCourses(),
+                          initialData: null,
+                          catchError: (c, v) => null,
+                          child: Consumer<List<CourseModel>?>(
+                              builder: (context, courses, b) {
+                            if (courses == null) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: CourseCard(
+                                    courseModel: courses[index],
+                                    width: MediaQuery.of(context).size.width,
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             );
-                          },
+                          }),
                         ),
                         const SizedBox(height: 30),
                         const Row(
@@ -102,6 +108,7 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 30),
                       ],
                     ),
                   ),

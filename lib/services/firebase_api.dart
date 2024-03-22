@@ -4,6 +4,8 @@
 // import 'package:podcasts_ruben/services/firestore.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:podcasts_ruben/models/course_model.dart';
+import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 
 class FirebaseApi {
@@ -20,6 +22,62 @@ class FirebaseApi {
               .map((e) => PlayListModel.fromJson(e.data()))
               .where((element) => ids.contains(element.id))
               .toList(),
+        );
+  }
+
+  static Stream<List<CourseModel>?> getFilterCourses(List<String> ids) {
+    return FirebaseFirestore.instance.collection('courses').snapshots().map(
+          (value) => value.docs
+              .map((e) => CourseModel.fromJson(e.data()))
+              .where((element) => ids.contains(element.id))
+              .toList(),
+        );
+  }
+
+  static Stream<List<CourseModel>?> getCourses() {
+    return FirebaseFirestore.instance.collection('courses').snapshots().map(
+          (value) =>
+              value.docs.map((e) => CourseModel.fromJson(e.data())).toList(),
+        );
+  }
+
+  static Stream<List<CourseVideo>?> getCourseVideos(String id) {
+    return FirebaseFirestore.instance
+        .collection('courses')
+        .doc(id)
+        .collection('videos')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map(
+          (value) =>
+              value.docs.map((e) => CourseVideo.fromJson(e.data())).toList(),
+        );
+  }
+
+  static Stream<List<CourseVideo>?> getSingleCourseVideos(String id) {
+    return FirebaseFirestore.instance
+        .collection('courses')
+        .doc(id)
+        .collection('videos')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map(
+          (value) =>
+              value.docs.map((e) => CourseVideo.fromJson(e.data())).toList(),
+        );
+  }
+
+  static Stream<int?> getCourseVideosLength(String id) {
+    return FirebaseFirestore.instance
+        .collection('courses')
+        .doc(id)
+        .collection('videos')
+        .snapshots()
+        .map(
+          (value) => value.docs
+              .map((e) => CourseVideo.fromJson(e.data()))
+              .toList()
+              .length,
         );
   }
 }

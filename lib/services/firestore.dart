@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:podcasts_ruben/models/course_model.dart';
+import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 
@@ -57,8 +60,8 @@ class FirestoreService {
   }
 
   postNewPlayList(PlayListModel playListModel) async {
-    final link = await uploadImageToStorageAndGetLink(
-        playListModel.creatorPic, playListModel.id);
+    final link = await uploadFileToStorageAndGetLink(
+        playListModel.creatorPic, 'playlist');
     if (link != null) {
       final p = playListModel.copyWith(creatorPic: link);
       await _db.collection('playlists').doc(p.id).set(
@@ -73,8 +76,8 @@ class FirestoreService {
 
   editPlayList(PlayListModel playListModel) async {
     if (!playListModel.creatorPic.contains('http')) {
-      final link = await uploadImageToStorageAndGetLink(
-          playListModel.creatorPic, playListModel.id);
+      final link = await uploadFileToStorageAndGetLink(
+          playListModel.creatorPic, 'playlist');
       if (link != null) {
         final p = playListModel.copyWith(creatorPic: link);
         await _db.collection('playlists').doc(p.id).set(
@@ -89,11 +92,75 @@ class FirestoreService {
     }
   }
 
-  Future<String?> uploadImageToStorageAndGetLink(String path, String id) async {
-    final ref = FirebaseStorage.instance.ref('playlist').child(id);
+  Future<String?> uploadFileToStorageAndGetLink(
+      String path, String folderName) async {
+    final ref = FirebaseStorage.instance
+        .ref(folderName)
+        .child(Random().nextInt(5).toString());
 
     await ref.putData(await File(path).readAsBytes()).whenComplete(() => null);
     return await ref.getDownloadURL();
+  }
+
+  Future<void> postNewCourse(CourseModel courseModel) async {
+    try {
+      final courseRef = FirebaseFirestore.instance.collection('courses').doc();
+      final newCourseModel = courseModel.copyWith(
+          id: courseRef.id,
+          image: await uploadFileToStorageAndGetLink(
+            courseModel.image,
+            'courses',
+          ));
+      await courseRef.set(newCourseModel.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> postNewCourseVideo(CourseVideo courseVideo) async {
+    try {
+      final videoRef = FirebaseFirestore.instance
+          .collection('courses')
+          .doc(courseVideo.courseId)
+          .collection('videos')
+          .doc();
+      final newCourseModel = courseVideo.copyWith(
+        id: videoRef.id,
+        thumbnail: await uploadFileToStorageAndGetLink(
+          courseVideo.thumbnail,
+          'courses',
+        ),
+        link: await uploadFileToStorageAndGetLink(
+          courseVideo.link,
+          'courses',
+        ),
+        date: DateTime.now().toUtc().toString(),
+      );
+      await videoRef.set(newCourseModel.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCourse(String id) async {
+    try {
+      await FirebaseFirestore.instance.collection('courses').doc(id).delete();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCourseVideo(CourseVideo courseVideo) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('courses')
+          .doc(courseVideo.courseId)
+          .collection('videos')
+          .doc(courseVideo.id)
+          .delete();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Stream<UserModel?>? get currentUserData {

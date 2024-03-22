@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:http/http.dart' as http;
 import 'package:podcasts_ruben/models/course_model.dart';
@@ -21,185 +22,202 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   dynamic paymentIntent;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[800],
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Buy Playlist',
-          style: TextStyle(
-            color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+            Colors.amber.shade300,
+            Colors.amber.shade100,
+          ])),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black),
+          title: const Text(
+            'Buy Playlist',
+            style: TextStyle(
+              color: Colors.black,
+            ),
           ),
         ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '\$${widget.courseModel.price}',
-                    style: const TextStyle(
-                      fontSize: 60,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  widget.courseModel.title,
-                  style: TextStyle(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                Text(
-                  widget.courseModel.subtitle,
-                  style: TextStyle(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                Text(
-                  widget.courseModel.description,
-                  style: TextStyle(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () => {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => UsePaypal(
-                            sandboxMode: true,
-                            clientId: AppData.paypalSandboxClientId,
-                            secretKey: AppData.paypalSandboxSecretKey,
-                            returnURL: "https://samplesite.com/return",
-                            cancelURL: "https://samplesite.com/cancel",
-                            transactions: [
-                              {
-                                "amount": {
-                                  "total": widget.courseModel.price,
-                                  "currency": "USD",
-                                  "details": {
-                                    "subtotal": widget.courseModel.price,
-                                    "shipping": '0',
-                                    "shipping_discount": 0
-                                  }
-                                },
-                                "description":
-                                    "The payment transaction description.",
-                                // "payment_options": {
-                                //   "allowed_payment_method":
-                                //       "INSTANT_FUNDING_SOURCE"
-                                // },
-                                "item_list": {
-                                  "items": [
-                                    {
-                                      "name": "A demo product",
-                                      "quantity": 1,
-                                      "price": widget.courseModel.price,
-                                      "currency": "USD"
-                                    }
-                                  ],
-
-                                  // shipping address is not required though
-                                  "shipping_address": const {
-                                    "recipient_name": "Jane Foster",
-                                    "line1": "Travis County",
-                                    "line2": "",
-                                    "city": "Austin",
-                                    "country_code": "US",
-                                    "postal_code": "73301",
-                                    "phone": "+00000000",
-                                    "state": "Texas"
-                                  },
-                                }
-                              }
-                            ],
-                            note: "Contact us for any questions on your order.",
-                            onSuccess: (Map params) async {
-                              print("onSuccess: $params");
-                              FirestoreService()
-                                  .postUserCourseIds(widget.courseModel.id);
-                            },
-                            onError: (error) {
-                              print("onError: $error");
-                            },
-                            onCancel: (params) {
-                              print('cancelled: $params');
-                            }),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      '\$${widget.courseModel.price}',
+                      style: const TextStyle(
+                        fontSize: 70,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                    )
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade900,
-                    fixedSize: Size(
-                      MediaQuery.of(context).size.width * .8,
-                      52,
                     ),
                   ),
-                  child: const Text(
-                    "Pay with PayPal",
+                  const SizedBox(height: 20),
+                  Text(
+                    widget.courseModel.title,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade900,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    widget.courseModel.subtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade700,
                     ),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    'OR',
+                  const SizedBox(height: 5),
+                  Text(
+                    widget.courseModel.description,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey.shade700,
                     ),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await makePayment(
-                        context: context,
-                        amount: widget.courseModel.price,
-                        test: false);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    fixedSize: Size(
-                      MediaQuery.of(context).size.width * .8,
-                      52,
-                    ),
-                  ),
-                  child: const Text(
-                    "Pay with Debit/Credit Card",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () => usePaypal(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade900,
+                      fixedSize: Size(
+                        MediaQuery.of(context).size.width * .8,
+                        52,
+                      ),
+                    ),
+                    child: const Text(
+                      "Pay with PayPal",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await makePayment(
+                          context: context,
+                          amount: widget.courseModel.price,
+                          test: false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      fixedSize: Size(
+                        MediaQuery.of(context).size.width * .8,
+                        52,
+                      ),
+                    ),
+                    child: const Text(
+                      "Pay with Debit/Credit Card",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  usePaypal() {
+    Get.to(
+      () => UsePaypal(
+          sandboxMode: true,
+          clientId: AppData.paypalSandboxClientId,
+          secretKey: AppData.paypalSandboxSecretKey,
+          returnURL: "https://samplesite.com/return",
+          cancelURL: "https://samplesite.com/cancel",
+          transactions: [
+            {
+              "amount": {
+                "total": widget.courseModel.price,
+                "currency": "USD",
+                "details": {
+                  "subtotal": widget.courseModel.price,
+                  "shipping": '0',
+                  "shipping_discount": 0
+                }
+              },
+              "description": "The payment transaction description.",
+              // "payment_options": {
+              //   "allowed_payment_method":
+              //       "INSTANT_FUNDING_SOURCE"
+              // },
+              "item_list": {
+                "items": [
+                  {
+                    "name": "A demo product",
+                    "quantity": 1,
+                    "price": widget.courseModel.price,
+                    "currency": "USD"
+                  }
+                ],
+
+                // shipping address is not required though
+                "shipping_address": const {
+                  "recipient_name": "Jane Foster",
+                  "line1": "Travis County",
+                  "line2": "",
+                  "city": "Austin",
+                  "country_code": "US",
+                  "postal_code": "73301",
+                  "phone": "+00000000",
+                  "state": "Texas"
+                },
+              }
+            }
+          ],
+          note: "Contact us for any questions on your order.",
+          onSuccess: (Map params) async {
+            print("onSuccess: $params");
+            FirestoreService().postUserCourseIds(widget.courseModel.id);
+          },
+          onError: (error) {
+            print("onError: $error");
+          },
+          onCancel: (params) {
+            print('cancelled: $params');
+          }),
     );
   }
 

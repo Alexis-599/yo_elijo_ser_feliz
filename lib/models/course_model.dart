@@ -26,7 +26,7 @@ class CourseModel {
     );
   }
 
-  Map<String, dynamic> toJson(CourseModel model) {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'image': image,
