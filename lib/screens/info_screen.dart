@@ -47,17 +47,15 @@ class InfoScreen extends StatelessWidget {
                                       color: Colors.white),
                             ),
                             AppData().isAdmin
-                                ? IconButton(
-                                    onPressed: () {
+                                ? GestureDetector(
+                                    onTap: () {
                                       Get.to(() => const AddCourse());
-                                      // Navigator.push(context,
-                                      //     MaterialPageRoute(builder: (context) {
-                                      //   return const EditPlaylistsScreen();
-                                      // }));
                                     },
-                                    icon: const Icon(Icons.add_box),
-                                    iconSize: 50,
-                                    color: Colors.white,
+                                    child: const Icon(
+                                      Icons.add_box,
+                                      size: 50,
+                                      color: Colors.white,
+                                    ),
                                   )
                                 : const SizedBox.shrink(),
                           ],
@@ -82,6 +80,7 @@ class InfoScreen extends StatelessWidget {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: CourseCard(
+                                    isInfoScreen: true,
                                     courseModel: courses[index],
                                     width: MediaQuery.of(context).size.width,
                                   ),

@@ -76,6 +76,8 @@ class CourseDetailScreen extends StatelessWidget {
                                 await FirestoreService()
                                     .deleteCourse(courseModel.id)
                                     .whenComplete(() {
+                                  Get.back();
+                                  Get.back();
                                   Fluttertoast.showToast(
                                     msg: 'Course deleted successfully',
                                   );

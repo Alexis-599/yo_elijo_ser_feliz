@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,6 +11,11 @@ import 'package:podcasts_ruben/models/user_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  final courseImageFolderName = 'courses_images';
+  final courseVideosFolderName = 'courses_videos';
+  // final courseImageFolderName = 'courses_images';
+  // final courseImageFolderName = 'courses_images';
 
   Future addUserDetails(String email) async {
     await _db.collection('users').add({'email': email, 'role': 'user'});
@@ -59,11 +63,19 @@ class FirestoreService {
     }
   }
 
-  postNewPlayList(PlayListModel playListModel) async {
-    final link = await uploadFileToStorageAndGetLink(
-        playListModel.creatorPic, 'playlist');
-    if (link != null) {
-      final p = playListModel.copyWith(creatorPic: link);
+  Future<void> postNewPlayList(PlayListModel playListModel) async {
+    final authorImage = await uploadFileToStorageAndGetLink(
+      uploadPath: playListModel.creatorPic,
+      storingPath: 'playlists/${playListModel.id}/authorImage',
+    );
+    final thumbnail = await uploadFileToStorageAndGetLink(
+        uploadPath: playListModel.thumbnail,
+        storingPath: 'playlists/${playListModel.id}/thumbnail');
+    if (authorImage != null && thumbnail != null) {
+      final p = playListModel.copyWith(
+        creatorPic: authorImage,
+        thumbnail: thumbnail,
+      );
       await _db.collection('playlists').doc(p.id).set(
             p.toMap(),
           );
@@ -75,11 +87,19 @@ class FirestoreService {
   }
 
   editPlayList(PlayListModel playListModel) async {
-    if (!playListModel.creatorPic.contains('http')) {
+    if (!playListModel.creatorPic.contains('http') ||
+        !playListModel.thumbnail.contains('http')) {
       final link = await uploadFileToStorageAndGetLink(
-          playListModel.creatorPic, 'playlist');
+        uploadPath: playListModel.creatorPic,
+        storingPath: 'playlists/${playListModel.id}/authorImage',
+      );
+      final thumbnail = await uploadFileToStorageAndGetLink(
+        uploadPath: playListModel.creatorPic,
+        storingPath: 'playlists/${playListModel.id}/thumbnail',
+      );
       if (link != null) {
-        final p = playListModel.copyWith(creatorPic: link);
+        final p =
+            playListModel.copyWith(creatorPic: link, thumbnail: thumbnail);
         await _db.collection('playlists').doc(p.id).set(
               p.toMap(),
             );
@@ -92,13 +112,16 @@ class FirestoreService {
     }
   }
 
-  Future<String?> uploadFileToStorageAndGetLink(
-      String path, String folderName) async {
-    final ref = FirebaseStorage.instance
-        .ref(folderName)
-        .child(Random().nextInt(5).toString());
+  Future<String?> uploadFileToStorageAndGetLink({
+    required String uploadPath,
+    required String storingPath,
+  }) async {
+    final ref = FirebaseStorage.instance.ref().child(storingPath);
+    // final uploadRef = ref.child(storingPath);
 
-    await ref.putData(await File(path).readAsBytes()).whenComplete(() => null);
+    await ref
+        .putData(await File(uploadPath).readAsBytes())
+        .whenComplete(() => null);
     return await ref.getDownloadURL();
   }
 
@@ -108,8 +131,8 @@ class FirestoreService {
       final newCourseModel = courseModel.copyWith(
           id: courseRef.id,
           image: await uploadFileToStorageAndGetLink(
-            courseModel.image,
-            'courses',
+            uploadPath: courseModel.image,
+            storingPath: 'courses/${courseRef.id}/thumbnail',
           ));
       await courseRef.set(newCourseModel.toJson());
     } catch (e) {
@@ -127,12 +150,13 @@ class FirestoreService {
       final newCourseModel = courseVideo.copyWith(
         id: videoRef.id,
         thumbnail: await uploadFileToStorageAndGetLink(
-          courseVideo.thumbnail,
-          'courses',
+          uploadPath: courseVideo.thumbnail,
+          storingPath:
+              'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
         ),
         link: await uploadFileToStorageAndGetLink(
-          courseVideo.link,
-          'courses',
+          uploadPath: courseVideo.link,
+          storingPath: 'courses/${courseVideo.courseId}/${videoRef.id}/video',
         ),
         date: DateTime.now().toUtc().toString(),
       );

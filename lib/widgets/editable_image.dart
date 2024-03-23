@@ -32,15 +32,17 @@ class EditableImage extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image(
-                image: isAuthor
-                    ? const AssetImage('assets/images/author.png')
-                    : const AssetImage('assets/images/podcast.png'),
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image(
+                  image: isAuthor
+                      ? const AssetImage('assets/images/author.png')
+                      : const AssetImage('assets/images/podcast.png'),
+                  height: size,
+                  width: size,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             Container(

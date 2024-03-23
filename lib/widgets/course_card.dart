@@ -5,14 +5,19 @@ import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/screens/course_detail.dart';
 
 class CourseCard extends StatelessWidget {
-  const CourseCard({super.key, required this.courseModel, required this.width});
+  const CourseCard(
+      {super.key,
+      required this.courseModel,
+      required this.width,
+      this.isInfoScreen = false});
   final CourseModel courseModel;
   final double width;
+  final bool isInfoScreen;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 15.0),
+      padding: EdgeInsets.only(right: isInfoScreen ? 0 : 15.0),
       child: GestureDetector(
         onTap: () => Get.to(() => CourseDetailScreen(
               courseModel: courseModel,

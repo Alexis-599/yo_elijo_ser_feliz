@@ -181,13 +181,16 @@ class RecentPlaylistHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prov = Provider.of<DashboardProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.only(right: 20, left: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
+          SectionHeader(
             title: 'lista de reproducción reciente',
+            ontapAction: () => prov.changeIndex(1),
           ),
           const SizedBox(height: 15),
           StreamProvider.value(
