@@ -61,8 +61,8 @@ class PlaylistScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
                       image:
-                          CachedNetworkImageProvider(playlistModel.creatorPic),
-                      fit: BoxFit.fitHeight,
+                          CachedNetworkImageProvider(playlistModel.thumbnail),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -70,7 +70,7 @@ class PlaylistScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  playlist.title,
+                  playlistModel.title,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white,
@@ -88,6 +88,55 @@ class PlaylistScreen extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w500),
                 ),
+              ),
+              Divider(
+                color: Colors.grey.shade900.withOpacity(0.3),
+                indent: 15,
+                endIndent: 15,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 20, bottom: 15),
+                      height: 140,
+                      width: 140,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: CachedNetworkImageProvider(
+                              playlistModel.creatorPic),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          playlistModel.creatorName,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          playlistModel.creatorDetails,
+                          style: const TextStyle(
+                              overflow: TextOverflow.visible,
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
               Divider(
                 color: Colors.grey.shade900.withOpacity(0.3),

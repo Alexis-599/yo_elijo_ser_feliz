@@ -92,7 +92,7 @@ class P2Card extends StatelessWidget {
                   }
                 : null,
             title: Text(
-              playlist.creatorName,
+              playlist.title,
               style: const TextStyle(
                 color: Colors.black,
                 overflow: TextOverflow.ellipsis,
@@ -106,7 +106,7 @@ class P2Card extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
-                  image: CachedNetworkImageProvider(playlist.creatorPic),
+                  image: CachedNetworkImageProvider(playlist.thumbnail),
                   fit: BoxFit.fill,
                 ),
               ),

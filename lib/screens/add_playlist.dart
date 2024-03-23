@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
@@ -18,30 +19,53 @@ class AddPlaylist extends StatefulWidget {
 class _AddPlaylistState extends State<AddPlaylist> {
   final urlController = TextEditingController();
   final nameController = TextEditingController();
+  final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  String? image;
+  String? autherImage;
+  String? thumbnail;
 
-  getImage() async {
+  bool isLoading = false;
+
+  getThumbnail() async {
     var file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file != null) {
-      image = file.path;
+      thumbnail = file.path;
       setState(() {});
     }
   }
 
-  createPlaylist() {
+  getAuthorImage() async {
+    var file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      autherImage = file.path;
+      setState(() {});
+    }
+  }
+
+  createPlaylist() async {
+    setState(() {
+      isLoading = true;
+    });
     final playList = PlayListModel(
-      id: getPlaylistIdFromUrl(urlController.text),
+      id: getPlaylistIdFromUrl(
+          'https://www.youtube.com/playlist?list=PLDsYoS8mDh36n7K_v4rA36Gq_TzArKy58'),
       creatorName: nameController.text.trim(),
       creatorDetails: descriptionController.text.trim(),
-      creatorPic: image!,
+      creatorPic: autherImage!,
+      thumbnail: thumbnail!,
+      title: titleController.text.trim(),
     );
-    FirestoreService().postNewPlayList(playList);
-    setState(() {
-      urlController.clear();
-      nameController.clear();
-      image = null;
-      descriptionController.clear();
+    await FirestoreService().postNewPlayList(playList).whenComplete(() {
+      Fluttertoast.showToast(msg: 'Playlist upload successfully');
+      setState(() {
+        urlController.clear();
+        nameController.clear();
+        titleController.clear();
+        autherImage = null;
+        thumbnail = null;
+        descriptionController.clear();
+        isLoading = false;
+      });
     });
   }
 
@@ -57,6 +81,38 @@ class _AddPlaylistState extends State<AddPlaylist> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(19),
+                  image: thumbnail == null
+                      ? null
+                      : DecorationImage(
+                          image: FileImage(
+                            File(thumbnail!),
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                child: thumbnail == null
+                    ? EditableImage(
+                        isAuthor: true,
+                        size: MediaQuery.of(context).size.height * 0.2,
+                        onTap: () => getThumbnail(),
+                      )
+                    : const SizedBox(
+                        width: 0,
+                      ),
+              ),
+              const SizedBox(height: 18),
+              EditTextField(
+                controller: titleController,
+                label: 'Title',
+                text: '',
+                onChanged: (change) {},
+              ),
+              const SizedBox(height: 18),
               EditTextField(
                 controller: urlController,
                 label: 'Playlist URL',
@@ -71,20 +127,20 @@ class _AddPlaylistState extends State<AddPlaylist> {
                     width: MediaQuery.of(context).size.height * 0.17,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(19),
-                      image: image == null
+                      image: autherImage == null
                           ? null
                           : DecorationImage(
                               image: FileImage(
-                                File(image!),
+                                File(autherImage!),
                               ),
                               fit: BoxFit.cover,
                             ),
                     ),
-                    child: image == null
+                    child: autherImage == null
                         ? EditableImage(
                             isAuthor: true,
                             size: MediaQuery.of(context).size.height * 0.17,
-                            onTap: () => getImage(),
+                            onTap: () => getAuthorImage(),
                           )
                         : const SizedBox(
                             width: 0,
@@ -120,7 +176,7 @@ class _AddPlaylistState extends State<AddPlaylist> {
               MyButton(
                 onTap: () => createPlaylist(),
                 text: 'Crear playlist',
-                isLoading: false,
+                isLoading: isLoading,
               )
             ],
           ),

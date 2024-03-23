@@ -25,10 +25,10 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
   bool isPlaying = false;
   Duration duration = Duration.zero;
 
-  playVideo(index) {
+  playVideo() {
     videoPlayerController?.dispose();
     videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.courseVideos[index].link))
+        Uri.parse(widget.courseVideos[currentIndex].link))
       ..initialize().then((value) {
         setState(() {
           if (videoPlayerController!.value.isInitialized) {
@@ -51,14 +51,14 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
     super.initState();
     currentIndex = widget.currentVideoIndex;
     videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(''));
-    playVideo(currentIndex);
+    playVideo();
   }
 
   void _playPreviousVideo() {
     if (currentIndex > 0) {
       setState(() {
         currentIndex--;
-        playVideo(currentIndex);
+        playVideo();
       });
     }
   }
@@ -67,7 +67,7 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
     if (currentIndex < widget.courseVideos.length - 1) {
       setState(() {
         currentIndex++;
-        playVideo(currentIndex);
+        playVideo();
       });
     }
   }

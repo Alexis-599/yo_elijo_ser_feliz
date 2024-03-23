@@ -47,7 +47,6 @@ dependencies:
   sign_in_with_apple: ^4.3.0
   crypto: ^3.0.3
   path_provider: ^2.1.2
-  
   image_picker: ^1.0.7
   font_awesome_flutter: 10.1.0
   google_fonts: ^4.0.4
@@ -66,10 +65,9 @@ dependencies:
 
   #audio
   cached_network_image: ^3.3.0
-  audio_video_progress_bar: ^2.0.0
-  just_audio: ^0.9.34
-  just_audio_background: ^0.0.1-beta.10
-  rxdart: ^0.27.7
+
+dependency_overrides:
+  stripe_android: "10.0.0"
 
 dev_dependencies:
   flutter_test:

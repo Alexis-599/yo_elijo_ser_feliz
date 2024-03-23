@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/screens/add_course_video.dart';
@@ -70,12 +71,14 @@ class _CourseVideosState extends State<CourseVideos> {
             },
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Get.to(() => AddCourseVideo(
-                courseModel: widget.courseModel,
-              )),
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: AppData().isAdmin
+            ? FloatingActionButton(
+                onPressed: () => Get.to(() => AddCourseVideo(
+                      courseModel: widget.courseModel,
+                    )),
+                child: const Icon(Icons.add),
+              )
+            : null,
       ),
     );
   }

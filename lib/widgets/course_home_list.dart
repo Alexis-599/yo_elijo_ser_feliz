@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/course_card.dart';
@@ -10,15 +11,17 @@ class ProximosCursos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prov = Provider.of<DashboardProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20),
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 20),
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
             child: SectionHeader(
               title: 'Próximos cursos',
-              actionRoute: '/info',
+              ontapAction: () => prov.changeIndex(2),
             ),
           ),
           const SizedBox(height: 20),
