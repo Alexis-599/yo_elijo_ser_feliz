@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:video_player/video_player.dart';
 
@@ -23,23 +22,27 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
   int currentIndex = 0;
   Duration position = Duration.zero;
   bool isPlaying = false;
+  bool isBuffering = false;
   Duration duration = Duration.zero;
+  Duration buffer = Duration.zero;
 
-  playVideo() {
+  playVideo() async {
+    videoPlayerController?.removeListener(() {});
     videoPlayerController?.dispose();
     videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.courseVideos[currentIndex].link))
-      ..initialize().then((value) {
-        setState(() {
-          if (videoPlayerController!.value.isInitialized) {
-            videoPlayerController!.play();
-          }
-        });
-      });
+        Uri.parse(widget.courseVideos[currentIndex].link));
+    await videoPlayerController!.initialize().whenComplete(() async {
+      await videoPlayerController!.play();
+    });
     videoPlayerController!.addListener(() {
       position = videoPlayerController!.value.position;
       duration = videoPlayerController!.value.duration;
       isPlaying = videoPlayerController!.value.isPlaying;
+      isBuffering = videoPlayerController!.value.isBuffering;
+      if (videoPlayerController!.value.isCompleted) {
+        currentIndex++;
+        playVideo();
+      }
       if (mounted) {
         setState(() {});
       }
@@ -94,40 +97,43 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
         bottom: false,
         child: Scaffold(
             backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
             body: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: ListView(
+              child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      onPressed: () => Get.back(),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  ),
-                  SizedBox(
                     height: 400,
                     width: double.infinity,
-                    child: AspectRatio(
-                      aspectRatio: double.parse(
-                          widget.courseVideos[currentIndex].aspectRatio),
-                      child: videoPlayerController != null &&
-                              videoPlayerController!.value.isInitialized
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: VideoPlayer(videoPlayerController!),
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    widget.courseVideos[currentIndex].thumbnail,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: AspectRatio(
+                            aspectRatio: double.parse(
+                                widget.courseVideos[currentIndex].aspectRatio),
+                            child: videoPlayerController != null &&
+                                    videoPlayerController!.value.isInitialized
+                                ? VideoPlayer(videoPlayerController!)
+                                : CachedNetworkImage(
+                                    imageUrl: widget
+                                        .courseVideos[currentIndex].thumbnail,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                        if (isBuffering)
+                          const Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(),
+                          )
+                      ],
                     ),
                   ),
                   const SizedBox(height: 50),
@@ -156,6 +162,8 @@ class _CourseVideoPlayerScreenState extends State<CourseVideoPlayerScreen> {
                           inactiveColor: Colors.grey.shade600,
                           min: 0.0,
                           max: duration.inMilliseconds.toDouble(),
+                          secondaryTrackValue:
+                              duration.inMilliseconds.toDouble(),
                           value: position.inMilliseconds.toDouble(),
                           onChanged: (value) async {
                             final p = Duration(milliseconds: value.toInt());

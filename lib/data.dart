@@ -66,10 +66,9 @@ class AppData {
   }
 
   Future<List<YouTubeVideo>> fetchAllPlaylistItems(
-      {playlistId, maxResults}) async {
+      {playlistId, maxResults, String? text}) async {
     String baseUrl =
         'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=$playlistId&key=$apiKey&maxResults=$maxResults';
-
     List<YouTubeVideo> allVideos = [];
     String? pageToken;
 
@@ -99,7 +98,14 @@ class AppData {
       }
     } while (pageToken != null);
 
-    return allVideos;
+    if (text == null) {
+      return allVideos;
+    } else {
+      return allVideos
+          .where((element) =>
+              element.title.toLowerCase().contains(text.trim().toLowerCase()))
+          .toList();
+    }
   }
 
   Future<List<YouTubeVideo>> fetchRecentPodcastVideosFromChannels(

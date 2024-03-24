@@ -3,25 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/screens/course_detail.dart';
+import 'package:podcasts_ruben/screens/edit_course.dart';
 
 class CourseCard extends StatelessWidget {
   const CourseCard(
       {super.key,
       required this.courseModel,
       required this.width,
-      this.isInfoScreen = false});
+      this.isInfoScreen = false,
+      this.isEditScreen = false});
   final CourseModel courseModel;
   final double width;
   final bool isInfoScreen;
+  final bool isEditScreen;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(right: isInfoScreen ? 0 : 15.0),
       child: GestureDetector(
-        onTap: () => Get.to(() => CourseDetailScreen(
-              courseModel: courseModel,
-            )),
+        onTap: () => Get.to(
+          () => !isEditScreen
+              ? CourseDetailScreen(
+                  courseModel: courseModel,
+                )
+              : EditCourse(courseModel: courseModel),
+        ),
         child: Stack(
           children: [
             Container(
@@ -51,6 +58,7 @@ class CourseCard extends StatelessWidget {
                     courseModel.title.capitalizeFirst.toString(),
                     style: const TextStyle(
                       color: Colors.white,
+                      overflow: TextOverflow.ellipsis,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),

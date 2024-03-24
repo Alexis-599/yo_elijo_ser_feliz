@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/screens/edit_course_video.dart';
 import 'package:podcasts_ruben/screens/editable_playlist_screen.dart';
 import 'package:podcasts_ruben/screens/playlist_screen.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
@@ -29,6 +30,7 @@ class P2Card extends StatelessWidget {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 5.0),
             child: ListTile(
+              contentPadding: EdgeInsets.symmetric(vertical: 5),
               leading: ShimmerWidget.circular(
                 height: 75,
                 width: 100,
@@ -93,6 +95,7 @@ class P2Card extends StatelessWidget {
                 : null,
             title: Text(
               playlist.title,
+              maxLines: 2,
               style: const TextStyle(
                 color: Colors.black,
                 overflow: TextOverflow.ellipsis,
@@ -111,6 +114,8 @@ class P2Card extends StatelessWidget {
                 ),
               ),
             ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             subtitle: Text(
               "${youtubePlaylist.itemCount} episodios",
               style: const TextStyle(
@@ -181,14 +186,20 @@ class P2CardCourseVideo extends StatelessWidget {
         ),
       ),
       visualDensity: const VisualDensity(vertical: 4),
-      isThreeLine: true,
+      contentPadding: EdgeInsets.zero,
       title: Text(
         course.title,
+        maxLines: 1,
         style: const TextStyle(
-            color: Colors.black, fontSize: 16, fontWeight: FontWeight.w700),
+          overflow: TextOverflow.ellipsis,
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       subtitle: Text(
         course.description,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: Colors.grey.shade900,
@@ -211,7 +222,9 @@ class P2CardCourseVideo extends StatelessWidget {
                 return [
                   PopupMenuItem(
                     child: const Text('Edit Video Details'),
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(() => EditCourseVideo(courseVideo: course));
+                    },
                   ),
                   PopupMenuItem(
                     child: const Text(
@@ -219,7 +232,17 @@ class P2CardCourseVideo extends StatelessWidget {
                       style: TextStyle(color: Colors.red),
                     ),
                     onTap: () async {
-                      FirestoreService().deleteCourseVideo(course);
+                      showDialog(
+                          context: context,
+                          builder: (_) => CustomAdaptiveAlertDialog(
+                                alertMsg:
+                                    'Are you sure you want to delete this video?',
+                                actiionBtnName: 'Yes',
+                                onAction: () async {
+                                  await FirestoreService()
+                                      .deleteCourseVideo(course);
+                                },
+                              ));
                     },
                   ),
                 ];

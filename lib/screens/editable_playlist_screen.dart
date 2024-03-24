@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
-import 'package:podcasts_ruben/screens/add_playlist.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/edit_text_field.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
@@ -28,13 +26,27 @@ class EditablePlaylistScreen extends StatefulWidget {
 class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
   late TextEditingController nameController;
   late TextEditingController descriptionController;
-  late String image;
+  late TextEditingController titleController;
+  String? authorImage;
+  String? thumbnail;
 
-  getImage() async {
+  bool isLoading = false;
+
+  getAuthorImage() async {
     var file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file != null) {
-      image = file.path;
-      setState(() {});
+      setState(() {
+        authorImage = file.path;
+      });
+    }
+  }
+
+  getThumbnailImage() async {
+    var file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      setState(() {
+        thumbnail = file.path;
+      });
     }
   }
 
@@ -45,16 +57,25 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
         TextEditingController(text: widget.playlistModel.creatorName);
     descriptionController =
         TextEditingController(text: widget.playlistModel.creatorDetails);
-    image = widget.playlistModel.creatorPic;
+    titleController = TextEditingController(text: widget.playlistModel.title);
   }
 
-  editPlaylist() {
+  editPlaylist() async {
+    setState(() {
+      isLoading = true;
+    });
     final playList = widget.playlistModel.copyWith(
       creatorName: nameController.text.trim(),
       creatorDetails: descriptionController.text.trim(),
-      creatorPic: image,
+      title: titleController.text.trim(),
+      creatorPic: authorImage ?? widget.playlistModel.creatorPic,
+      thumbnail: thumbnail ?? widget.playlistModel.thumbnail,
     );
-    FirestoreService().editPlayList(playList);
+    await FirestoreService().editPlayList(playList).whenComplete(() {
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -66,21 +87,22 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 10, top: 10),
-            child: const Icon(Icons.search, size: 30),
+        centerTitle: true,
+        title: const Text(
+          'Edit Playlist',
+          style: TextStyle(
+            color: Colors.white,
           ),
-        ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.off(() => const AddPlaylist());
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        backgroundColor: Colors.white,
-        child: const Icon(Icons.add, size: 40, color: Colors.black87),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Get.off(() => const AddPlaylist());
+      //   },
+      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      //   backgroundColor: Colors.white,
+      //   child: const Icon(Icons.add, size: 40, color: Colors.black87),
+      // ),
       body: SizedBox.expand(
         child: Container(
           decoration: BoxDecoration(
@@ -105,23 +127,24 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 15),
                       height: 250,
-                      width: 250,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        image: image.contains('http')
+                        image: thumbnail == null
                             ? DecorationImage(
-                                image: CachedNetworkImageProvider(image),
+                                image: CachedNetworkImageProvider(
+                                    widget.playlistModel.thumbnail),
                                 fit: BoxFit.cover,
                               )
                             : DecorationImage(
-                                image: FileImage(File(image)),
+                                image: FileImage(File(thumbnail!)),
                                 fit: BoxFit.cover,
                               ),
                       ),
                       child: Align(
                         alignment: Alignment.bottomRight,
                         child: GestureDetector(
-                          onTap: () => getImage(),
+                          onTap: () => getThumbnailImage(),
                           child: Container(
                             height: 50,
                             width: 50,
@@ -143,23 +166,81 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                     ),
                   ),
                   EditTextField(
-                    label: 'Name',
-                    text: widget.playlistModel.creatorName,
+                    label: 'Title',
+                    text: widget.playlistModel.title,
                     onChanged: (v) {},
-                    controller: nameController,
+                    controller: titleController,
                   ),
                   const SizedBox(height: 15),
-                  EditTextField(
-                    label: 'Detail',
-                    text: widget.playlistModel.creatorName,
-                    onChanged: (v) {},
-                    controller: descriptionController,
+                  Row(
+                    children: [
+                      Container(
+                        height: 140,
+                        width: 140,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: authorImage == null
+                              ? DecorationImage(
+                                  image: CachedNetworkImageProvider(
+                                      widget.playlistModel.creatorPic),
+                                  fit: BoxFit.cover,
+                                )
+                              : DecorationImage(
+                                  image: FileImage(File(authorImage!)),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: GestureDetector(
+                            onTap: () => getAuthorImage(),
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.4),
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    bottomRight: Radius.circular(15)),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        flex: 7,
+                        child: Column(
+                          children: [
+                            EditTextField(
+                              label: 'Name',
+                              text: widget.playlistModel.creatorName,
+                              onChanged: (v) {},
+                              controller: nameController,
+                            ),
+                            const SizedBox(height: 15),
+                            EditTextField(
+                              label: 'Detail',
+                              text: widget.playlistModel.creatorDetails,
+                              onChanged: (v) {},
+                              controller: descriptionController,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 15),
                   MyButton(
                     onTap: () => editPlaylist(),
                     text: 'Save',
-                    isLoading: false,
+                    isLoading: isLoading,
                   )
                 ],
               ),

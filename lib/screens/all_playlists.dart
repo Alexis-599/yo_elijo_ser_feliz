@@ -16,6 +16,7 @@ class AllPlaylists extends StatefulWidget {
 
 class _AllPlaylistsState extends State<AllPlaylists> {
   AppData appData = AppData();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,12 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                       child: SizedBox(
                         height: 45,
                         child: TextFormField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            if (mounted) {
+                              setState(() {});
+                            }
+                          },
                           decoration: InputDecoration(
                             isDense: true,
                             filled: true,
@@ -88,7 +95,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                 ),
               ),
               StreamProvider.value(
-                value: FirebaseApi.getPlaylists(),
+                value: FirebaseApi.getPlaylists(searchController.text),
                 initialData: null,
                 catchError: (context, error) => null,
                 child: Consumer<List<PlayListModel>?>(
@@ -96,8 +103,14 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                     if (playlists == null) {
                       return const CircularProgressIndicator();
                     }
+                    if (playlists.isEmpty) {
+                      return const Center(
+                        child: Text('No playlist matched with this word'),
+                      );
+                    }
                     return Expanded(
                       child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: playlists.length,
                         itemBuilder: (c, i) {
                           return P2Card(
