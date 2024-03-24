@@ -29,19 +29,31 @@ class FirebaseApi {
         );
   }
 
-  static Stream<List<CourseModel>?> getFilterCourses(List<String> ids) {
+  static Stream<List<CourseModel>?> getFilterCourses(
+      {required List ids, String? text}) {
     return FirebaseFirestore.instance.collection('courses').snapshots().map(
           (value) => value.docs
               .map((e) => CourseModel.fromJson(e.data()))
-              .where((element) => ids.contains(element.id))
+              .where((element) =>
+                  ids.contains(element.id) && text != null && text.isNotEmpty
+                      ? element.title
+                          .toLowerCase()
+                          .contains(text.trim().toLowerCase())
+                      : true)
               .toList(),
         );
   }
 
-  static Stream<List<CourseModel>?> getCourses() {
+  static Stream<List<CourseModel>?> getCourses({String? text}) {
     return FirebaseFirestore.instance.collection('courses').snapshots().map(
-          (value) =>
-              value.docs.map((e) => CourseModel.fromJson(e.data())).toList(),
+          (value) => value.docs
+              .map((e) => CourseModel.fromJson(e.data()))
+              .where((element) => text != null && text.isNotEmpty
+                  ? element.title
+                      .toLowerCase()
+                      .contains(text.trim().toLowerCase())
+                  : true)
+              .toList(),
         );
   }
 

@@ -93,73 +93,76 @@ class CourseDetailScreen extends StatelessWidget {
               ),
           ],
         ),
-        body: currentUser == null
-            ? const Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: const EdgeInsets.all(15),
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image(
-                            image:
-                                CachedNetworkImageProvider(courseModel.image),
-                            width: MediaQuery.of(context).size.width,
-                            height: 250,
-                            fit: BoxFit.cover,
+        body: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image(
+                      image: CachedNetworkImageProvider(courseModel.image),
+                      width: MediaQuery.of(context).size.width,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "\$${courseModel.price}",
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "\$${courseModel.price}",
-                                  style: TextStyle(
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          StreamProvider.value(
+                            value: FirebaseApi.getCourseVideosLength(
+                                courseModel.id),
+                            initialData: null,
+                            child: Consumer<int?>(
+                              builder: (context, length, b) {
+                                if (length == null) {
+                                  return const Text(
+                                    '---',
+                                    style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                }
+                                return Text(
+                                  "- $length videos",
+                                  style: const TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.amber.shade600,
+                                    color: Colors.white,
                                   ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                StreamProvider.value(
-                                  value: FirebaseApi.getCourseVideosLength(
-                                      courseModel.id),
-                                  initialData: null,
-                                  child: Consumer<int?>(
-                                    builder: (context, length, b) {
-                                      if (length == null) {
-                                        return const Text(
-                                          '---',
-                                          style: TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        );
-                                      }
-                                      return Text(
-                                        "- $length videos",
-                                        style: const TextStyle(
-                                          fontSize: 25,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
-                            GestureDetector(
-                              onTap: () {
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: currentUser == null
+                            ? () {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'You need to login first before watching videos');
+                              }
+                            : () {
                                 if (currentUser.coursesIds!
                                         .contains(courseModel.id) ||
                                     currentUser.isAdmin) {
@@ -172,76 +175,86 @@ class CourseDetailScreen extends StatelessWidget {
                                       ));
                                 }
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.shade600,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    'Watch videos ->',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade600,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Watch videos ->',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          courseModel.title,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          courseModel.subtitle,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade200,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          courseModel.description,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    courseModel.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    Positioned(
-                      left: 10,
-                      right: 10,
-                      bottom: 0,
-                      child: currentUser.coursesIds!.contains(courseModel.id)
-                          ? const SizedBox(width: 0)
-                          : MyButton(
-                              onTap: () {
-                                Get.to(() => CheckoutScreen(
-                                      courseModel: courseModel,
-                                    ));
-                              },
-                              text: "Buy Course for \$${courseModel.price}",
-                              isLoading: false,
-                            ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    courseModel.subtitle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade200,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    courseModel.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                ],
               ),
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 0,
+                child: currentUser == null
+                    ? MyButton(
+                        onTap: () {
+                          Fluttertoast.showToast(
+                              msg:
+                                  'You need to login before purchasing the course');
+                        },
+                        text: "Buy Course for \$${courseModel.price}",
+                        isLoading: false,
+                      )
+                    : currentUser.coursesIds!.contains(courseModel.id)
+                        ? const SizedBox(width: 0)
+                        : MyButton(
+                            onTap: () {
+                              Get.to(() => CheckoutScreen(
+                                    courseModel: courseModel,
+                                  ));
+                            },
+                            text: "Buy Course for \$${courseModel.price}",
+                            isLoading: false,
+                          ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

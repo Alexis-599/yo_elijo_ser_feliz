@@ -5,7 +5,7 @@ class UserModel {
   final String email;
   final String? imageUrl;
   final bool isAdmin;
-  final List<String>? coursesIds;
+  final List? coursesIds;
 
   UserModel({
     required this.id,
@@ -39,5 +39,25 @@ class UserModel {
       'isAdmin': isAdmin,
       'coursesIds': coursesIds,
     };
+  }
+
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? username,
+    String? email,
+    String? imageUrl,
+    bool? isAdmin,
+    List? coursesIds,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isAdmin: isAdmin ?? this.isAdmin,
+      coursesIds: coursesIds ?? this.coursesIds,
+    );
   }
 }

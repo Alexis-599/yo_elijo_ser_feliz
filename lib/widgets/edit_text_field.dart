@@ -6,6 +6,7 @@ class EditTextField extends StatelessWidget {
   final String text;
   final ValueChanged<String> onChanged;
   final TextEditingController controller;
+  final bool isEnabled;
 
   const EditTextField({
     super.key,
@@ -14,6 +15,7 @@ class EditTextField extends StatelessWidget {
     required this.text,
     required this.onChanged,
     required this.controller,
+    this.isEnabled = true,
   });
 
   @override
@@ -32,6 +34,7 @@ class EditTextField extends StatelessWidget {
         TextField(
           controller: controller,
           maxLines: maxLines,
+          enabled: isEnabled,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             isDense: true,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,7 +44,7 @@ class _AppState extends State<App> {
               value: FirestoreService().currentUserData,
               initialData: null,
               catchError: (context, error) {
-                print(error);
+                log(error.toString());
                 return null;
               },
             ),

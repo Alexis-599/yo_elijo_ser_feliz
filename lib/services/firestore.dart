@@ -45,6 +45,25 @@ class FirestoreService {
     }
   }
 
+  Future<void> editUserDetails(UserModel userModel) async {
+    try {
+      var ref = _db.collection('users').doc(userModel.id);
+      if (userModel.imageUrl != null &&
+          !userModel.imageUrl!.contains('http')) {}
+      final newModel = userModel.copyWith(
+        imageUrl:
+            userModel.imageUrl != null && !userModel.imageUrl!.contains('http')
+                ? await uploadFileToStorageAndGetLink(
+                    uploadPath: userModel.imageUrl!,
+                    storingPath: 'users/${userModel.id}/profile_pic')
+                : userModel.imageUrl,
+      );
+      await ref.update(newModel.toMap());
+    } on FirebaseException catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
   postUserCourseIds(id) async {
     try {
       if (FirebaseAuth.instance.currentUser != null) {
