@@ -45,12 +45,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Column(
+            Expanded(
+              child: ListView(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 children: [
                   Align(
                     alignment: Alignment.center,
@@ -97,7 +96,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
               child: Column(
                 children: [
                   ElevatedButton(

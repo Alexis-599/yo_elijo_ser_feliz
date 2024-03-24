@@ -108,7 +108,7 @@ class RecentlyPublished extends StatelessWidget {
         SizedBox(
           height: 220,
           child: StreamProvider.value(
-            value: FirebaseApi.getPlaylists(),
+            value: FirebaseApi.getPlaylists(''),
             initialData: null,
             catchError: (context, error) => null,
             child: Consumer<List<PlayListModel>?>(
@@ -129,10 +129,14 @@ class RecentlyPublished extends StatelessWidget {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           var video = snapshot.data![index];
+                          var videoPlaylist = playlists
+                              .where((e) => e.id == video.playlistId)
+                              .first;
                           return GestureDetector(
                             onTap: () => Get.to(() => VideoPlayerScreen(
-                                youtubeVideos: snapshot.data!,
-                                currentVideoIndex: index)),
+                                  youtubeVideos: snapshot.data!,
+                                  currentVideoIndex: index,
+                                )),
                             child: Container(
                               margin: const EdgeInsets.all(5),
                               width: 150,
@@ -150,6 +154,14 @@ class RecentlyPublished extends StatelessWidget {
                                   const SizedBox(height: 10),
                                   Text(
                                     video.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    videoPlaylist.title,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 13,
@@ -194,7 +206,7 @@ class RecentPlaylistHome extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           StreamProvider.value(
-            value: FirebaseApi.getPlaylists(),
+            value: FirebaseApi.getPlaylists(''),
             initialData: null,
             catchError: (context, error) => null,
             child: Consumer<List<PlayListModel>?>(

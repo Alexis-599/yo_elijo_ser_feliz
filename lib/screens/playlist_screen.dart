@@ -6,7 +6,7 @@ import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
 import 'package:podcasts_ruben/widgets/youtube_player.dart';
 
-class PlaylistScreen extends StatelessWidget {
+class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({
     super.key,
     required this.playlist,
@@ -15,6 +15,14 @@ class PlaylistScreen extends StatelessWidget {
 
   final PlayListModel playlistModel;
   final YouTubePlaylist playlist;
+
+  @override
+  State<PlaylistScreen> createState() => _PlaylistScreenState();
+}
+
+class _PlaylistScreenState extends State<PlaylistScreen> {
+  bool isSearchOn = false;
+  final searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -43,109 +51,169 @@ class PlaylistScreen extends StatelessWidget {
                         Icons.arrow_back,
                         color: Colors.white,
                       )),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.search,
-                        color: Colors.white,
-                      )),
+                  isSearchOn
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isSearchOn = false;
+                              searchController.clear();
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.close,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        )
+                      : IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isSearchOn = true;
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.search,
+                            color: Colors.white,
+                          )),
                 ],
               ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 20, bottom: 15),
-                  height: 250,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image:
-                          CachedNetworkImageProvider(playlistModel.thumbnail),
-                      fit: BoxFit.cover,
+              if (!isSearchOn)
+                Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 20, bottom: 15),
+                        height: 250,
+                        width: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(
+                                widget.playlistModel.thumbnail),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Text(
+                        widget.playlistModel.title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Text(
+                        "${widget.playlist.itemCount} episodios",
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    Divider(
+                      color: Colors.grey.shade900.withOpacity(0.3),
+                      indent: 15,
+                      endIndent: 15,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 20, bottom: 15),
+                            height: 140,
+                            width: 140,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: CachedNetworkImageProvider(
+                                    widget.playlistModel.creatorPic),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          flex: 6,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.playlistModel.creatorName,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                widget.playlistModel.creatorDetails,
+                                style: const TextStyle(
+                                    overflow: TextOverflow.visible,
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey.shade900.withOpacity(0.3),
+                      indent: 15,
+                      endIndent: 15,
+                    ),
+                  ],
                 ),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  playlistModel.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  "${playlist.itemCount} episodios",
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-              Divider(
-                color: Colors.grey.shade900.withOpacity(0.3),
-                indent: 15,
-                endIndent: 15,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 20, bottom: 15),
-                      height: 140,
-                      width: 140,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: DecorationImage(
-                          image: CachedNetworkImageProvider(
-                              playlistModel.creatorPic),
-                          fit: BoxFit.cover,
+              if (isSearchOn)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: SizedBox(
+                    height: 45,
+                    child: TextFormField(
+                      controller: searchController,
+                      onChanged: (value) {
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
+                      decoration: InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Buscar',
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(color: Colors.grey.shade500),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey.shade500,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    flex: 6,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          playlistModel.creatorName,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          playlistModel.creatorDetails,
-                          style: const TextStyle(
-                              overflow: TextOverflow.visible,
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              Divider(
-                color: Colors.grey.shade900.withOpacity(0.3),
-                indent: 15,
-                endIndent: 15,
-              ),
+                ),
               FutureBuilder(
                 future: AppData().fetchAllPlaylistItems(
-                    playlistId: playlist.id, maxResults: 50),
+                  playlistId: widget.playlist.id,
+                  maxResults: 50,
+                  text: searchController.text,
+                ),
                 builder: (c, snap) {
                   if (snap.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -162,53 +230,42 @@ class PlaylistScreen extends StatelessWidget {
                       itemCount: snap.data!.length,
                       itemBuilder: (context, index) {
                         final video = snap.data![index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              Get.to(() => VideoPlayerScreen(
-                                    youtubeVideos: snap.data!,
-                                    currentVideoIndex: index,
-                                  ));
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 75,
-                                      width: 100,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        image: DecorationImage(
-                                          image: CachedNetworkImageProvider(
-                                              video.thumbnailUrl),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          .45,
-                                      child: Text(
-                                        video.title,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Icon(
-                                  Icons.play_circle_fill_outlined,
-                                  color: Colors.white,
-                                  size: 35,
-                                ),
-                              ],
+                        return ListTile(
+                          onTap: () {
+                            Get.to(() => VideoPlayerScreen(
+                                  youtubeVideos: snap.data!,
+                                  currentVideoIndex: index,
+                                ));
+                          },
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 5),
+                          visualDensity: const VisualDensity(vertical: 4),
+                          horizontalTitleGap: 10,
+                          leading: Container(
+                            height: 75,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: CachedNetworkImageProvider(
+                                    video.thumbnailUrl),
+                                fit: BoxFit.fill,
+                              ),
                             ),
+                          ),
+                          title: Text(
+                            video.title,
+                            maxLines: 2,
+                            style: const TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          trailing: const Icon(
+                            Icons.play_circle_fill_outlined,
+                            color: Colors.white,
+                            size: 35,
                           ),
                         );
                       },

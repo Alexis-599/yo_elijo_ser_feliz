@@ -7,6 +7,7 @@ import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/checkout_screen.dart';
 import 'package:podcasts_ruben/screens/course_videos.dart';
+import 'package:podcasts_ruben/screens/edit_course.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/alert_dialog.dart';
@@ -57,35 +58,36 @@ class CourseDetailScreen extends StatelessWidget {
                     PopupMenuItem(
                       child: const Text('Edit Course Details'),
                       onTap: () => Get.to(
-                        () => CourseVideos(courseModel: courseModel),
+                        () => EditCourse(courseModel: courseModel),
                       ),
                     ),
                     PopupMenuItem(
-                        child: const Text(
-                          'Delete Course',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => CustomAdaptiveAlertDialog(
-                              alertMsg:
-                                  'Are you sure you want to delete this course?',
-                              actiionBtnName: 'Yes',
-                              onAction: () async {
-                                await FirestoreService()
-                                    .deleteCourse(courseModel.id)
-                                    .whenComplete(() {
-                                  Get.back();
-                                  Get.back();
-                                  Fluttertoast.showToast(
-                                    msg: 'Course deleted successfully',
-                                  );
-                                });
-                              },
-                            ),
-                          );
-                        }),
+                      child: const Text(
+                        'Delete Course',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => CustomAdaptiveAlertDialog(
+                            alertMsg:
+                                'Are you sure you want to delete this course?',
+                            actiionBtnName: 'Yes',
+                            onAction: () async {
+                              await FirestoreService()
+                                  .deleteCourse(courseModel.id)
+                                  .whenComplete(() {
+                                Get.back();
+                                Get.back();
+                                Fluttertoast.showToast(
+                                  msg: 'Course deleted successfully',
+                                );
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ];
                 },
               ),
@@ -112,43 +114,82 @@ class CourseDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              "\$${courseModel.price}",
-                              style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber.shade500,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  "\$${courseModel.price}",
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.amber.shade600,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                StreamProvider.value(
+                                  value: FirebaseApi.getCourseVideosLength(
+                                      courseModel.id),
+                                  initialData: null,
+                                  child: Consumer<int?>(
+                                    builder: (context, length, b) {
+                                      if (length == null) {
+                                        return const Text(
+                                          '---',
+                                          style: TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      }
+                                      return Text(
+                                        "- $length videos",
+                                        style: const TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            StreamProvider.value(
-                              value: FirebaseApi.getCourseVideosLength(
-                                  courseModel.id),
-                              initialData: null,
-                              child: Consumer<int?>(
-                                builder: (context, length, b) {
-                                  if (length == null) {
-                                    return const Text(
-                                      '---',
-                                      style: TextStyle(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  }
-                                  return Text(
-                                    "- $length videos",
-                                    style: const TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                            GestureDetector(
+                              onTap: () {
+                                if (currentUser.coursesIds!
+                                        .contains(courseModel.id) ||
+                                    currentUser.isAdmin) {
+                                  Get.to(() => CourseVideos(
+                                        courseModel: courseModel,
+                                      ));
+                                } else {
+                                  Get.to(() => CheckoutScreen(
+                                        courseModel: courseModel,
+                                      ));
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 5,
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade600,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    'Watch videos ->',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
                                     ),
-                                  );
-                                },
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -180,39 +221,6 @@ class CourseDetailScreen extends StatelessWidget {
                             color: Colors.grey.shade300,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        GestureDetector(
-                          onTap: () {
-                            if (currentUser.coursesIds!
-                                    .contains(courseModel.id) ||
-                                currentUser.isAdmin) {
-                              Get.to(() => CourseVideos(
-                                    courseModel: courseModel,
-                                  ));
-                            } else {
-                              Get.to(() => CheckoutScreen(
-                                    courseModel: courseModel,
-                                  ));
-                            }
-                          },
-                          child: Container(
-                            height: 50,
-                            width: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.amber.shade600,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Watch videos',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     Positioned(
@@ -227,7 +235,7 @@ class CourseDetailScreen extends StatelessWidget {
                                       courseModel: courseModel,
                                     ));
                               },
-                              text: "Buy ${courseModel.title}",
+                              text: "Buy Course for \$${courseModel.price}",
                               isLoading: false,
                             ),
                     ),

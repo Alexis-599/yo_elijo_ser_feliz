@@ -19,6 +19,7 @@ class CourseVideos extends StatefulWidget {
 }
 
 class _CourseVideosState extends State<CourseVideos> {
+  final searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,45 +41,100 @@ class _CourseVideosState extends State<CourseVideos> {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        body: StreamProvider.value(
-          value: FirebaseApi.getCourseVideos(widget.courseModel.id),
-          initialData: null,
-          catchError: (context, error) => null,
-          child: Consumer<List<CourseVideo>?>(
-            builder: (context, courseVideos, b) {
-              if (courseVideos == null) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              return courseVideos.isEmpty
-                  ? const Center(
-                      child: Text('No videos added yet'),
-                    )
-                  : ListView.builder(
-                      itemCount: courseVideos.length,
-                      padding: const EdgeInsets.only(top: 15),
-                      itemBuilder: (c, i) {
-                        return P2CardCourseVideo(
-                          course: courseVideos[i],
-                          ontap: () => Get.to(() => CourseVideoPlayerScreen(
-                                courseVideos: courseVideos,
-                                currentVideoIndex: i,
-                              )),
-                        );
-                      },
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                children: [
+                  AppData().isAdmin
+                      ? GestureDetector(
+                          onTap: () {
+                            Get.to(() => AddCourseVideo(
+                                  courseModel: widget.courseModel,
+                                ));
+                          },
+                          child: const Icon(
+                            Icons.add_box,
+                            size: 55,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  Flexible(
+                    child: SizedBox(
+                      height: 45,
+                      child: TextFormField(
+                        controller: searchController,
+                        onChanged: (value) {
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                        decoration: InputDecoration(
+                          isDense: true,
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: 'Buscar',
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(color: Colors.grey.shade500),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey.shade500,
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 5),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            StreamProvider.value(
+              value: FirebaseApi.getCourseVideos(
+                  widget.courseModel.id, searchController.text),
+              initialData: null,
+              catchError: (context, error) => null,
+              child: Consumer<List<CourseVideo>?>(
+                builder: (context, courseVideos, b) {
+                  if (courseVideos == null) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-            },
-          ),
+                  }
+                  return courseVideos.isEmpty
+                      ? const Center(
+                          child: Text('No video is available with this text'),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: courseVideos.length,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            itemBuilder: (c, i) {
+                              return P2CardCourseVideo(
+                                course: courseVideos[i],
+                                ontap: () =>
+                                    Get.to(() => CourseVideoPlayerScreen(
+                                          courseVideos: courseVideos,
+                                          currentVideoIndex: i,
+                                        )),
+                              );
+                            },
+                          ),
+                        );
+                },
+              ),
+            ),
+          ],
         ),
-        floatingActionButton: AppData().isAdmin
-            ? FloatingActionButton(
-                onPressed: () => Get.to(() => AddCourseVideo(
-                      courseModel: widget.courseModel,
-                    )),
-                child: const Icon(Icons.add),
-              )
-            : null,
       ),
     );
   }

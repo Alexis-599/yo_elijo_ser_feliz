@@ -57,7 +57,7 @@ class _EditPlaylistsScreenState extends State<EditPlaylistsScreen> {
                 Colors.amber.shade100,
               ])),
           child: StreamProvider.value(
-            value: FirebaseApi.getPlaylists(),
+            value: FirebaseApi.getPlaylists(''),
             initialData: null,
             catchError: (context, error) => null,
             child: Consumer<List<PlayListModel>?>(

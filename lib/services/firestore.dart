@@ -82,34 +82,27 @@ class FirestoreService {
     }
   }
 
-  deletePlayList(String id) async {
+  Future<void> deletePlayList(String id) async {
     await _db.collection('playlists').doc(id).delete();
   }
 
-  editPlayList(PlayListModel playListModel) async {
-    if (!playListModel.creatorPic.contains('http') ||
-        !playListModel.thumbnail.contains('http')) {
-      final link = await uploadFileToStorageAndGetLink(
-        uploadPath: playListModel.creatorPic,
-        storingPath: 'playlists/${playListModel.id}/authorImage',
-      );
-      final thumbnail = await uploadFileToStorageAndGetLink(
-        uploadPath: playListModel.creatorPic,
-        storingPath: 'playlists/${playListModel.id}/thumbnail',
-      );
-      if (link != null) {
-        final p =
-            playListModel.copyWith(creatorPic: link, thumbnail: thumbnail);
-        await _db.collection('playlists').doc(p.id).set(
-              p.toMap(),
-            );
-      }
-    } else {
-      await _db
-          .collection('playlists')
-          .doc(playListModel.id)
-          .set(playListModel.toMap());
-    }
+  Future<void> editPlayList(PlayListModel playListModel) async {
+    final p = playListModel.copyWith(
+        creatorPic: playListModel.creatorPic.contains('http')
+            ? playListModel.creatorPic
+            : await uploadFileToStorageAndGetLink(
+                uploadPath: playListModel.creatorPic,
+                storingPath: 'playlists/${playListModel.id}/authorImage',
+              ),
+        thumbnail: playListModel.thumbnail.contains('http')
+            ? playListModel.thumbnail
+            : await uploadFileToStorageAndGetLink(
+                uploadPath: playListModel.thumbnail,
+                storingPath: 'playlists/${playListModel.id}/thumbnail',
+              ));
+    await _db.collection('playlists').doc(p.id).update(
+          p.toMap(),
+        );
   }
 
   Future<String?> uploadFileToStorageAndGetLink({
@@ -140,6 +133,26 @@ class FirestoreService {
     }
   }
 
+  Future<void> editCourse(CourseModel courseModel) async {
+    try {
+      String? newImage;
+      if (!courseModel.image.contains('http')) {
+        newImage = await uploadFileToStorageAndGetLink(
+          uploadPath: courseModel.image,
+          storingPath: 'courses/${courseModel.id}/thumbnail',
+        );
+      } else {
+        newImage = courseModel.image;
+      }
+      final courseRef =
+          FirebaseFirestore.instance.collection('courses').doc(courseModel.id);
+      final newCourseModel = courseModel.copyWith(image: newImage);
+      await courseRef.set(newCourseModel.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> postNewCourseVideo(CourseVideo courseVideo) async {
     try {
       final videoRef = FirebaseFirestore.instance
@@ -159,6 +172,35 @@ class FirestoreService {
           storingPath: 'courses/${courseVideo.courseId}/${videoRef.id}/video',
         ),
         date: DateTime.now().toUtc().toString(),
+      );
+      await videoRef.set(newCourseModel.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editCourseVideo(CourseVideo courseVideo) async {
+    try {
+      final videoRef = FirebaseFirestore.instance
+          .collection('courses')
+          .doc(courseVideo.courseId)
+          .collection('videos')
+          .doc(courseVideo.id);
+      final newCourseModel = courseVideo.copyWith(
+        thumbnail: courseVideo.thumbnail.contains('http')
+            ? courseVideo.thumbnail
+            : await uploadFileToStorageAndGetLink(
+                uploadPath: courseVideo.thumbnail,
+                storingPath:
+                    'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
+              ),
+        link: courseVideo.link.contains('http')
+            ? courseVideo.link
+            : await uploadFileToStorageAndGetLink(
+                uploadPath: courseVideo.link,
+                storingPath:
+                    'courses/${courseVideo.courseId}/${videoRef.id}/video',
+              ),
       );
       await videoRef.set(newCourseModel.toJson());
     } catch (e) {

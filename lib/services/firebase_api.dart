@@ -9,10 +9,14 @@ import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 
 class FirebaseApi {
-  static Stream<List<PlayListModel>?> getPlaylists() {
+  static Stream<List<PlayListModel>?> getPlaylists(String text) {
     return FirebaseFirestore.instance.collection('playlists').snapshots().map(
-          (value) =>
-              value.docs.map((e) => PlayListModel.fromJson(e.data())).toList(),
+          (value) => value.docs
+              .map((e) => PlayListModel.fromJson(e.data()))
+              .where((element) => element.title
+                  .toLowerCase()
+                  .contains(text.trim().toLowerCase()))
+              .toList(),
         );
   }
 
@@ -41,7 +45,7 @@ class FirebaseApi {
         );
   }
 
-  static Stream<List<CourseVideo>?> getCourseVideos(String id) {
+  static Stream<List<CourseVideo>?> getCourseVideos(String id, String text) {
     return FirebaseFirestore.instance
         .collection('courses')
         .doc(id)
@@ -49,8 +53,12 @@ class FirebaseApi {
         .orderBy('date', descending: true)
         .snapshots()
         .map(
-          (value) =>
-              value.docs.map((e) => CourseVideo.fromJson(e.data())).toList(),
+          (value) => value.docs
+              .map((e) => CourseVideo.fromJson(e.data()))
+              .where((element) => element.title
+                  .toLowerCase()
+                  .contains(text.trim().toLowerCase()))
+              .toList(),
         );
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
-import 'package:podcasts_ruben/screens/add_course.dart';
+import 'package:podcasts_ruben/screens/edit_course_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/course_card.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +49,7 @@ class InfoScreen extends StatelessWidget {
                             AppData().isAdmin
                                 ? GestureDetector(
                                     onTap: () {
-                                      Get.to(() => const AddCourse());
+                                      Get.to(() => const EditCourseScreen());
                                     },
                                     child: const Icon(
                                       Icons.add_box,

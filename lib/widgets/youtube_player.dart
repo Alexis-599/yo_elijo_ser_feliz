@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_video.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -8,10 +10,11 @@ class VideoPlayerScreen extends StatefulWidget {
   final List<YouTubeVideo> youtubeVideos;
   final int currentVideoIndex;
 
-  const VideoPlayerScreen(
-      {super.key,
-      required this.youtubeVideos,
-      required this.currentVideoIndex});
+  const VideoPlayerScreen({
+    super.key,
+    required this.youtubeVideos,
+    required this.currentVideoIndex,
+  });
 
   @override
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
@@ -51,6 +54,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     currentIndex = widget.currentVideoIndex;
+  }
+
+  Future<PlayListModel> getPlaylist() async {
+    return FirebaseFirestore.instance
+        .collection('playlists')
+        .doc(widget.youtubeVideos[currentIndex].playlistId)
+        .get()
+        .then((value) => PlayListModel.fromJson(value.data()!));
   }
 
   @override
@@ -139,6 +150,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 5),
+                  FutureBuilder<PlayListModel>(
+                      future: getPlaylist(),
+                      builder: (context, snapshot) {
+                        return Text(
+                          snapshot.data != null ? snapshot.data!.title : '---',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      }),
                   const SizedBox(height: 20),
                   SizedBox(
                     height: 30,
