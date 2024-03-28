@@ -33,17 +33,18 @@ class _EditPlaylistsScreenState extends State<EditPlaylistsScreen> {
         ),
         actions: [
           Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () {
-                  Get.to(() => const AddPlaylist());
-                }, // add playlist
-                icon: const Icon(
-                  Icons.add_box,
-                  color: Colors.white,
-                ),
-                iconSize: 40,
-              )),
+            margin: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              onPressed: () {
+                Get.to(() => const AddPlaylist());
+              }, // add playlist
+              icon: const Icon(
+                Icons.add_box,
+                color: Colors.white,
+              ),
+              iconSize: 40,
+            ),
+          ),
         ],
       ),
       body: SizedBox.expand(

@@ -22,11 +22,11 @@ class CustomAdaptiveAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
       return AlertDialog(
-        title: Text(title ?? 'Alert'),
+        title: Text(title ?? 'Alerta'),
         content: Text(alertMsg),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
             onPressed: () {
               Get.back();
             },
@@ -42,11 +42,11 @@ class CustomAdaptiveAlertDialog extends StatelessWidget {
       );
     } else {
       return CupertinoAlertDialog(
-        title: Text(title ?? 'Alert'),
+        title: Text(title ?? 'Alerta'),
         content: Text(alertMsg),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
             onPressed: () {
               Get.back();
             },

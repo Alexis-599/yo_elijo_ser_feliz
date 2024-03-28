@@ -47,8 +47,7 @@ class _AddPlaylistState extends State<AddPlaylist> {
       isLoading = true;
     });
     final playList = PlayListModel(
-      id: getPlaylistIdFromUrl(
-          'https://www.youtube.com/playlist?list=PLDsYoS8mDh36n7K_v4rA36Gq_TzArKy58'),
+      id: getPlaylistIdFromUrl(urlController.text),
       creatorName: nameController.text.trim(),
       creatorDetails: descriptionController.text.trim(),
       creatorPic: autherImage!,
@@ -56,7 +55,7 @@ class _AddPlaylistState extends State<AddPlaylist> {
       title: titleController.text.trim(),
     );
     await FirestoreService().postNewPlayList(playList).whenComplete(() {
-      Fluttertoast.showToast(msg: 'Playlist upload successfully');
+      Fluttertoast.showToast(msg: 'Carga de lista de reproducción exitosa');
       setState(() {
         urlController.clear();
         nameController.clear();
@@ -108,14 +107,14 @@ class _AddPlaylistState extends State<AddPlaylist> {
               const SizedBox(height: 18),
               EditTextField(
                 controller: titleController,
-                label: 'Title',
+                label: 'Título',
                 text: '',
                 onChanged: (change) {},
               ),
               const SizedBox(height: 18),
               EditTextField(
                 controller: urlController,
-                label: 'Playlist URL',
+                label: 'URL de la lista de reproducción',
                 text: '',
                 onChanged: (change) {},
               ),

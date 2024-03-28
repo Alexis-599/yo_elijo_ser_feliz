@@ -38,7 +38,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.black),
           title: const Text(
-            'Buy Playlist',
+            'Comprar lista de reproducción del curso',
             style: TextStyle(
               color: Colors.black,
             ),
@@ -54,7 +54,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Align(
                     alignment: Alignment.center,
                     child: Text(
-                      '\$${widget.courseModel.price}',
+                      '\$MXN${widget.courseModel.price}',
                       style: const TextStyle(
                         fontSize: 70,
                         fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => usePaypal(),
+                    onPressed: () => usePaypal(widget.courseModel.title),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade900,
                       fixedSize: Size(
@@ -109,7 +109,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     child: const Text(
-                      "Pay with PayPal",
+                      "Pagar con PayPal",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -120,7 +120,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'OR',
+                      'O',
                       style: TextStyle(
                         color: Colors.black,
                       ),
@@ -141,7 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     child: const Text(
-                      "Pay with Debit/Credit Card",
+                      "Pagar con tarjeta de débito/crédito",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -158,19 +158,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  usePaypal() {
+  usePaypal(courseName) {
     Get.to(
       () => UsePaypal(
-          sandboxMode: true,
-          clientId: AppData.paypalSandboxClientId,
-          secretKey: AppData.paypalSandboxSecretKey,
+          sandboxMode: false,
+          clientId: AppData.paypalLiveClientId,
+          secretKey: AppData.paypalLiveSecretKey,
           returnURL: "https://samplesite.com/return",
           cancelURL: "https://samplesite.com/cancel",
           transactions: [
             {
               "amount": {
                 "total": widget.courseModel.price,
-                "currency": "USD",
+                "currency": "MXN",
                 "details": {
                   "subtotal": widget.courseModel.price,
                   "shipping": '0',
@@ -178,35 +178,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 }
               },
               "description": "The payment transaction description.",
-              // "payment_options": {
-              //   "allowed_payment_method":
-              //       "INSTANT_FUNDING_SOURCE"
-              // },
               "item_list": {
                 "items": [
                   {
-                    "name": "A demo product",
+                    "name": courseName,
                     "quantity": 1,
                     "price": widget.courseModel.price,
-                    "currency": "USD"
+                    "currency": "MXN"
                   }
                 ],
-
-                // shipping address is not required though
-                "shipping_address": const {
-                  "recipient_name": "Jane Foster",
-                  "line1": "Travis County",
-                  "line2": "",
-                  "city": "Austin",
-                  "country_code": "US",
-                  "postal_code": "73301",
-                  "phone": "+00000000",
-                  "state": "Texas"
-                },
               }
             }
           ],
-          note: "Contact us for any questions on your order.",
+          note: "Contáctenos para cualquier pregunta sobre su pedido.",
           onSuccess: (Map params) async {
             print("onSuccess: $params");
             FirestoreService().postUserCourseIds(widget.courseModel.id);
@@ -222,17 +206,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> makePayment({context, amount, test}) async {
     try {
-      paymentIntent = await createPaymentIntent(amount, 'USD', test);
-
-      // var gpay = PaymentSheetGooglePay(
-      //   merchantCountryCode: "DE",
-      //   currencyCode: "EUR",
-      //   testEnv: true,
-      // );
-      // var aPay = const PaymentSheetApplePay(
-      //   merchantCountryCode: "DE",
-      //   buttonType: PlatformButtonType.pay,
-      // );
+      paymentIntent = await createPaymentIntent(amount, 'MXN', test);
 
       //STEP 2: Initialize Payment Sheet
       await Stripe.instance
@@ -242,8 +216,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             //Gotten from payment intent
             style: ThemeMode.light,
             merchantDisplayName: 'Podcasts App',
-            // googlePay: gpay,
-            // applePay: aPay,
             // appearance: PaymentSheetAppearance()
           ))
           .then((value) {});
@@ -280,7 +252,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         },
         body: body,
       );
-      print('Payment Intent Body->>> ${response.body.toString()}');
+      // print('Payment Intent Body->>> ${response.body.toString()}');
       return jsonDecode(response.body);
     } catch (err) {
       print('err charging user: ${err.toString()}');

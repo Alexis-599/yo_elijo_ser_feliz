@@ -89,7 +89,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
         ),
         centerTitle: true,
         title: const Text(
-          'Edit Playlist',
+          'Editar lista de reproducción',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -166,7 +166,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                     ),
                   ),
                   EditTextField(
-                    label: 'Title',
+                    label: 'Título',
                     text: widget.playlistModel.title,
                     onChanged: (v) {},
                     controller: titleController,
@@ -219,14 +219,14 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                         child: Column(
                           children: [
                             EditTextField(
-                              label: 'Name',
+                              label: 'Nombre',
                               text: widget.playlistModel.creatorName,
                               onChanged: (v) {},
                               controller: nameController,
                             ),
                             const SizedBox(height: 15),
                             EditTextField(
-                              label: 'Detail',
+                              label: 'Detalle',
                               text: widget.playlistModel.creatorDetails,
                               onChanged: (v) {},
                               controller: descriptionController,
@@ -239,7 +239,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                   const SizedBox(height: 15),
                   MyButton(
                     onTap: () => editPlaylist(),
-                    text: 'Save',
+                    text: 'Ahorrar',
                     isLoading: isLoading,
                   )
                 ],

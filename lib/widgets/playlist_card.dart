@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/edit_course_video.dart';
 import 'package:podcasts_ruben/screens/editable_playlist_screen.dart';
 import 'package:podcasts_ruben/screens/playlist_screen.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/alert_dialog.dart';
 import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
+import 'package:provider/provider.dart';
 
 class P2Card extends StatelessWidget {
   const P2Card({
@@ -60,39 +62,6 @@ class P2Card extends StatelessWidget {
                   )),
             visualDensity: const VisualDensity(vertical: 4, horizontal: 4),
             horizontalTitleGap: 10,
-            onLongPress: AppData().isAdmin
-                ? () {
-                    Get.bottomSheet(
-                      SizedBox(
-                        height: 200,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.edit),
-                              label: const Text('Edit Playlist'),
-                            ),
-                            TextButton.icon(
-                              onPressed: () {
-                                FirestoreService().deletePlayList(playlist.id);
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              ),
-                              label: const Text(
-                                'Delete Playlist',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      backgroundColor: Colors.white,
-                    );
-                  }
-                : null,
             title: Text(
               playlist.title,
               maxLines: 2,
@@ -130,10 +99,13 @@ class P2Card extends StatelessWidget {
                         context: context,
                         builder: (_) => CustomAdaptiveAlertDialog(
                           alertMsg:
-                              'Are you sure you want to delete this playlist from your app?',
-                          actiionBtnName: 'Yes',
+                              '¿Estás seguro de que quieres eliminar esta lista de reproducción de tu aplicación?',
+                          actiionBtnName: 'Sí',
                           onAction: () {
-                            FirestoreService().deletePlayList(playlist.id);
+                            FirestoreService()
+                                .deletePlayList(playlist.id)
+                                .whenComplete(() {});
+                            Get.back();
                           },
                         ),
                       );
@@ -207,7 +179,7 @@ class P2CardCourseVideo extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
       ),
-      trailing: AppData().isAdmin
+      trailing: context.watch<UserModel>().isAdmin
           ? PopupMenuButton(
               padding: const EdgeInsets.only(top: 10),
               child: Container(
@@ -221,14 +193,14 @@ class P2CardCourseVideo extends StatelessWidget {
               itemBuilder: (c) {
                 return [
                   PopupMenuItem(
-                    child: const Text('Edit Video Details'),
+                    child: const Text('Editar detalles del vídeo'),
                     onTap: () {
                       Get.to(() => EditCourseVideo(courseVideo: course));
                     },
                   ),
                   PopupMenuItem(
                     child: const Text(
-                      'Delete Video',
+                      'Eliminar vídeo',
                       style: TextStyle(color: Colors.red),
                     ),
                     onTap: () async {
@@ -236,11 +208,12 @@ class P2CardCourseVideo extends StatelessWidget {
                           context: context,
                           builder: (_) => CustomAdaptiveAlertDialog(
                                 alertMsg:
-                                    'Are you sure you want to delete this video?',
-                                actiionBtnName: 'Yes',
+                                    '¿Estás seguro de que quieres eliminar este vídeo?',
+                                actiionBtnName: 'Sí',
                                 onAction: () async {
                                   await FirestoreService()
                                       .deleteCourseVideo(course);
+                                  Get.back();
                                 },
                               ));
                     },

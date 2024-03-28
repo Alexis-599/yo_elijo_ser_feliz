@@ -13,10 +13,6 @@ class CustomDrawer extends StatelessWidget {
 
   final AppData appData = AppData();
 
-  void logOut() async {
-    await AuthService().signOut();
-  }
-
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -52,7 +48,6 @@ class CustomDrawer extends StatelessWidget {
                         ),
                         onTap: () {
                           authService.signOut();
-                          appData.isAdmin = false;
                         },
                         title: const Text(
                           'Cerrar sesión',
@@ -147,7 +142,6 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   authService.signOut();
-                  appData.isAdmin = false;
                 },
                 title: const Text(
                   'Cerrar sesión',

@@ -3,19 +3,22 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 
-class FirestoreService {
+class FirestoreService extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  final courseImageFolderName = 'courses_images';
-  final courseVideosFolderName = 'courses_videos';
-  // final courseImageFolderName = 'courses_images';
-  // final courseImageFolderName = 'courses_images';
+  // var mediaUploadTasks = <UploadTask>[];
+
+  // bool isTrue = false;
+
+  toggleIsTrue() {
+    notifyListeners();
+  }
 
   Future addUserDetails(String email) async {
     await _db.collection('users').add({'email': email, 'role': 'user'});
@@ -41,7 +44,8 @@ class FirestoreService {
         });
       }
     } on FirebaseException catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      throw Exception(e);
+      // Fluttertoast.showToast(msg: e.toString());
     }
   }
 
@@ -60,7 +64,7 @@ class FirestoreService {
       );
       await ref.update(newModel.toMap());
     } on FirebaseException catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      throw Exception(e);
     }
   }
 
@@ -78,7 +82,7 @@ class FirestoreService {
         });
       }
     } on FirebaseException catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      throw Exception(e);
     }
   }
 
@@ -124,17 +128,20 @@ class FirestoreService {
         );
   }
 
+  // clearList() {
+  //   mediaUploadTasks.clear();
+  //   notifyListeners();
+  // }
+
   Future<String?> uploadFileToStorageAndGetLink({
     required String uploadPath,
     required String storingPath,
+    bool isVideo = false,
   }) async {
     final ref = FirebaseStorage.instance.ref().child(storingPath);
-    // final uploadRef = ref.child(storingPath);
-
-    await ref
+    return await ref
         .putData(await File(uploadPath).readAsBytes())
-        .whenComplete(() => null);
-    return await ref.getDownloadURL();
+        .then((p0) => p0.ref.getDownloadURL());
   }
 
   Future<void> postNewCourse(CourseModel courseModel) async {
@@ -186,10 +193,7 @@ class FirestoreService {
           storingPath:
               'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
         ),
-        link: await uploadFileToStorageAndGetLink(
-          uploadPath: courseVideo.link,
-          storingPath: 'courses/${courseVideo.courseId}/${videoRef.id}/video',
-        ),
+        link: courseVideo.link,
         date: DateTime.now().toUtc().toString(),
       );
       await videoRef.set(newCourseModel.toJson());
@@ -213,13 +217,7 @@ class FirestoreService {
                 storingPath:
                     'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
               ),
-        link: courseVideo.link.contains('http')
-            ? courseVideo.link
-            : await uploadFileToStorageAndGetLink(
-                uploadPath: courseVideo.link,
-                storingPath:
-                    'courses/${courseVideo.courseId}/${videoRef.id}/video',
-              ),
+        link: courseVideo.link,
       );
       await videoRef.set(newCourseModel.toJson());
     } catch (e) {

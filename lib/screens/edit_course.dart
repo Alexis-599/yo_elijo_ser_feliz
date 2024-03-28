@@ -68,7 +68,7 @@ class _EditCourseState extends State<EditCourse> {
       image: image ?? widget.courseModel.image,
     );
     await firestoreService.editCourse(courseModel).whenComplete(() {
-      Fluttertoast.showToast(msg: 'Course upload successfully');
+      Fluttertoast.showToast(msg: 'Carga del curso exitosamente');
     });
     setState(() {
       isLoading = false;
@@ -80,7 +80,7 @@ class _EditCourseState extends State<EditCourse> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Course'),
+        title: const Text('Editar curso'),
         centerTitle: true,
         backgroundColor: Colors.amber,
         elevation: 0,
@@ -116,28 +116,28 @@ class _EditCourseState extends State<EditCourse> {
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course title',
+                label: 'Título del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: titleController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course subtitle',
+                label: 'Subtítulo del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: subtitleController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course description',
+                label: 'Descripción del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: descriptionController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course price',
+                label: 'Precio del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: priceController,
@@ -145,7 +145,7 @@ class _EditCourseState extends State<EditCourse> {
               const SizedBox(height: 15),
               MyButton(
                 onTap: () => _uploadCourse(),
-                text: 'Save',
+                text: 'Ahorrar',
                 isLoading: isLoading,
               ),
             ],

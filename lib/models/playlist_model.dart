@@ -50,7 +50,7 @@ class PlayListModel {
       title: title ?? this.title,
       thumbnail: thumbnail ?? this.thumbnail,
       creatorName: creatorName ?? this.creatorName,
-      creatorDetails: creatorDetails ?? this.creatorName,
+      creatorDetails: creatorDetails ?? this.creatorDetails,
       creatorPic: creatorPic ?? this.creatorPic,
     );
   }

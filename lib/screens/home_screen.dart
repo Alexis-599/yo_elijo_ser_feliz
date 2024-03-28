@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:podcasts_ruben/bottom_bar_navigation.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
-import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/models/youtube_video.dart';
 import 'package:podcasts_ruben/screens/all_playlists.dart';
 import 'package:podcasts_ruben/screens/info_screen.dart';
@@ -16,15 +15,25 @@ import 'package:podcasts_ruben/widgets/widgets.dart';
 import 'package:podcasts_ruben/widgets/youtube_player.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FirebaseAuth.instance.currentUser != null
         ? Dashboard()
         : const LoginOrRegisterScreen();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class Dashboard extends StatelessWidget {
@@ -39,7 +48,6 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prov = Provider.of<DashboardProvider>(context);
-
     return Scaffold(
       body: screenList[prov.navCurrentIndex],
       bottomNavigationBar: const NavBar(),
@@ -52,11 +60,6 @@ class DisplayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = context.watch<UserModel?>();
-    if (currentUser != null) {
-      AppData().isAdmin = currentUser.isAdmin;
-    }
-
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -118,68 +121,74 @@ class RecentlyPublished extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 );
               }
-              return FutureBuilder<List<YouTubeVideo>>(
-                  future: AppData().fetchRecentPodcastVideosFromChannels(
+              return FutureProvider.value(
+                  value: AppData().fetchRecentPodcastVideosFromChannels(
                       playlists.map((e) => e.id).toList()),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var video = snapshot.data![index];
-                          var videoPlaylist = playlists
-                              .where((e) => e.id == video.playlistId)
-                              .first;
-                          return GestureDetector(
-                            onTap: () => Get.to(() => VideoPlayerScreen(
-                                  youtubeVideos: snapshot.data!,
-                                  currentVideoIndex: index,
-                                )),
-                            child: Container(
-                              margin: const EdgeInsets.all(5),
-                              width: 150,
-                              child: Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: CachedNetworkImage(
-                                      imageUrl: video.thumbnailUrl,
-                                      height: 150,
-                                      width: 150,
-                                      fit: BoxFit.cover,
+                  initialData: null,
+                  child: Consumer<List<YouTubeVideo>?>(
+                    builder: (context, snapshot, child) {
+                      if (snapshot == null) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: snapshot.length,
+                          itemBuilder: (context, index) {
+                            var video = snapshot[index];
+                            var videoPlaylist = playlists
+                                .where((e) => e.id == video.playlistId)
+                                .first;
+                            return GestureDetector(
+                              onTap: () => Get.to(() => VideoPlayerScreen(
+                                    youtubeVideos: snapshot,
+                                    currentVideoIndex: index,
+                                  )),
+                              child: Container(
+                                margin: const EdgeInsets.all(5),
+                                width: 150,
+                                child: Column(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: CachedNetworkImage(
+                                        imageUrl: video.thumbnailUrl,
+                                        height: 150,
+                                        width: 150,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    video.title,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      video.title,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    videoPlaylist.title,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
+                                    Text(
+                                      videoPlaylist.title,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  });
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ));
+              // builder: (context, snapshot) {
+
+              // });
             }),
           ),
         ),

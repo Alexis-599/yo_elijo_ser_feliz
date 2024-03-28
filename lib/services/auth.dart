@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:podcasts_ruben/screens/home_screen.dart';
@@ -34,7 +35,7 @@ class AuthService extends ChangeNotifier {
         Get.offAll(() => const HomeScreen());
       });
     } catch (e) {
-      Fluttertoast.showToast(msg: 'An unknown error occured');
+      Fluttertoast.showToast(msg: 'Un error desconocido ocurrió');
     } finally {
       toggleSigning(false);
     }
@@ -48,7 +49,7 @@ class AuthService extends ChangeNotifier {
           .signInWithEmailAndPassword(email: email, password: password);
       if (user.user != null) {
         Get.offAll(() => const HomeScreen());
-        Fluttertoast.showToast(msg: 'Login successfully');
+        Fluttertoast.showToast(msg: 'Iniciar sesión exitosamente');
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -59,7 +60,7 @@ class AuthService extends ChangeNotifier {
         errorMessage = 'Contraseña incorrecta';
       } else {
         // Fluttertoast.showToast(msg: 'An unknown error occured');
-        errorMessage = 'An unknown error occured';
+        errorMessage = 'Un error desconocido ocurrió';
       }
       notifyListeners();
     } finally {
@@ -72,9 +73,9 @@ class AuthService extends ChangeNotifier {
     try {
       toggleSigning(true);
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      Fluttertoast.showToast(msg: 'Email sent successfully');
+      Fluttertoast.showToast(msg: 'Correo electrónico enviado correctamente');
     } catch (e) {
-      Fluttertoast.showToast(msg: 'An unknown error occured');
+      Fluttertoast.showToast(msg: 'Un error desconocido ocurrió');
     } finally {
       toggleSigning(false);
     }
@@ -97,7 +98,7 @@ class AuthService extends ChangeNotifier {
         Get.offAll(() => const HomeScreen());
       });
     } catch (e) {
-      Fluttertoast.showToast(msg: 'An error occured');
+      Fluttertoast.showToast(msg: 'Un error desconocido ocurrió');
     } finally {
       toggleSigning(false);
     }
@@ -128,9 +129,10 @@ class AuthService extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       toggleSigning(false);
 
-      Fluttertoast.showToast(msg: 'Please enter ${e.message}');
+      Fluttertoast.showToast(msg: 'Ocurrió un error');
+      throw Exception(e);
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Google Login cancelled');
+      Fluttertoast.showToast(msg: 'Inicio de sesión de Google cancelado');
     } finally {
       toggleSigning(false);
     }
@@ -182,11 +184,12 @@ class AuthService extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       toggleSigning(false);
 
-      Fluttertoast.showToast(msg: 'Please enter ${e.message}');
+      Fluttertoast.showToast(msg: 'Ocurrió un error');
+      throw Exception(e);
     } catch (e) {
       toggleSigning(false);
 
-      Fluttertoast.showToast(msg: 'Apple login cancelled');
+      Fluttertoast.showToast(msg: 'Inicio de sesión de Apple cancelado');
     } finally {
       toggleSigning(false);
     }
@@ -199,7 +202,7 @@ class AuthService extends ChangeNotifier {
           .signOut()
           .then((value) => Get.offAll(() => const LoginOrRegisterScreen()));
     } catch (e) {
-      Fluttertoast.showToast(msg: 'An unknown error occured');
+      Fluttertoast.showToast(msg: 'Un error desconocido ocurrió');
     } finally {
       isSigningIn = false;
       errorMessage = '';

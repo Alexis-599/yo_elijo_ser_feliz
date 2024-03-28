@@ -55,7 +55,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         isLoading = false;
       });
     });
-    Fluttertoast.showToast(msg: 'Profile update successfuly');
+    Fluttertoast.showToast(msg: 'Actualización de perfil exitosa');
   }
 
   @override
@@ -73,7 +73,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text('Profile Setup'),
+          title: const Text('Configuración de perfil'),
           centerTitle: true,
         ),
         body: ListView(
@@ -140,21 +140,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
             ),
             EditTextField(
-              label: 'Name',
+              label: 'Nombre',
               text: widget.userModel.name,
               onChanged: (v) {},
               controller: nameController,
             ),
             const SizedBox(height: 15),
             EditTextField(
-              label: 'Username',
+              label: 'Nombre de usuario',
               text: widget.userModel.name,
               onChanged: (v) {},
               controller: usernameController,
             ),
             const SizedBox(height: 15),
             EditTextField(
-              label: 'Email',
+              label: 'Correo electrónico',
               text: widget.userModel.name,
               onChanged: (v) {},
               isEnabled: false,
@@ -163,7 +163,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const SizedBox(height: 15),
             MyButton(
               onTap: () => saveNewDetail(),
-              text: 'Save',
+              text: 'Ahorrar',
               isLoading: isLoading,
             )
           ],

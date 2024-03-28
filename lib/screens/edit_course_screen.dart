@@ -15,73 +15,73 @@ class EditCourseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-              Colors.amber.shade300,
-              Colors.amber.shade100,
-            ])),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.grey.shade900,
-            iconTheme: const IconThemeData(color: Colors.white),
-            title: const Text(
-              'Edit Courses',
-              style: TextStyle(color: Colors.white),
-            ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () {
-                  Get.to(() => const AddCourse());
-                },
-                icon: const Icon(
-                  Icons.add_box,
-                  size: 35,
-                  color: Colors.white,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+            Colors.amber.shade300,
+            Colors.amber.shade100,
+          ])),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.grey.shade900,
+          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text(
+            'Editar cursos',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                Get.to(() => const AddCourse());
+              },
+              icon: const Icon(
+                Icons.add_box,
+                size: 35,
+                color: Colors.white,
+              ),
+            )
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+                child: Column(
+                  children: [
+                    StreamProvider.value(
+                      value: FirebaseApi.getCourses(),
+                      initialData: null,
+                      catchError: (c, v) => null,
+                      child: Consumer<List<CourseModel>?>(
+                          builder: (context, courses, b) {
+                        if (courses == null) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: courses.length,
+                          itemBuilder: (context, index) {
+                            return EditCourseCard(courseModel: courses[index]);
+                          },
+                        );
+                      }),
+                    ),
+                  ],
                 ),
-              )
+              ),
             ],
           ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
-                  child: Column(
-                    children: [
-                      StreamProvider.value(
-                        value: FirebaseApi.getCourses(),
-                        initialData: null,
-                        catchError: (c, v) => null,
-                        child: Consumer<List<CourseModel>?>(
-                            builder: (context, courses, b) {
-                          if (courses == null) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: courses.length,
-                            itemBuilder: (context, index) {
-                              return EditCourseCard(
-                                  courseModel: courses[index]);
-                            },
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -137,7 +137,7 @@ class EditCourseCard extends StatelessWidget {
               );
             }
             return Text(
-              "$length videos",
+              "$length vídeos",
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -153,8 +153,8 @@ class EditCourseCard extends StatelessWidget {
               context: context,
               builder: (_) => CustomAdaptiveAlertDialog(
                   alertMsg:
-                      'Are you sure you want to delete this course? this action will delete all the videos related to this course.',
-                  actiionBtnName: 'Yes',
+                      '¿Estás seguro de que deseas eliminar este curso? esta acción eliminará todos los videos relacionados con este curso.',
+                  actiionBtnName: 'Sí',
                   onAction: () {
                     FirestoreService().deleteCourse(courseModel.id);
                   }));

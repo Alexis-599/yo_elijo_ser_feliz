@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/edit_course_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/course_card.dart';
@@ -12,6 +12,8 @@ class InfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.watch<UserModel?>();
+
     return Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -46,7 +48,7 @@ class InfoScreen extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),
                             ),
-                            AppData().isAdmin
+                            currentUser != null && currentUser.isAdmin
                                 ? GestureDetector(
                                     onTap: () {
                                       Get.to(() => const EditCourseScreen());

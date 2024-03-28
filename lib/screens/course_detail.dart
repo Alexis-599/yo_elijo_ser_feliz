@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/checkout_screen.dart';
@@ -39,31 +38,31 @@ class CourseDetailScreen extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.white),
           centerTitle: true,
           title: const Text(
-            'Course Detail',
+            'Detalle del cursos',
             style: TextStyle(
               color: Colors.white,
             ),
           ),
           actions: [
-            if (AppData().isAdmin)
+            if (currentUser != null && currentUser.isAdmin)
               PopupMenuButton(
                 itemBuilder: (c) {
                   return [
                     PopupMenuItem(
-                      child: const Text('Add Videos'),
+                      child: const Text('Agregar vídeos'),
                       onTap: () => Get.to(
                         () => CourseVideos(courseModel: courseModel),
                       ),
                     ),
                     PopupMenuItem(
-                      child: const Text('Edit Course Details'),
+                      child: const Text('Editar detalles del curso'),
                       onTap: () => Get.to(
                         () => EditCourse(courseModel: courseModel),
                       ),
                     ),
                     PopupMenuItem(
                       child: const Text(
-                        'Delete Course',
+                        'Eliminar curso',
                         style: TextStyle(color: Colors.red),
                       ),
                       onTap: () {
@@ -71,8 +70,8 @@ class CourseDetailScreen extends StatelessWidget {
                           context: context,
                           builder: (_) => CustomAdaptiveAlertDialog(
                             alertMsg:
-                                'Are you sure you want to delete this course?',
-                            actiionBtnName: 'Yes',
+                                '¿Estás seguro de que deseas eliminar este curso?',
+                            actiionBtnName: 'Sí',
                             onAction: () async {
                               await FirestoreService()
                                   .deleteCourse(courseModel.id)
@@ -80,7 +79,7 @@ class CourseDetailScreen extends StatelessWidget {
                                 Get.back();
                                 Get.back();
                                 Fluttertoast.showToast(
-                                  msg: 'Course deleted successfully',
+                                  msg: 'Curso eliminado exitosamente',
                                 );
                               });
                             },
@@ -116,7 +115,7 @@ class CourseDetailScreen extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            "\$${courseModel.price}",
+                            "\$MXN${courseModel.price}",
                             style: TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
@@ -143,7 +142,7 @@ class CourseDetailScreen extends StatelessWidget {
                                   );
                                 }
                                 return Text(
-                                  "- $length videos",
+                                  "- $length vídeos",
                                   style: const TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,
@@ -160,7 +159,7 @@ class CourseDetailScreen extends StatelessWidget {
                             ? () {
                                 Fluttertoast.showToast(
                                     msg:
-                                        'You need to login first before watching videos');
+                                        'Primero debes iniciar sesión antes de ver videos.');
                               }
                             : () {
                                 if (currentUser.coursesIds!
@@ -186,7 +185,7 @@ class CourseDetailScreen extends StatelessWidget {
                           ),
                           child: const Center(
                             child: Text(
-                              'Watch videos ->',
+                              'Ver videos ->',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -235,9 +234,9 @@ class CourseDetailScreen extends StatelessWidget {
                         onTap: () {
                           Fluttertoast.showToast(
                               msg:
-                                  'You need to login before purchasing the course');
+                                  'Necesitas iniciar sesión antes de comprar el curso.');
                         },
-                        text: "Buy Course for \$${courseModel.price}",
+                        text: "Comprar curso para \$MXN${courseModel.price}",
                         isLoading: false,
                       )
                     : currentUser.coursesIds!.contains(courseModel.id)
@@ -248,7 +247,8 @@ class CourseDetailScreen extends StatelessWidget {
                                     courseModel: courseModel,
                                   ));
                             },
-                            text: "Buy Course for \$${courseModel.price}",
+                            text:
+                                "Comprar curso para \$MXN${courseModel.price}",
                             isLoading: false,
                           ),
               ),

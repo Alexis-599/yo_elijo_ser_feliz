@@ -5,17 +5,6 @@ import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_video.dart';
 
 class AppData {
-  static final AppData _instance = AppData._internal();
-  late bool isAdmin;
-
-  factory AppData() {
-    return _instance;
-  }
-
-  AppData._internal() {
-    isAdmin = false;
-  }
-
   List<CourseModel> courses = [];
 
   // static const apiKey = "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo";
@@ -61,7 +50,36 @@ class AppData {
       final Map<String, dynamic> playlistData = data['items'][0];
       return YouTubePlaylist.fromJson(playlistData);
     } else {
-      throw Exception('Failed to load playlist details');
+      throw Exception(
+          'No se pudieron cargar los detalles de la lista de reproducción');
+    }
+  }
+
+  Future<List<YouTubeVideo>> fetchPlaylistItems(playlistId) async {
+    String baseUrl =
+        'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=$playlistId&key=$apiKey';
+
+    final response = await http.get(Uri.parse(baseUrl));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> items = data['items'];
+
+      return items.map((e) {
+        Map<String, dynamic> thumbnail =
+            e['snippet']['thumbnails'] as Map<String, dynamic>;
+        if (thumbnail.isNotEmpty) {
+          return YouTubeVideo.fromJson(e);
+        } else {
+          throw Exception(
+              'No se pudieron cargar los detalles de la lista de reproducción');
+        }
+      }).toList();
+
+      // return
+    } else {
+      throw Exception(
+          'No se pudieron cargar los detalles de la lista de reproducción');
     }
   }
 
@@ -94,7 +112,8 @@ class AppData {
 
         pageToken = data['nextPageToken'];
       } else {
-        throw Exception('Failed to load playlist items');
+        throw Exception(
+            'No se pudieron cargar elementos de la lista de reproducción');
       }
     } while (pageToken != null);
 
@@ -114,10 +133,9 @@ class AppData {
 
     // Fetch recent videos from each playlist
     for (String playlistId in playlistIds) {
-      List<YouTubeVideo> playlistVideos =
-          await fetchAllPlaylistItems(playlistId: playlistId, maxResults: 5);
-      recentVideos.addAll(
-          playlistVideos.take(5)); // Take top 5 videos from each playlist
+      List<YouTubeVideo> playlistVideos = await fetchPlaylistItems(playlistId);
+      recentVideos
+          .add(playlistVideos.first); // Take top 5 videos from each playlist
     }
 
     // Sort combined list of recent videos by publication date

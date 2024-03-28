@@ -34,12 +34,12 @@ class FirebaseApi {
     return FirebaseFirestore.instance.collection('courses').snapshots().map(
           (value) => value.docs
               .map((e) => CourseModel.fromJson(e.data()))
-              .where((element) =>
-                  ids.contains(element.id) && text != null && text.isNotEmpty
-                      ? element.title
-                          .toLowerCase()
-                          .contains(text.trim().toLowerCase())
-                      : true)
+              .where((element) => ids.contains(element.id))
+              .where((element) => text != null && text.isNotEmpty
+                  ? element.title
+                      .toLowerCase()
+                      .contains(text.trim().toLowerCase())
+                  : true)
               .toList(),
         );
   }

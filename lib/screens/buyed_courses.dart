@@ -37,7 +37,7 @@ class _BuyedCoursesState extends State<BuyedCourses> {
             centerTitle: true,
             iconTheme: const IconThemeData(color: Colors.white),
             title: const Text(
-              'Buy Playlist',
+              'Tus cursos comprados',
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -102,20 +102,27 @@ class _BuyedCoursesState extends State<BuyedCourses> {
                                     child: CircularProgressIndicator(),
                                   );
                                 }
+                                if (courses.isEmpty &&
+                                    searchController.text.isEmpty) {
+                                  return const Center(
+                                      child: Text(
+                                    "Aún no has comprado ningún curso.",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ));
+                                }
                                 return ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: courses.length,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
                                   itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: CourseCard(
-                                        isInfoScreen: true,
-                                        courseModel: courses[index],
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                      ),
+                                    return CourseCard(
+                                      isInfoScreen: true,
+                                      courseModel: courses[index],
+                                      width: MediaQuery.of(context).size.width,
                                     );
                                   },
                                 );

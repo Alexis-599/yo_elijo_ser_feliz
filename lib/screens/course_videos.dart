@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/course_video.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/add_course_video.dart';
 import 'package:podcasts_ruben/screens/course_video_player.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
@@ -36,7 +36,7 @@ class _CourseVideosState extends State<CourseVideos> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Course Videos'),
+          title: const Text('Vídeos del curso'),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -47,7 +47,7 @@ class _CourseVideosState extends State<CourseVideos> {
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Row(
                 children: [
-                  AppData().isAdmin
+                  context.watch<UserModel>().isAdmin
                       ? GestureDetector(
                           onTap: () {
                             Get.to(() => AddCourseVideo(
@@ -111,7 +111,8 @@ class _CourseVideosState extends State<CourseVideos> {
                   }
                   return courseVideos.isEmpty
                       ? const Center(
-                          child: Text('No video is available with this text'),
+                          child: Text(
+                              'No hay ningún vídeo disponible con este texto.'),
                         )
                       : Expanded(
                           child: ListView.builder(

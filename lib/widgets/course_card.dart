@@ -79,7 +79,7 @@ class CourseCard extends StatelessWidget {
               bottom: 10,
               right: 10,
               child: Text(
-                "\$${courseModel.price}",
+                "\$MXN${courseModel.price}",
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,

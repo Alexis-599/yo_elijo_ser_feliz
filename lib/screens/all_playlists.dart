@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/edit_playlists_screen.dart';
 import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/widgets/widgets.dart';
@@ -20,6 +21,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.watch<UserModel?>();
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -46,7 +48,7 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                 ),
                 child: Row(
                   children: [
-                    appData.isAdmin
+                    currentUser != null && currentUser.isAdmin
                         ? GestureDetector(
                             onTap: () {
                               Get.to(() => const EditPlaylistsScreen());
@@ -105,7 +107,8 @@ class _AllPlaylistsState extends State<AllPlaylists> {
                     }
                     if (playlists.isEmpty) {
                       return const Center(
-                        child: Text('No playlist matched with this word'),
+                        child: Text(
+                            'Ninguna lista de reproducción coincide con esta palabra'),
                       );
                     }
                     return Expanded(

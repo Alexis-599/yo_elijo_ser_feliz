@@ -29,15 +29,15 @@ class NavBar extends StatelessWidget {
           tabs: const [
             GButton(
               icon: Icons.home_outlined,
-              text: 'Home',
+              text: 'Hogar',
             ),
             GButton(
               icon: Icons.video_library_outlined,
-              text: 'Playlists',
+              text: 'Listas de reproducción',
             ),
             GButton(
               icon: Icons.info_outline,
-              text: 'Info',
+              text: 'Información',
             ),
           ],
         ),

@@ -61,7 +61,7 @@ class _AddCourseState extends State<AddCourse> {
     );
     await firestoreService.postNewCourse(courseModel).whenComplete(() {
       _clearScreen();
-      Fluttertoast.showToast(msg: 'Course upload successfully');
+      Fluttertoast.showToast(msg: 'Carga del curso exitosamentes');
     });
   }
 
@@ -69,7 +69,7 @@ class _AddCourseState extends State<AddCourse> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Courses'),
+        title: const Text('Agregar cursos'),
         centerTitle: true,
         backgroundColor: Colors.amber,
         elevation: 0,
@@ -115,28 +115,28 @@ class _AddCourseState extends State<AddCourse> {
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course title',
+                label: 'Título del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: titleController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course subtitle',
+                label: 'Subtítulo del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: subtitleController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course description',
+                label: 'Descripción del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: descriptionController,
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Course price',
+                label: 'Precio del curso',
                 text: '',
                 onChanged: (c) {},
                 controller: priceController,
@@ -144,7 +144,7 @@ class _AddCourseState extends State<AddCourse> {
               const SizedBox(height: 15),
               MyButton(
                 onTap: () => _uploadCourse(),
-                text: 'Add Course',
+                text: 'Agregar cursos',
                 isLoading: isLoading,
               ),
             ],

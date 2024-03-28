@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,6 +45,22 @@ class _AddCourseVideoState extends State<AddCourseVideo> {
     }
   }
 
+  UploadTask? uploadTask;
+
+  Future<String> uploadVideoToFirebaseStorage({
+    required String uploadPath,
+    required String storingPath,
+    bool isVideo = false,
+  }) async {
+    final ref = FirebaseStorage.instance.ref().child(storingPath);
+    var ut = ref.putData(await File(uploadPath).readAsBytes());
+    setState(() {
+      uploadTask = ut;
+    });
+    var taskSnapshot = await ut.whenComplete(() {});
+    return taskSnapshot.ref.getDownloadURL();
+  }
+
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final ScreenshotController screenshotController = ScreenshotController();
@@ -58,6 +75,7 @@ class _AddCourseVideoState extends State<AddCourseVideo> {
       videoPlayerController = null;
       thumbnailPath = null;
       isLoading = false;
+      uploadTask = null;
     });
   }
 
@@ -66,7 +84,7 @@ class _AddCourseVideoState extends State<AddCourseVideo> {
         videoPlayerController == null &&
         thumbnailPath == null) {
       Fluttertoast.showToast(
-          msg: 'Please add the video and title before uploading');
+          msg: 'Por favor agregue el video y el título antes de subirlo.');
       return;
     }
     setState(() {
@@ -79,12 +97,17 @@ class _AddCourseVideoState extends State<AddCourseVideo> {
       description: descriptionController.text.trim(),
       thumbnail: thumbnailPath!,
       date: DateTime.now().toUtc().toString(),
-      link: videoPath!,
+      link: await uploadVideoToFirebaseStorage(
+        uploadPath: videoPath!,
+        isVideo: true,
+        storingPath: 'courses/${widget.courseModel.id}/videos/${videoPath!}',
+      ),
       aspectRatio: videoPlayerController!.value.aspectRatio.toString(),
     );
 
     await FirestoreService().postNewCourseVideo(courseVideo).whenComplete(() {
       clearControllers();
+      Fluttertoast.showToast(msg: 'vídeo subido exitosamente');
     });
   }
 
@@ -92,131 +115,139 @@ class _AddCourseVideoState extends State<AddCourseVideo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Video'),
+        title: const Text('Añadir video'),
         centerTitle: true,
         backgroundColor: Colors.amber,
         elevation: 0,
       ),
-      body: Stack(
+      body: ListView(
+        padding: const EdgeInsets.all(20.0),
         children: [
-          ListView(
-            padding: const EdgeInsets.all(20.0),
-            children: [
-              GestureDetector(
-                onTap: () => _getVideo(),
-                child: videoPlayerController != null
-                    ? AspectRatio(
-                        aspectRatio: videoPlayerController!.value.aspectRatio,
-                        child: Stack(
-                          children: [
-                            Screenshot(
+          GestureDetector(
+            onTap: () => _getVideo(),
+            child: videoPlayerController != null
+                ? Container(
+                    height: 400,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: AspectRatio(
+                            aspectRatio:
+                                videoPlayerController!.value.aspectRatio,
+                            child: Screenshot(
                               controller: screenshotController,
                               child: VideoPlayer(videoPlayerController!),
                             ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    videoPlayerController!.value.isPlaying
-                                        ? videoPlayerController!.pause()
-                                        : videoPlayerController!.play();
-                                  });
-                                },
-                                icon: Icon(
-                                  videoPlayerController!.value.isPlaying
-                                      ? Icons.pause_circle
-                                      : Icons.play_circle_fill_outlined,
-                                  size: 65,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    videoPath = null;
-                                    thumbnailPath = null;
-                                    videoPlayerController = null;
-                                  });
-                                },
-                                icon: const Icon(
-                                  Icons.cancel_outlined,
-                                  size: 30,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(
-                        height: 250,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black12,
-                            width: 3,
                           ),
-                          borderRadius: BorderRadius.circular(19),
                         ),
-                        child: Icon(
-                          Icons.video_collection_outlined,
-                          color: Colors.grey.shade500,
-                          size: 120,
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                videoPlayerController!.value.isPlaying
+                                    ? videoPlayerController!.pause()
+                                    : videoPlayerController!.play();
+                              });
+                            },
+                            icon: Icon(
+                              videoPlayerController!.value.isPlaying
+                                  ? Icons.pause_circle
+                                  : Icons.play_circle_fill_outlined,
+                              size: 65,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                videoPath = null;
+                                thumbnailPath = null;
+                                videoPlayerController = null;
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.cancel_outlined,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(
+                    height: 250,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.black12,
+                        width: 3,
                       ),
-              ),
-              const SizedBox(height: 15),
-              EditTextField(
-                label: 'Video title',
-                text: '',
-                onChanged: (c) {},
-                controller: titleController,
-              ),
-              const SizedBox(height: 15),
-              EditTextField(
-                label: 'Video description',
-                text: '',
-                onChanged: (c) {},
-                controller: descriptionController,
-              ),
-              const SizedBox(height: 15),
-              MyButton(
-                onTap: () => _uploadVideo(),
-                text: 'Upload Video',
-                isLoading: false,
-              ),
-            ],
+                      borderRadius: BorderRadius.circular(19),
+                    ),
+                    child: Icon(
+                      Icons.video_collection_outlined,
+                      color: Colors.grey.shade500,
+                      size: 120,
+                    ),
+                  ),
           ),
-          if (isLoading)
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-              ),
-              child: Center(
-                child: Container(
-                  height: 100,
-                  margin: const EdgeInsets.symmetric(horizontal: 40),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 20),
-                      Text('Please wait, uploading...')
-                    ],
-                  ),
-                ),
-              ),
-            )
+          const SizedBox(height: 15),
+          EditTextField(
+            label: 'Titulo del Video',
+            text: '',
+            onChanged: (c) {},
+            controller: titleController,
+          ),
+          const SizedBox(height: 15),
+          EditTextField(
+            label: 'Descripción del video',
+            text: '',
+            onChanged: (c) {},
+            controller: descriptionController,
+          ),
+          const SizedBox(height: 15),
+          if (uploadTask != null)
+            StreamBuilder<TaskSnapshot>(
+              stream: uploadTask?.snapshotEvents,
+              builder:
+                  (BuildContext context, AsyncSnapshot<TaskSnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  double progress = data.bytesTransferred / data.totalBytes;
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 10,
+                      semanticsLabel:
+                          '${(100 * progress).roundToDouble().toInt()}%',
+                    ),
+                  );
+                } else {
+                  return const SizedBox(
+                    height: 0,
+                  );
+                }
+              },
+            ),
+          const SizedBox(height: 15),
+          MyButton(
+            onTap: () async {
+              await _uploadVideo();
+            },
+            text: 'Subir vídeo',
+            isLoading: isLoading,
+          ),
         ],
       ),
     );

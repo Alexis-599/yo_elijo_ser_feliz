@@ -20,8 +20,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Stripe.publishableKey = AppData.stripeLivePublishableKey;
-  // AppData().fetchPodcasts();
-
   runApp(const App());
 }
 
@@ -51,10 +49,13 @@ class _AppState extends State<App> {
             ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
             ChangeNotifierProvider<DashboardProvider>(
                 create: (_) => DashboardProvider()),
+            ChangeNotifierProvider<FirestoreService>(
+                create: (_) => FirestoreService()),
           ],
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Podcasts App',
+            locale: const Locale('es'),
             theme: appTheme(context),
             home: const HomeScreen(),
           ),
