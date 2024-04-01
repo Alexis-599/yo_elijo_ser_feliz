@@ -121,30 +121,12 @@ class EditCourseCard extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      subtitle: StreamProvider.value(
-        value: FirebaseApi.getCourseVideosLength(courseModel.id),
-        initialData: null,
-        child: Consumer<int?>(
-          builder: (context, length, b) {
-            if (length == null) {
-              return const Text(
-                '---',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              );
-            }
-            return Text(
-              "$length vídeos",
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            );
-          },
+      subtitle: Text(
+        "${courseModel.videoLength} vídeos",
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
         ),
       ),
       trailing: GestureDetector(

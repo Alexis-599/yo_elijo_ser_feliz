@@ -4,11 +4,26 @@
 // import 'package:podcasts_ruben/services/firestore.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
-import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
+import 'package:podcasts_ruben/models/user_model.dart';
 
 class FirebaseApi {
+  static Stream<UserModel?>? get currentUserData {
+    if (FirebaseAuth.instance.currentUser != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .snapshots()
+          .map(
+            (value) => UserModel.fromJson(value.data()!),
+          );
+    } else {
+      return null;
+    }
+  }
+
   static Stream<List<PlayListModel>?> getPlaylists(String text) {
     return FirebaseFirestore.instance.collection('playlists').snapshots().map(
           (value) => value.docs
@@ -57,49 +72,49 @@ class FirebaseApi {
         );
   }
 
-  static Stream<List<CourseVideo>?> getCourseVideos(String id, String text) {
-    return FirebaseFirestore.instance
-        .collection('courses')
-        .doc(id)
-        .collection('videos')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map(
-          (value) => value.docs
-              .map((e) => CourseVideo.fromJson(e.data()))
-              .where((element) => element.title
-                  .toLowerCase()
-                  .contains(text.trim().toLowerCase()))
-              .toList(),
-        );
-  }
+  // static Stream<List<CourseVideo>?> getCourseVideos(String id, String text) {
+  //   return FirebaseFirestore.instance
+  //       .collection('courses')
+  //       .doc(id)
+  //       .collection('videos')
+  //       .orderBy('date', descending: true)
+  //       .snapshots()
+  //       .map(
+  //         (value) => value.docs
+  //             .map((e) => CourseVideo.fromJson(e.data()))
+  //             .where((element) => element.title
+  //                 .toLowerCase()
+  //                 .contains(text.trim().toLowerCase()))
+  //             .toList(),
+  //       );
+  // }
 
-  static Stream<List<CourseVideo>?> getSingleCourseVideos(String id) {
-    return FirebaseFirestore.instance
-        .collection('courses')
-        .doc(id)
-        .collection('videos')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map(
-          (value) =>
-              value.docs.map((e) => CourseVideo.fromJson(e.data())).toList(),
-        );
-  }
+  // static Stream<List<CourseVideo>?> getSingleCourseVideos(String id) {
+  //   return FirebaseFirestore.instance
+  //       .collection('courses')
+  //       .doc(id)
+  //       .collection('videos')
+  //       .orderBy('date', descending: true)
+  //       .snapshots()
+  //       .map(
+  //         (value) =>
+  //             value.docs.map((e) => CourseVideo.fromJson(e.data())).toList(),
+  //       );
+  // }
 
-  static Stream<int?> getCourseVideosLength(String id) {
-    return FirebaseFirestore.instance
-        .collection('courses')
-        .doc(id)
-        .collection('videos')
-        .snapshots()
-        .map(
-          (value) => value.docs
-              .map((e) => CourseVideo.fromJson(e.data()))
-              .toList()
-              .length,
-        );
-  }
+  // static Stream<int?> getCourseVideosLength(String id) {
+  //   return FirebaseFirestore.instance
+  //       .collection('courses')
+  //       .doc(id)
+  //       .collection('videos')
+  //       .snapshots()
+  //       .map(
+  //         (value) => value.docs
+  //             .map((e) => CourseVideo.fromJson(e.data()))
+  //             .toList()
+  //             .length,
+  //       );
+  // }
 }
 //   static Future<List<String>> _getDownloadLinks(List<Reference> refs) =>
 //     Future.wait(refs.map((ref) => ref.getDownloadURL()).toList());

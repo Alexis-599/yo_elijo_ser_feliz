@@ -5,9 +5,7 @@ import 'package:get/get.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/screens/checkout_screen.dart';
-import 'package:podcasts_ruben/screens/course_videos.dart';
 import 'package:podcasts_ruben/screens/edit_course.dart';
-import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/alert_dialog.dart';
 import 'package:podcasts_ruben/widgets/my_button.dart';
@@ -48,12 +46,6 @@ class CourseDetailScreen extends StatelessWidget {
               PopupMenuButton(
                 itemBuilder: (c) {
                   return [
-                    PopupMenuItem(
-                      child: const Text('Agregar vídeos'),
-                      onTap: () => Get.to(
-                        () => CourseVideos(courseModel: courseModel),
-                      ),
-                    ),
                     PopupMenuItem(
                       child: const Text('Editar detalles del curso'),
                       onTap: () => Get.to(
@@ -125,74 +117,15 @@ class CourseDetailScreen extends StatelessWidget {
                           const SizedBox(
                             width: 10,
                           ),
-                          StreamProvider.value(
-                            value: FirebaseApi.getCourseVideosLength(
-                                courseModel.id),
-                            initialData: null,
-                            child: Consumer<int?>(
-                              builder: (context, length, b) {
-                                if (length == null) {
-                                  return const Text(
-                                    '---',
-                                    style: TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                }
-                                return Text(
-                                  "- $length vídeos",
-                                  style: const TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
+                          Text(
+                            "- ${courseModel.videoLength} vídeos",
+                            style: const TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                          ),
+                          )
                         ],
-                      ),
-                      GestureDetector(
-                        onTap: currentUser == null
-                            ? () {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        'Primero debes iniciar sesión antes de ver videos.');
-                              }
-                            : () {
-                                if (currentUser.coursesIds!
-                                        .contains(courseModel.id) ||
-                                    currentUser.isAdmin) {
-                                  Get.to(() => CourseVideos(
-                                        courseModel: courseModel,
-                                      ));
-                                } else {
-                                  Get.to(() => CheckoutScreen(
-                                        courseModel: courseModel,
-                                      ));
-                                }
-                              },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 5,
-                            horizontal: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.shade600,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Ver videos ->',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),

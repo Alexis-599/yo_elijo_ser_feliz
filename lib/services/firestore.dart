@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
-import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
 import 'package:podcasts_ruben/models/user_model.dart';
 
@@ -179,51 +178,51 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<void> postNewCourseVideo(CourseVideo courseVideo) async {
-    try {
-      final videoRef = FirebaseFirestore.instance
-          .collection('courses')
-          .doc(courseVideo.courseId)
-          .collection('videos')
-          .doc();
-      final newCourseModel = courseVideo.copyWith(
-        id: videoRef.id,
-        thumbnail: await uploadFileToStorageAndGetLink(
-          uploadPath: courseVideo.thumbnail,
-          storingPath:
-              'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
-        ),
-        link: courseVideo.link,
-        date: DateTime.now().toUtc().toString(),
-      );
-      await videoRef.set(newCourseModel.toJson());
-    } catch (e) {
-      rethrow;
-    }
-  }
+  // Future<void> postNewCourseVideo(CourseVideo courseVideo) async {
+  //   try {
+  //     final videoRef = FirebaseFirestore.instance
+  //         .collection('courses')
+  //         .doc(courseVideo.courseId)
+  //         .collection('videos')
+  //         .doc();
+  //     final newCourseModel = courseVideo.copyWith(
+  //       id: videoRef.id,
+  //       thumbnail: await uploadFileToStorageAndGetLink(
+  //         uploadPath: courseVideo.thumbnail,
+  //         storingPath:
+  //             'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
+  //       ),
+  //       link: courseVideo.link,
+  //       date: DateTime.now().toUtc().toString(),
+  //     );
+  //     await videoRef.set(newCourseModel.toJson());
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 
-  Future<void> editCourseVideo(CourseVideo courseVideo) async {
-    try {
-      final videoRef = FirebaseFirestore.instance
-          .collection('courses')
-          .doc(courseVideo.courseId)
-          .collection('videos')
-          .doc(courseVideo.id);
-      final newCourseModel = courseVideo.copyWith(
-        thumbnail: courseVideo.thumbnail.contains('http')
-            ? courseVideo.thumbnail
-            : await uploadFileToStorageAndGetLink(
-                uploadPath: courseVideo.thumbnail,
-                storingPath:
-                    'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
-              ),
-        link: courseVideo.link,
-      );
-      await videoRef.set(newCourseModel.toJson());
-    } catch (e) {
-      rethrow;
-    }
-  }
+  // Future<void> editCourseVideo(CourseVideo courseVideo) async {
+  //   try {
+  //     final videoRef = FirebaseFirestore.instance
+  //         .collection('courses')
+  //         .doc(courseVideo.courseId)
+  //         .collection('videos')
+  //         .doc(courseVideo.id);
+  //     final newCourseModel = courseVideo.copyWith(
+  //       thumbnail: courseVideo.thumbnail.contains('http')
+  //           ? courseVideo.thumbnail
+  //           : await uploadFileToStorageAndGetLink(
+  //               uploadPath: courseVideo.thumbnail,
+  //               storingPath:
+  //                   'courses/${courseVideo.courseId}/${videoRef.id}/thumbnail',
+  //             ),
+  //       link: courseVideo.link,
+  //     );
+  //     await videoRef.set(newCourseModel.toJson());
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> deleteCourse(String id) async {
     try {
@@ -233,32 +232,18 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteCourseVideo(CourseVideo courseVideo) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('courses')
-          .doc(courseVideo.courseId)
-          .collection('videos')
-          .doc(courseVideo.id)
-          .delete();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Stream<UserModel?>? get currentUserData {
-    if (FirebaseAuth.instance.currentUser != null) {
-      return FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .snapshots()
-          .map(
-            (value) => UserModel.fromJson(value.data()!),
-          );
-    } else {
-      return null;
-    }
-  }
+  // Future<void> deleteCourseVideo(CourseVideo courseVideo) async {
+  //   try {
+  //     await FirebaseFirestore.instance
+  //         .collection('courses')
+  //         .doc(courseVideo.courseId)
+  //         .collection('videos')
+  //         .doc(courseVideo.id)
+  //         .delete();
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 }
 
 

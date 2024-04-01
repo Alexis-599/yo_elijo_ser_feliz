@@ -1,11 +1,40 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:podcasts_ruben/models/course_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:podcasts_ruben/models/user_model.dart';
 import 'package:podcasts_ruben/models/youtube_playlist_model.dart';
 import 'package:podcasts_ruben/models/youtube_video.dart';
 
 class AppData {
   List<CourseModel> courses = [];
+
+  static List socialLinks = [
+    {
+      'image': "assets/images/spotify.png",
+      'height': 65,
+      'url':
+          "https://open.spotify.com/show/7tOTZ5RF7DQWMUEw36DOa9?si=WkPtS0zgTCue2qX0ljo2qg",
+    },
+    {
+      'image': "assets/images/youtube.png",
+      'height': 60,
+      'url': "https://youtube.com/@YoElijoSerFeliz?si=u0G4g0UOJRkg6ghy",
+    },
+    {
+      'image': "assets/images/facebook.png",
+      'height': 60,
+      'url': "https://www.facebook.com/yoelijoserfelizmx?mibextid=dGKdO6",
+    },
+    {
+      'image': "assets/images/instagram.svg.webp",
+      'height': 58,
+      'url':
+          "https://www.instagram.com/yoelijoserfelizmx?igsh=MWJuZGszdzg5djQzaQ==",
+    },
+  ];
 
   // static const apiKey = "AIzaSyDkLezImcsSOnjPTab6TUUwOAY6GvoO8Lo";
   static const iosGCPKEy = "AIzaSyCThNjrESvKYMQGM7XkyoO50UZFWwG2y3g";
@@ -38,6 +67,45 @@ class AppData {
     'PLDsYoS8mDh35nvBqEWIcWAsiGStWDE-RW',
     'PLDsYoS8mDh34l_bqTKnh7Bvjm2Ovmcr_K',
   ];
+
+  Future<void> sendEmail(
+    UserModel reciever,
+    CourseModel courseModel,
+  ) async {
+    final ref = await FirebaseFirestore.instance
+        .collection('utils')
+        .doc('eSWZNRST680fbO91WsAP')
+        .get();
+
+    if (ref.exists) {
+      final data = ref.data()!;
+      final smtpServer = SmtpServer(
+        data['smtpServerName'],
+        username: data['smtpUsername'],
+        password: data['smtpPassword'],
+      );
+
+      final message = Message()
+        ..from = Address(data['senderEmail'], data['senderName'])
+        ..recipients.add(reciever.email)
+        ..subject = 'Gracias por comprar en Yo elijo ser feliz'
+        ..text = '''
+HI ${reciever.name},
+
+${data['message']}
+
+Link => ${courseModel.videoLink}
+'''
+        ..html = '<h1>Gracias por comprar en Yo elijo ser feliz</h1>';
+
+      try {
+        final sendReport = await send(message, smtpServer);
+        print('Message sent: ${sendReport.mail}');
+      } catch (e) {
+        print('Error occurred while sending email: $e');
+      }
+    }
+  }
 
   Future<YouTubePlaylist> fetchPlaylistDetails(playlistId) async {
     final String apiUrl =

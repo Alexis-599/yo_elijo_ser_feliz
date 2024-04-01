@@ -2,16 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:podcasts_ruben/data.dart';
-import 'package:podcasts_ruben/models/course_video.dart';
 import 'package:podcasts_ruben/models/playlist_model.dart';
-import 'package:podcasts_ruben/models/user_model.dart';
-import 'package:podcasts_ruben/screens/edit_course_video.dart';
+
 import 'package:podcasts_ruben/screens/editable_playlist_screen.dart';
 import 'package:podcasts_ruben/screens/playlist_screen.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/widgets/alert_dialog.dart';
 import 'package:podcasts_ruben/widgets/widget_shimmer.dart';
-import 'package:provider/provider.dart';
 
 class P2Card extends StatelessWidget {
   const P2Card({
@@ -132,102 +129,102 @@ class P2Card extends StatelessWidget {
   }
 }
 
-class P2CardCourseVideo extends StatelessWidget {
-  const P2CardCourseVideo({
-    super.key,
-    required this.course,
-    this.isEditScreen = false,
-    required this.ontap,
-  });
+// class P2CardCourseVideo extends StatelessWidget {
+//   const P2CardCourseVideo({
+//     super.key,
+//     required this.course,
+//     this.isEditScreen = false,
+//     required this.ontap,
+//   });
 
-  final CourseVideo course;
-  final bool isEditScreen;
-  final VoidCallback ontap;
+//   final CourseVideo course;
+//   final bool isEditScreen;
+//   final VoidCallback ontap;
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: ontap,
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: CachedNetworkImage(
-          imageUrl: course.thumbnail,
-          height: 75,
-          width: 100,
-          fit: BoxFit.cover,
-        ),
-      ),
-      visualDensity: const VisualDensity(vertical: 4),
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        course.title,
-        maxLines: 1,
-        style: const TextStyle(
-          overflow: TextOverflow.ellipsis,
-          color: Colors.black,
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      subtitle: Text(
-        course.description,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Colors.grey.shade900,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      trailing: context.watch<UserModel>().isAdmin
-          ? PopupMenuButton(
-              padding: const EdgeInsets.only(top: 10),
-              child: Container(
-                height: 36,
-                width: 48,
-                alignment: Alignment.centerRight,
-                child: const Icon(
-                  Icons.more_vert,
-                ),
-              ),
-              itemBuilder: (c) {
-                return [
-                  PopupMenuItem(
-                    child: const Text('Editar detalles del vídeo'),
-                    onTap: () {
-                      Get.to(() => EditCourseVideo(courseVideo: course));
-                    },
-                  ),
-                  PopupMenuItem(
-                    child: const Text(
-                      'Eliminar vídeo',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                    onTap: () async {
-                      showDialog(
-                          context: context,
-                          builder: (_) => CustomAdaptiveAlertDialog(
-                                alertMsg:
-                                    '¿Estás seguro de que quieres eliminar este vídeo?',
-                                actiionBtnName: 'Sí',
-                                onAction: () async {
-                                  await FirestoreService()
-                                      .deleteCourseVideo(course);
-                                  Get.back();
-                                },
-                              ));
-                    },
-                  ),
-                ];
-              },
-            )
-          : const Padding(
-              padding: EdgeInsets.only(top: 10.0),
-              child: Icon(
-                Icons.play_circle_fill,
-                size: 35,
-              ),
-            ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListTile(
+//       onTap: ontap,
+//       leading: ClipRRect(
+//         borderRadius: BorderRadius.circular(12),
+//         child: CachedNetworkImage(
+//           imageUrl: course.thumbnail,
+//           height: 75,
+//           width: 100,
+//           fit: BoxFit.cover,
+//         ),
+//       ),
+//       visualDensity: const VisualDensity(vertical: 4),
+//       contentPadding: EdgeInsets.zero,
+//       title: Text(
+//         course.title,
+//         maxLines: 1,
+//         style: const TextStyle(
+//           overflow: TextOverflow.ellipsis,
+//           color: Colors.black,
+//           fontSize: 16,
+//           fontWeight: FontWeight.w700,
+//         ),
+//       ),
+//       subtitle: Text(
+//         course.description,
+//         maxLines: 2,
+//         overflow: TextOverflow.ellipsis,
+//         style: TextStyle(
+//           color: Colors.grey.shade900,
+//           fontSize: 14,
+//           fontWeight: FontWeight.w400,
+//         ),
+//       ),
+//       trailing: context.watch<UserModel>().isAdmin
+//           ? PopupMenuButton(
+//               padding: const EdgeInsets.only(top: 10),
+//               child: Container(
+//                 height: 36,
+//                 width: 48,
+//                 alignment: Alignment.centerRight,
+//                 child: const Icon(
+//                   Icons.more_vert,
+//                 ),
+//               ),
+//               itemBuilder: (c) {
+//                 return [
+//                   PopupMenuItem(
+//                     child: const Text('Editar detalles del vídeo'),
+//                     onTap: () {
+//                       Get.to(() => EditCourseVideo(courseVideo: course));
+//                     },
+//                   ),
+//                   PopupMenuItem(
+//                     child: const Text(
+//                       'Eliminar vídeo',
+//                       style: TextStyle(color: Colors.red),
+//                     ),
+//                     onTap: () async {
+//                       showDialog(
+//                           context: context,
+//                           builder: (_) => CustomAdaptiveAlertDialog(
+//                                 alertMsg:
+//                                     '¿Estás seguro de que quieres eliminar este vídeo?',
+//                                 actiionBtnName: 'Sí',
+//                                 onAction: () async {
+//                                   await FirestoreService()
+//                                       .deleteCourseVideo(course);
+//                                   Get.back();
+//                                 },
+//                               ));
+//                     },
+//                   ),
+//                 ];
+//               },
+//             )
+//           : const Padding(
+//               padding: EdgeInsets.only(top: 10.0),
+//               child: Icon(
+//                 Icons.play_circle_fill,
+//                 size: 35,
+//               ),
+//             ),
+//     );
+//   }
+// }

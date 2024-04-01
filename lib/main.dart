@@ -10,6 +10,7 @@ import 'package:podcasts_ruben/data.dart';
 import 'package:podcasts_ruben/firebase_options.dart';
 import 'package:podcasts_ruben/screens/home_screen.dart';
 import 'package:podcasts_ruben/services/auth.dart';
+import 'package:podcasts_ruben/services/firebase_api.dart';
 import 'package:podcasts_ruben/services/firestore.dart';
 import 'package:podcasts_ruben/theme.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +40,7 @@ class _AppState extends State<App> {
         return MultiProvider(
           providers: [
             StreamProvider.value(
-              value: FirestoreService().currentUserData,
+              value: FirebaseApi.currentUserData,
               initialData: null,
               catchError: (context, error) {
                 log(error.toString());
