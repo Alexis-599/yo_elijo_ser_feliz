@@ -86,21 +86,20 @@ class AppData {
       );
 
       final message = Message()
-        ..from = Address(data['senderEmail'], data['senderName'])
-        ..recipients.add(reciever.email)
-        ..subject = 'Gracias por comprar en Yo elijo ser feliz'
+        ..from = Address(data['senderEmail'], data['Yo elijo ser feliz'])
+        ..recipients.add(data['senderEmail'])
+        ..subject = 'New purchase'
         ..text = '''
-HI ${reciever.name},
-
-${data['message']}
+${reciever.name}, purchased a course ${courseModel.title} in \$MXN${courseModel.price}
 
 Link => ${courseModel.videoLink}
 '''
-        ..html = '<h1>Gracias por comprar en Yo elijo ser feliz</h1>';
+        ..html =
+            '''<h3New Purchase</h3></br></br><h6>Buyer Name: ${reciever.name}</h6></br></br><h6>Buyer Email: ${reciever.email}</h6></br></br><h6>Course title: ${courseModel.title}</h6>''';
 
       try {
         final sendReport = await send(message, smtpServer);
-        print('Message sent: ${sendReport.mail}');
+        print('Message sent: ${sendReport.mail.html.toString()}');
       } catch (e) {
         print('Error occurred while sending email: $e');
       }
