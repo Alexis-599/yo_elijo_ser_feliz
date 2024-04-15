@@ -90,9 +90,7 @@ class AppData {
         ..recipients.add(data['senderEmail'])
         ..subject = 'New purchase'
         ..text = '''
-${reciever.name}, purchased a course ${courseModel.title} in \$MXN${courseModel.price}
-
-Link => ${courseModel.videoLink}
+New Purchase\n\nBuyer Name: ${reciever.name}\n\nBuyer Email: ${reciever.email}
 '''
         ..html =
             '''<h3New Purchase</h3></br></br><h6>Buyer Name: ${reciever.name}</h6></br></br><h6>Buyer Email: ${reciever.email}</h6></br></br><h6>Course title: ${courseModel.title}</h6>''';

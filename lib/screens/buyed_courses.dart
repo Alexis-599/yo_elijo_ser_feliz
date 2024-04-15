@@ -96,37 +96,44 @@ class _BuyedCoursesState extends State<BuyedCourses> {
                               initialData: null,
                               catchError: (c, v) => null,
                               child: Consumer<List<CourseModel>?>(
-                                  builder: (context, courses, b) {
-                                if (courses == null) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                                if (courses.isEmpty &&
-                                    searchController.text.isEmpty) {
-                                  return const Center(
-                                      child: Text(
-                                    "Aún no has comprado ningún curso.",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ));
-                                }
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: courses.length,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  itemBuilder: (context, index) {
-                                    return CourseCard(
-                                      isInfoScreen: true,
-                                      courseModel: courses[index],
-                                      width: MediaQuery.of(context).size.width,
+                                builder: (context, courses, b) {
+                                  if (courses == null) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
                                     );
-                                  },
-                                );
-                              }),
+                                  }
+                                  if (courses.isEmpty &&
+                                      searchController.text.isEmpty) {
+                                    return const Center(
+                                        child: Text(
+                                      "Aún no has comprado ningún curso.",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ));
+                                  }
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: courses.length,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 12.0),
+                                        child: CourseCard(
+                                          isInfoScreen: true,
+                                          courseModel: courses[index],
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),

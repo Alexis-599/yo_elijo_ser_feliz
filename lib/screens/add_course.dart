@@ -20,8 +20,6 @@ class _AddCourseState extends State<AddCourse> {
   final TextEditingController subtitleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
-  final TextEditingController videoLengthController = TextEditingController();
-  final TextEditingController videoLinkController = TextEditingController();
   String? image;
 
   FirestoreService firestoreService = FirestoreService();
@@ -53,20 +51,37 @@ class _AddCourseState extends State<AddCourse> {
     setState(() {
       isLoading = true;
     });
-    final courseModel = CourseModel(
-      description: descriptionController.text.trim(),
-      title: titleController.text.trim(),
-      subtitle: subtitleController.text.trim(),
-      price: priceController.text.trim(),
-      id: '',
-      image: image!,
-      videoLength: int.parse(videoLengthController.text),
-      videoLink: videoLinkController.text.trim(),
-    );
-    await firestoreService.postNewCourse(courseModel).whenComplete(() {
-      _clearScreen();
-      Fluttertoast.showToast(msg: 'Carga del curso exitosamentes');
-    });
+    try {
+      if (image == null) {
+        Fluttertoast.showToast(
+            msg: 'Por favor, ingresa a la imagen del curso.');
+      } else if (titleController.text.isEmpty) {
+        Fluttertoast.showToast(msg: 'Por favor, introduce el título.');
+      } else if (subtitleController.text.isEmpty) {
+        Fluttertoast.showToast(msg: 'Por favor introduce el subtítulo.');
+      } else if (priceController.text.isEmpty) {
+        Fluttertoast.showToast(msg: 'Por favor ingrese el precio.');
+      } else {
+        final courseModel = CourseModel(
+          description: descriptionController.text.trim(),
+          title: titleController.text.trim(),
+          subtitle: subtitleController.text.trim(),
+          price: priceController.text.trim(),
+          id: '',
+          image: image!,
+        );
+        await firestoreService.postNewCourse(courseModel).whenComplete(() {
+          _clearScreen();
+          Fluttertoast.showToast(msg: 'Carga del curso exitosamentes');
+        });
+      }
+    } catch (e) {
+      return;
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -133,13 +148,6 @@ class _AddCourseState extends State<AddCourse> {
                 ),
                 const SizedBox(height: 15),
                 EditTextField(
-                  label: 'Descripción del curso',
-                  text: '',
-                  onChanged: (c) {},
-                  controller: descriptionController,
-                ),
-                const SizedBox(height: 15),
-                EditTextField(
                   label: 'Precio del curso',
                   text: '',
                   onChanged: (c) {},
@@ -147,18 +155,13 @@ class _AddCourseState extends State<AddCourse> {
                 ),
                 const SizedBox(height: 15),
                 EditTextField(
-                  label: 'Duración de los videos del curso',
+                  label: 'Descripción del curso',
                   text: '',
                   onChanged: (c) {},
-                  controller: videoLengthController,
+                  maxLines: 3,
+                  controller: descriptionController,
                 ),
                 const SizedBox(height: 15),
-                EditTextField(
-                  label: 'Enlace de videos del curso',
-                  text: '',
-                  onChanged: (c) {},
-                  controller: videoLinkController,
-                ),
               ],
             ),
           ),

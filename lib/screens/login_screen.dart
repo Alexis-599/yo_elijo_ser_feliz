@@ -62,154 +62,149 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
+          child: ListView(
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    // autovalidateMode: AutovalidateMode.disabled,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        /// logo
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            radius: MediaQuery.of(context).size.height * 0.14,
-                            child: CircleAvatar(
-                              radius: MediaQuery.of(context).size.height * 0.12,
-                              backgroundImage: const AssetImage(
-                                  'assets/images/yo_elijo_ser_feliz.jpg'),
-                            ),
-                          ),
+              Form(
+                key: _formKey,
+                // autovalidateMode: AutovalidateMode.disabled,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    /// logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        radius: MediaQuery.of(context).size.height * 0.14,
+                        child: CircleAvatar(
+                          radius: MediaQuery.of(context).size.height * 0.12,
+                          backgroundImage: const AssetImage(
+                              'assets/images/yo_elijo_ser_feliz.jpg'),
                         ),
+                      ),
+                    ),
 
-                        const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                        /// email text-field
-                        CustomTextField(
-                          controller: emailController,
-                          hintText: 'Correo electrónico',
-                          isPassword: false,
-                          isEmail: false,
-                        ),
+                    /// email text-field
+                    CustomTextField(
+                      controller: emailController,
+                      hintText: 'Correo electrónico',
+                      isPassword: false,
+                      isEmail: false,
+                    ),
 
-                        const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                        /// password text-field
-                        CustomTextField(
-                          controller: passwordController,
-                          hintText: 'Contraseña',
-                          isPassword: true,
-                          isEmail: false,
-                        ),
+                    /// password text-field
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: 'Contraseña',
+                      isPassword: true,
+                      isEmail: false,
+                    ),
 
-                        /// show error message
-                        authService.errorMessage.isNotEmpty
-                            ? Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 25),
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      authService.errorMessage,
-                                      style: TextStyle(
-                                        color: Colors.red[700],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-
-                        const SizedBox(height: 10),
-
-                        /// forgot password?
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              GestureDetector(
-                                child: const Text(
-                                  '¿Olvidó su contraseña?',
+                    /// show error message
+                    authService.errorMessage.isNotEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Text(
+                                  authService.errorMessage,
                                   style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red[700],
                                   ),
                                 ),
-                                onTap: () {
-                                  Get.to(() => const ForgotPasswordScreen());
-                                },
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+
+                    const SizedBox(height: 10),
+
+                    /// forgot password?
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            child: const Text(
+                              '¿Olvidó su contraseña?',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
+                            onTap: () {
+                              Get.to(() => const ForgotPasswordScreen());
+                            },
                           ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// sign in button
+                    MyButton(
+                      text: 'Iniciar Sesión',
+                      onTap: () {
+                        authService.emailPasswordLogin(
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                        );
+                      },
+                      isLoading: authService.isSigningIn,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // / or continue with
+                    const Row(
+                      children: [
+                        Expanded(
+                          child: Divider(),
                         ),
-
-                        const SizedBox(height: 15),
-
-                        /// sign in button
-                        MyButton(
-                          text: 'Iniciar Sesión',
-                          onTap: () {
-                            authService.emailPasswordLogin(
-                              emailController.text.trim(),
-                              passwordController.text.trim(),
-                            );
-                          },
-                          isLoading: authService.isSigningIn,
+                        Text('O continuar con'),
+                        Expanded(
+                          child: Divider(),
                         ),
-
-                        const SizedBox(height: 10),
-
-                        // / or continue with
-                        const Row(
-                          children: [
-                            Expanded(
-                              child: Divider(),
-                            ),
-                            Text('O continuar con'),
-                            Expanded(
-                              child: Divider(),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        /// google + apple sign in button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _SquareTile(
-                              imageUrl: 'assets/images/google.png',
-                              loginMethod: () {
-                                authService.googleLogin();
-                              },
-                            ),
-                            if (Platform.isIOS)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: _SquareTile(
-                                  imageUrl: 'assets/images/apple.png',
-                                  loginMethod: () {
-                                    authService.callAppleSignIn();
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 80),
                       ],
                     ),
-                  ),
+
+                    const SizedBox(height: 20),
+
+                    /// google + apple sign in button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _SquareTile(
+                          imageUrl: 'assets/images/google.png',
+                          loginMethod: () {
+                            authService.googleLogin();
+                          },
+                        ),
+                        if (Platform.isIOS)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 12),
+                            child: _SquareTile(
+                              imageUrl: 'assets/images/apple.png',
+                              loginMethod: () {
+                                authService.callAppleSignIn();
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 80),
+                  ],
                 ),
               ),
-              const Text('¿No tiene cuenta?'),
+              const Center(child: Text('¿No tiene cuenta?')),
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -5,8 +5,6 @@ class CourseModel {
   final String description;
   final String price;
   final String image;
-  final int videoLength;
-  final String videoLink;
 
   CourseModel({
     required this.id,
@@ -15,8 +13,6 @@ class CourseModel {
     required this.subtitle,
     required this.description,
     required this.price,
-    required this.videoLength,
-    required this.videoLink,
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
@@ -27,8 +23,6 @@ class CourseModel {
       subtitle: json['subtitle'] ?? '',
       description: json['description'] ?? '',
       price: json['price'],
-      videoLength: json['videoLength'] ?? 0,
-      videoLink: json['videoLink'] ?? '',
     );
   }
 
@@ -40,8 +34,6 @@ class CourseModel {
       'subtitle': subtitle,
       'description': description,
       'price': price,
-      'videoLink': videoLink,
-      'videoLength': videoLength,
     };
   }
 
@@ -52,8 +44,6 @@ class CourseModel {
     String? description,
     String? price,
     String? image,
-    int? videoLength,
-    String? videoLink,
   }) {
     return CourseModel(
       id: id ?? this.id,
@@ -62,8 +52,6 @@ class CourseModel {
       subtitle: subtitle ?? this.subtitle,
       description: description ?? this.description,
       price: price ?? this.price,
-      videoLength: videoLength ?? this.videoLength,
-      videoLink: videoLink ?? this.videoLink,
     );
   }
 }

@@ -101,33 +101,13 @@ class CourseDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "\$MXN${courseModel.price}",
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber.shade600,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            "- ${courseModel.videoLength} vídeos",
-                            style: const TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
+                  Text(
+                    "\$MXN${courseModel.price}",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber.shade600,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -172,18 +152,17 @@ class CourseDetailScreen extends StatelessWidget {
                         text: "Comprar curso para \$MXN${courseModel.price}",
                         isLoading: false,
                       )
-                    : currentUser.coursesIds!.contains(courseModel.id)
-                        ? const SizedBox(width: 0)
-                        : MyButton(
-                            onTap: () {
-                              Get.to(() => CheckoutScreen(
+                    : MyButton(
+                        onTap: () {
+                          currentUser.coursesIds!.contains(courseModel.id)
+                              ? Fluttertoast.showToast(msg: 'Comprado')
+                              : Get.to(() => CheckoutScreen(
                                     courseModel: courseModel,
                                   ));
-                            },
-                            text:
-                                "Comprar curso para \$MXN${courseModel.price}",
-                            isLoading: false,
-                          ),
+                        },
+                        text: "Comprar curso para \$MXN${courseModel.price}",
+                        isLoading: false,
+                      ),
               ),
             ],
           ),

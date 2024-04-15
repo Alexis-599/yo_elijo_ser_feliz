@@ -24,8 +24,7 @@ class _EditCourseState extends State<EditCourse> {
   late TextEditingController subtitleController;
   late TextEditingController descriptionController;
   late TextEditingController priceController;
-  late TextEditingController videoLengthController;
-  late TextEditingController videoLinkController;
+
   String? image;
 
   FirestoreService firestoreService = FirestoreService();
@@ -37,10 +36,6 @@ class _EditCourseState extends State<EditCourse> {
     descriptionController =
         TextEditingController(text: widget.courseModel.description);
     priceController = TextEditingController(text: widget.courseModel.price);
-    videoLengthController =
-        TextEditingController(text: widget.courseModel.videoLength.toString());
-    videoLinkController =
-        TextEditingController(text: widget.courseModel.videoLink);
   }
 
   @override
@@ -72,8 +67,6 @@ class _EditCourseState extends State<EditCourse> {
       price: priceController.text.trim(),
       id: widget.courseModel.id,
       image: image ?? widget.courseModel.image,
-      videoLength: int.parse(videoLengthController.text.trim()),
-      videoLink: videoLinkController.text.trim(),
     );
     await firestoreService.editCourse(courseModel).whenComplete(() {
       Fluttertoast.showToast(msg: 'Carga del curso exitosamente');
@@ -138,13 +131,6 @@ class _EditCourseState extends State<EditCourse> {
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Descripción del curso',
-                text: '',
-                onChanged: (c) {},
-                controller: descriptionController,
-              ),
-              const SizedBox(height: 15),
-              EditTextField(
                 label: 'Precio del curso',
                 text: '',
                 onChanged: (c) {},
@@ -152,17 +138,11 @@ class _EditCourseState extends State<EditCourse> {
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'duración de los videos del curso',
+                label: 'Descripción del curso',
                 text: '',
+                maxLines: 3,
                 onChanged: (c) {},
-                controller: videoLengthController,
-              ),
-              const SizedBox(height: 15),
-              EditTextField(
-                label: 'enlace de videos del curso',
-                text: '',
-                onChanged: (c) {},
-                controller: videoLinkController,
+                controller: descriptionController,
               ),
               const SizedBox(height: 15),
               MyButton(

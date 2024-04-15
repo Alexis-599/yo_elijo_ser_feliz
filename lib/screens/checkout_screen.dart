@@ -108,7 +108,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       children: [
                         ElevatedButton(
-                          onPressed: () => usePaypal(context, currentUser),
+                          onPressed: () => usePaypal(currentUser),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade900,
                             fixedSize: Size(
@@ -137,10 +137,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ElevatedButton(
                           onPressed: () async {
                             await makePayment(
-                              context: context,
                               amount: widget.courseModel.price,
                               currentUser: currentUser,
-                              test: false,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -168,7 +166,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  usePaypal(BuildContext context, UserModel currentUser) {
+  usePaypal(UserModel currentUser) {
     Get.to(
       () => UsePaypal(
         sandboxMode: false,
@@ -203,77 +201,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         note:
             "Gracias por comprar el curso ${widget.courseModel.title}, te contactaremos por correo para enviarte los detalles",
         onSuccess: (Map params) {
-          FirestoreService().postUserCourseIds(widget.courseModel.id);
-          showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 100.0,
-                        ),
-                        const SizedBox(height: 10.0),
-                        Text(
-                            "Gracias por comprar el curso ${widget.courseModel.title}, te contactaremos por correo para enviarte los detalles"),
-                      ],
-                    ),
-                  ));
-          AppData().sendEmail(currentUser, widget.courseModel);
+          onPaymentSuccess(currentUser);
         },
         onError: (error) {
-          showDialog(
-              context: context,
-              builder: (_) => const AlertDialog(
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.cancel,
-                              color: Colors.red,
-                            ),
-                            Text(
-                                "Se produjo un error al realizar el pago. Inténtelo de nuevo."),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ));
+          print('error');
+          Get.snackbar(
+            'Error',
+            "Se produjo un error desconocido. Inténtelo más tarde",
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.only(top: 15, left: 10, right: 10),
+          );
         },
         onCancel: (params) {
-          showDialog(
-              context: context,
-              builder: (_) => const AlertDialog(
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.cancel,
-                              color: Colors.red,
-                            ),
-                            Text(
-                                "Se produjo un error al realizar el pago. Inténtelo de nuevo."),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ));
-          // Fluttertoast.showToast(
-          //     msg: 'Cancelación de pago para ${widget.courseModel.title}');
+          print('cancel');
         },
       ),
     );
   }
 
-  Future<void> makePayment({context, amount, test, currentUser}) async {
+  Future<void> makePayment({amount, currentUser}) async {
     try {
-      paymentIntent = await createPaymentIntent(amount, 'MXN', test);
+      paymentIntent = await createPaymentIntent(amount, 'MXN', true);
 
       //STEP 2: Initialize Payment Sheet
       await Stripe.instance
@@ -288,35 +238,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           .then((value) {});
 
       //STEP 3: Display Payment sheet
-      displayPaymentSheet(context, currentUser);
+      displayPaymentSheet(currentUser);
     } catch (err) {
       // print(err);
     }
   }
 
-  displayPaymentSheet(BuildContext context, UserModel currentUser) async {
+  displayPaymentSheet(UserModel currentUser) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
-        showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 100.0,
-                      ),
-                      const SizedBox(height: 10.0),
-                      Text(
-                          "Gracias por comprar el curso ${widget.courseModel.title}, te contactaremos por correo para enviarte los detalles"),
-                    ],
-                  ),
-                ));
-
-        AppData().sendEmail(currentUser, widget.courseModel);
-
+        onPaymentSuccess(currentUser);
         paymentIntent = null;
       }).onError((error, stackTrace) {
         throw Exception(error);
@@ -347,6 +278,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  onPaymentSuccess(UserModel currentUser) {
+    FirestoreService().postUserCourseIds(widget.courseModel.id);
+    Get.back();
+    Get.snackbar(
+      'Felicidades',
+      "Gracias por comprar el curso ${widget.courseModel.title}, te contactaremos por correo para enviarte los detalles",
+      backgroundColor: Colors.white,
+      colorText: Colors.black,
+      duration: const Duration(seconds: 5),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.only(top: 15, left: 10, right: 10),
+    );
+    AppData().sendEmail(currentUser, widget.courseModel);
   }
 
   //  Future<Map<String, dynamic>>

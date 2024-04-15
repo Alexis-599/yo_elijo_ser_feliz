@@ -122,7 +122,8 @@ class EditCourseCard extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        "${courseModel.videoLength} vídeos",
+        courseModel.subtitle,
+        maxLines: 1,
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,

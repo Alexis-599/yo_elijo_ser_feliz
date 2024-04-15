@@ -74,7 +74,7 @@ class FirestoreService extends ChangeNotifier {
             _db.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
         await ref.get().then((value) {
           if (value.exists) {
-            ref.set({
+            ref.update({
               "coursesIds": FieldValue.arrayUnion([id]),
             });
           }
