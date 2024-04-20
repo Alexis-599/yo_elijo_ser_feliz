@@ -43,6 +43,7 @@ class AuthService extends ChangeNotifier {
 
   /// Email & Password Login
   Future<void> emailPasswordLogin(String email, String password) async {
+    errorMessage = '';
     toggleSigning(true);
     try {
       final user = await FirebaseAuth.instance
@@ -52,16 +53,7 @@ class AuthService extends ChangeNotifier {
         Fluttertoast.showToast(msg: 'Iniciar sesión exitosamente');
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        // Fluttertoast.showToast(msg: 'El correo electrónico no está registrado');
-        errorMessage = 'El correo electrónico no está registrado';
-      } else if (e.code == 'wrong-password') {
-        // Fluttertoast.showToast(msg: 'Contraseña incorrecta');
-        errorMessage = 'Contraseña incorrecta';
-      } else {
-        // Fluttertoast.showToast(msg: 'An unknown error occured');
-        errorMessage = 'Un error desconocido ocurrió';
-      }
+      errorMessage = _handleLoginError(e);
       notifyListeners();
     } finally {
       toggleSigning(false);
@@ -81,10 +73,43 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  String _handleLoginError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'El formato del correo electrónico no es válido.';
+      case 'user-disabled':
+        return 'El usuario ha sido deshabilitado.';
+      case 'user-not-found':
+        return 'No se encontró cuenta del usuario con ese correo electrónico.';
+      case 'wrong-password':
+        return 'La contraseña es incorrecta, intente nuevamente.';
+      default:
+        return 'Ocurrió un error desconocido al iniciar sesión.';
+    }
+  }
+
+  String _handleRegisterError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'weak-password':
+        return 'La contraseña proporcionada es demasiado débil.';
+      case 'email-already-in-use':
+        return 'Ya existe una cuenta con ese correo electrónico.';
+      case 'invalid-email':
+        return 'El formato del correo electrónico no es válido.';
+      case 'operation-not-allowed':
+        return 'Las cuentas de correo y contraseña no están habilitadas.';
+      case 'user-disabled':
+        return 'El usuario ha sido deshabilitado.';
+      default:
+        return 'Ocurrió un error desconocido al registrar la cuenta.';
+    }
+  }
+
   /// Email & Password Register
   Future<void> emailPasswordRegister(
       String email, String password, String name) async {
     try {
+      errorMessage = '';
       toggleSigning(true);
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password)
@@ -97,8 +122,8 @@ class AuthService extends ChangeNotifier {
       }).whenComplete(() {
         Get.offAll(() => const HomeScreen());
       });
-    } catch (e) {
-      Fluttertoast.showToast(msg: 'Un error desconocido ocurrió');
+    } on FirebaseAuthException catch (e) {
+      errorMessage = _handleRegisterError(e);
     } finally {
       toggleSigning(false);
     }
