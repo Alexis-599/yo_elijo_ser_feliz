@@ -37,7 +37,7 @@ class NavBar extends StatelessWidget {
             ),
             GButton(
               icon: Icons.info_outline,
-              text: 'Información',
+              text: 'Cursos',
             ),
           ],
         ),

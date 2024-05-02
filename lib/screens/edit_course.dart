@@ -69,7 +69,7 @@ class _EditCourseState extends State<EditCourse> {
       image: image ?? widget.courseModel.image,
     );
     await firestoreService.editCourse(courseModel).whenComplete(() {
-      Fluttertoast.showToast(msg: 'Carga del curso exitosamente');
+      Fluttertoast.showToast(msg: 'Curso guardado exitosamente exitosamente');
     });
     setState(() {
       isLoading = false;
@@ -131,7 +131,7 @@ class _EditCourseState extends State<EditCourse> {
               ),
               const SizedBox(height: 15),
               EditTextField(
-                label: 'Precio del curso',
+                label: 'Precio del curso (\$MXN)',
                 text: '',
                 onChanged: (c) {},
                 controller: priceController,
@@ -147,7 +147,7 @@ class _EditCourseState extends State<EditCourse> {
               const SizedBox(height: 15),
               MyButton(
                 onTap: () => _uploadCourse(),
-                text: 'Ahorrar',
+                text: 'Guardar',
                 isLoading: isLoading,
               ),
             ],

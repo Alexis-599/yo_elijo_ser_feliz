@@ -226,7 +226,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                             ),
                             const SizedBox(height: 15),
                             EditTextField(
-                              label: 'Detalle',
+                              label: 'Descripción',
                               text: widget.playlistModel.creatorDetails,
                               onChanged: (v) {},
                               controller: descriptionController,
@@ -239,7 +239,7 @@ class _EditablePlaylistScreenState extends State<EditablePlaylistScreen> {
                   const SizedBox(height: 15),
                   MyButton(
                     onTap: () => editPlaylist(),
-                    text: 'Ahorrar',
+                    text: 'Guardar',
                     isLoading: isLoading,
                   )
                 ],

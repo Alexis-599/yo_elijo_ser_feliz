@@ -36,7 +36,7 @@ class CourseDetailScreen extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.white),
           centerTitle: true,
           title: const Text(
-            'Detalle del cursos',
+            'Detalle del curso',
             style: TextStyle(
               color: Colors.white,
             ),
@@ -147,9 +147,9 @@ class CourseDetailScreen extends StatelessWidget {
                         onTap: () {
                           Fluttertoast.showToast(
                               msg:
-                                  'Necesitas iniciar sesión antes de comprar el curso.');
+                                  'Necesita iniciar sesión antes de comprar el curso.');
                         },
-                        text: "Comprar curso para \$MXN${courseModel.price}",
+                        text: "Comprar curso: \$MXN${courseModel.price}",
                         isLoading: false,
                       )
                     : MyButton(
@@ -160,7 +160,7 @@ class CourseDetailScreen extends StatelessWidget {
                                     courseModel: courseModel,
                                   ));
                         },
-                        text: "Comprar curso para \$MXN${courseModel.price}",
+                        text: "Comprar curso: \$MXN${courseModel.price}",
                         isLoading: false,
                       ),
               ),

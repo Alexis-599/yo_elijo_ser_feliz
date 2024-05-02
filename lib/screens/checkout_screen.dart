@@ -42,12 +42,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           backgroundColor: Colors.transparent,
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.black),
-          title: const Text(
-            'Comprar lista de reproducción del curso',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
         ),
         body: currentUser == null
             ? const Center(
@@ -62,10 +56,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Felicidades',
+                            '¡Felicidades!',
                             style: TextStyle(
                               color: Colors.blue,
-                              fontSize: 20,
+                              fontSize: 50,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

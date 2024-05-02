@@ -163,7 +163,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const SizedBox(height: 15),
             MyButton(
               onTap: () => saveNewDetail(),
-              text: 'Ahorrar',
+              text: 'Guardar',
               isLoading: isLoading,
             )
           ],
